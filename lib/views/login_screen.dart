@@ -1,4 +1,6 @@
 import 'package:afranco/api/service/auth_service.dart';
+import 'package:flutter/material.dart';
+import 'package:afranco/views/welcome_screen.dart'; // Ajusta la ruta según tu estructura
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -16,7 +18,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
   void _login() async {
     final username = _usernameController.text;
-
     final password = _passwordController.text;
 
     ScaffoldMessenger.of(
@@ -28,6 +29,11 @@ class _LoginScreenState extends State<LoginScreen> {
     if (success) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Inicio de sesión exitoso.')),
+      );
+      // Redirige a WelcomeScreen después del login exitoso
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => WelcomeScreen()),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
