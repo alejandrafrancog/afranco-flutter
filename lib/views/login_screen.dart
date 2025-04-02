@@ -1,0 +1,96 @@
+import 'package:afranco/api/service/auth_service.dart';
+
+class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  final TextEditingController _usernameController = TextEditingController();
+
+  final TextEditingController _passwordController = TextEditingController();
+
+  final MockAuthService _authService = MockAuthService();
+
+  void _login() async {
+    final username = _usernameController.text;
+
+    final password = _passwordController.text;
+
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Iniciando sesión...')));
+
+    final success = await _authService.login(username, password);
+
+    if (success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Inicio de sesión exitoso.')),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Error en el inicio de sesión.')),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Login')),
+
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+
+          children: [
+            TextField(
+              controller: _usernameController,
+
+              decoration: const InputDecoration(
+                labelText: 'Usuario',
+
+                border: OutlineInputBorder(),
+              ),
+            ),
+
+            const SizedBox(height: 16),
+
+            TextField(
+              controller: _passwordController,
+
+              decoration: const InputDecoration(
+                labelText: 'Contraseña',
+
+                border: OutlineInputBorder(),
+              ),
+
+              obscureText: true,
+            ),
+
+            const SizedBox(height: 16),
+
+            ElevatedButton(
+              onPressed: _login,
+
+              child: const Text('Iniciar Sesión'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _usernameController.dispose();
+
+    _passwordController.dispose();
+
+    super.dispose();
+  }
+}
