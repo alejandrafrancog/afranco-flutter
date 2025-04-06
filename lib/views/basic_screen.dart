@@ -31,7 +31,7 @@ class PantallaPrincipal extends StatelessWidget {
             ),
             ElevatedButton(
               onPressed: () {},
-              child: Text('Presionar'),
+              child: Text('Toca aquí'),
             ),
           ],
 
