@@ -45,7 +45,10 @@ class _PantallaPrincipalState extends State<PantallaPrincipal> {
             ),
             Text(
               'Veces presionado: $_contador',
-              style: TextStyle(fontSize: 20),
+              style: TextStyle(
+                    fontSize: 20,
+                    color: Colors.blue,
+              ),
             ),
             SizedBox(height: 30),
             ElevatedButton(
