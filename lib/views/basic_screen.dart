@@ -18,18 +18,25 @@ class PantallaPrincipal extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text('Mi App')),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            child: Text('Hola, Flutter', style: TextStyle(fontSize: 24)),
-          ),
-          ElevatedButton(
-            onPressed: () {},
-            child: Text('Presionar'),
-          ),
-        ],
-      ),
+
+      body: Center (
+          child:Column (
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Container(
+              child: Text('Hola, Flutter', style: TextStyle(fontSize: 24)),
+              color:Colors.green,
+              padding: const EdgeInsets.all(20),
+            ),
+            ElevatedButton(
+              onPressed: () {},
+              child: Text('Presionar'),
+            ),
+          ],
+
+            ),
+      ), // endBody
     );
   }
 }
