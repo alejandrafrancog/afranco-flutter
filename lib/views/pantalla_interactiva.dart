@@ -25,6 +25,7 @@ class _ColorChangerScreenState extends State<ColorChangerScreen> {
     Colors.blue,
     Colors.red,
     Colors.green,
+    Colors.white,
   ];
   
   int _currentColorIndex = 0;
@@ -34,6 +35,13 @@ class _ColorChangerScreenState extends State<ColorChangerScreen> {
     setState(() {
       _currentColorIndex = (_currentColorIndex + 1) % _colors.length;
     });
+  }
+  void _resetToWhite(){
+    setState(
+      (){
+          _currentColorIndex = 3;
+      }
+    );
   }
 
   @override
@@ -56,7 +64,7 @@ class _ColorChangerScreenState extends State<ColorChangerScreen> {
               ),
               child: Center(
                 child: Text(
-                  'Toca para cambiar',
+                  '¡Cambio de color!',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 18,
@@ -70,6 +78,14 @@ class _ColorChangerScreenState extends State<ColorChangerScreen> {
             ElevatedButton(
               onPressed: _changeColor,
               child: Text('Cambiar Color'),
+              style: ElevatedButton.styleFrom(
+                padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+              ),
+            ),
+            SizedBox(height: 30),
+            ElevatedButton(
+              onPressed: _resetToWhite,
+              child: Text('Cambiar a Blanco'),
               style: ElevatedButton.styleFrom(
                 padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
               ),
