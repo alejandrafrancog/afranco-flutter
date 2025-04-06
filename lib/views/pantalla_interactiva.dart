@@ -26,6 +26,17 @@ class _ColorChangerScreenState extends State<ColorChangerScreen> {
     Colors.red,
     Colors.green,
     Colors.white,
+    Colors.redAccent,
+    Colors.deepOrange,
+    Colors.orange,
+    Colors.orangeAccent,
+    Colors.lime,
+    Colors.teal,
+    Colors.cyan,
+    Colors.indigo,
+    Colors.purpleAccent,
+    Colors.brown,
+    Colors.grey,
   ];
   
   int _currentColorIndex = 0;
