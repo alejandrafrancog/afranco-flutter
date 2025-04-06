@@ -47,7 +47,7 @@ class _PantallaPrincipalState extends State<PantallaPrincipal> {
               'Veces presionado: $_contador',
               style: TextStyle(fontSize: 20),
             ),
-            SizedBox(height: 20),
+            SizedBox(height: 30),
             ElevatedButton(
               onPressed: _incrementarContador,
               child: Text('Toca aquí'),
