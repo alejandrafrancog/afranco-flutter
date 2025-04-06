@@ -13,30 +13,48 @@ class MiApp extends StatelessWidget {
   }
 }
 
-class PantallaPrincipal extends StatelessWidget {
+class PantallaPrincipal extends StatefulWidget {
+  @override
+  _PantallaPrincipalState createState() => _PantallaPrincipalState();
+}
+
+class _PantallaPrincipalState extends State<PantallaPrincipal> {
+  int _contador = 0;
+
+  void _incrementarContador() {
+    setState(() {
+      _contador++;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text('Mi App')),
-
-      body: Center (
-          child:Column (
+      body: Center(
+        child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Container(
-              child: Text('Hola, Flutter', style: TextStyle(fontSize: 24)),
-              color:Colors.green,
+              decoration: BoxDecoration(
+                color: Colors.green,
+              ),
               padding: const EdgeInsets.all(20),
+              child: Text('Hola, Flutter', style: TextStyle(fontSize: 24)),
             ),
+            Text(
+              'Contador: $_contador',
+              style: TextStyle(fontSize: 20),
+            ),
+            SizedBox(height: 20),
             ElevatedButton(
-              onPressed: () {},
+              onPressed: _incrementarContador,
               child: Text('Toca aquí'),
             ),
           ],
-
-            ),
-      ), // endBody
+        ),
+      ),
     );
   }
 }
