@@ -44,13 +44,14 @@ class _PantallaPrincipalState extends State<PantallaPrincipal> {
               child: Text('Hola, Flutter', style: TextStyle(fontSize: 24)),
             ),
             Text(
-              'Contador: $_contador',
+              'Veces presionado: $_contador',
               style: TextStyle(fontSize: 20),
             ),
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: _incrementarContador,
               child: Text('Toca aquí'),
+              
             ),
           ],
         ),
