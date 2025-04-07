@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:afranco/views/tasks.dart'; // Mantén esta línea y elimina la duplicada
 
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
@@ -29,6 +30,21 @@ class WelcomeScreen extends StatelessWidget {
               style: TextStyle(fontSize: 18),
             ),
             const SizedBox(height: 30),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => TasksScreen(), // Asegúrate de crear esta pantalla
+                  ),
+                );
+                // Aquí puedes agregar la navegación a la pantalla de cotizaciones
+                // Por ejemplo: Navigator.push(context, MaterialPageRoute(builder: (context) => QuotesScreen()));
+              },
+              child: const Text('Lista de Tareas'),
+            ),
+            const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () {
                 // Cierra todas las pantallas y vuelve al inicio
