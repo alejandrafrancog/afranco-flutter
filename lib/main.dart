@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'views/login_screen.dart';
-import 'package:afranco/views/login_screen.dart';
+import 'views/login_screen.dart'; // Mantén esta línea y elimina la duplicada
 
 void main() {
   runApp(const MyApp());
@@ -125,39 +124,51 @@ class _MyHomePageState extends State<MyHomePage> {
               child: const Text('Mostrar Advertencia'),
             ),
             ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const LoginScreen()),
-                );
-              },
-              child: const Text('Alejandra login'),
-            ),
+  onPressed: () {
+    try {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const LoginScreen()),
+      );
+    } catch (e) {
+      // Maneja el error aquí, por ejemplo, mostrando un mensaje en la consola
+      print('Error al navegar a LoginScreen: $e');
+      // Opcional: Muestra un SnackBar con el error
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: No se pudo abrir la pantalla de login')),
+      );
+    }
+  },
+  child: const Text('Alejandra login'),
+),
           ],
         ),
       ),
-      floatingActionButton: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          FloatingActionButton(
-            onPressed: _incrementCounter,
-            tooltip: 'Increment',
-            child: const Icon(Icons.add),
-          ),
-          const SizedBox(width: 16),
-          FloatingActionButton(
-            onPressed: _decrementCounter,
-            tooltip: 'Decrement',
-            child: const Icon(Icons.remove),
-          ),
-          const SizedBox(width: 16),
-          FloatingActionButton(
-            onPressed: _resetCounter,
-            tooltip: 'Reset',
-            child: const Icon(Icons.refresh),
-          ),
-        ],
-      ),
+floatingActionButton: Row(
+  mainAxisAlignment: MainAxisAlignment.end,
+  children: [
+    FloatingActionButton(
+      heroTag: 'incrementButton', // Unique tag
+      onPressed: _incrementCounter,
+      tooltip: 'Increment',
+      child: const Icon(Icons.add),
+    ),
+    const SizedBox(width: 16),
+    FloatingActionButton(
+      heroTag: 'decrementButton', // Unique tag
+      onPressed: _decrementCounter,
+      tooltip: 'Decrement',
+      child: const Icon(Icons.remove),
+    ),
+    const SizedBox(width: 16),
+    FloatingActionButton(
+      heroTag: 'resetButton', // Unique tag
+      onPressed: _resetCounter,
+      tooltip: 'Reset',
+      child: const Icon(Icons.refresh),
+    ),
+  ],
+),
     );
   }
 }
