@@ -55,7 +55,16 @@ class _TaskScreenState extends State<TaskScreen> {
     setState(() {
       final newTasks = List.generate(
         5,
-        (index) => Task(title: 'Tarea ${_tasks.length + index + 1}', type: 'normal'),
+        (index){
+          final taskIndex = _tasks.length + index +1;
+          return Task(
+            title: 'Tarea $taskIndex',
+            description: "Default description",
+            type: 'normal',
+            fechaLimite: DateTime.now().add(Duration(days: 7)), // Simula una fecha límite
+            pasos: ['Paso 1', 'Paso 2', 'Paso 3'], // Simula pasos
+          );
+        }
       );
       _tasks.addAll(newTasks);
     });

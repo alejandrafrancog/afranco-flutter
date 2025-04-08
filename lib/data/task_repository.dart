@@ -2,31 +2,27 @@ import '../domain/task.dart';
 
 class TaskRepository {
   // Lista mutable de tareas
-  final List<Task> _tasks = [
-    Task(title: 'Tarea 1'),
-    Task(title: 'Tarea 2',type:'urgente'),
-    Task(title: 'Tarea 3'),
-    Task(title: 'Tarea 4', type:'urgente'), // Por defecto será 'normal'
-    Task(title: 'Tarea 5'), // Por defecto será 'normal'
-    Task(title:'Tarea 6', type: 'urgente'),
-    Task(title: 'Tarea 7', type: 'normal'), 
-    Task(title:'Tarea 8', type: 'urgente'),
-    Task(title:'Tarea 9'),
-    Task(title:'Tarea 10', type: 'urgente'),
-
-  ];
+  final List<Task> _tasks = List.generate(
+    10,
+    (index) => Task(
+      title: 'Tarea ${index + 1}',
+      type: index % 2 == 0 ? 'normal' : 'urgente', // Alterna entre 'normal' y 'urgente'
+      fechaLimite: DateTime.now().add(Duration(days: index + 1)), // Fecha límite dinámica
+      pasos: [
+        'Paso 1: Planificar Tarea ${index + 1}',
+        'Paso 2: Ejecutar Tarea ${index + 1}',
+        'Paso 3: Revisar Tarea ${index + 1}',
+      ], // Pasos simulados
+    ),
+  );
 
   // Obtener todas las tareas
   List<Task> getTasks() {
     return _tasks;
   }
-  
 
   // Agregar una nueva tarea
-  /*void addTask(Task task) {
-    _tasks.add(task);
-  }*/
-    Future<void> addTask(Task task) async {
+  Future<void> addTask(Task task) async {
     // Simula una operación asincrónica
     await Future.delayed(const Duration(milliseconds: 300));
     _tasks.add(task);
@@ -36,7 +32,9 @@ class TaskRepository {
   void deleteTask(String title) {
     _tasks.removeWhere((task) => task.title == title);
   }
-    Future<void> deleteTaskByIndex(int index) async {
+
+  // Eliminar una tarea por índice
+  Future<void> deleteTaskByIndex(int index) async {
     // Simula una operación asincrónica
     await Future.delayed(const Duration(milliseconds: 300));
     if (index >= 0 && index < _tasks.length) {
@@ -46,11 +44,21 @@ class TaskRepository {
 
   // Actualizar el tipo de una tarea
   void updateTaskType(String title, String newType) {
-    final task = _tasks.firstWhere((task) => task.title == title, orElse: () => Task(title: ''));
+    final task = _tasks.firstWhere(
+      (task) => task.title == title,
+      orElse: () => Task(
+        title: '',
+        type: 'normal',
+        fechaLimite: DateTime.now(), // Fecha límite predeterminada
+        pasos: [], // Lista de pasos vacía
+      ),
+    );
     if (task.title.isNotEmpty) {
       task.type = newType;
     }
   }
+
+  // Actualizar una tarea por índice
   Future<void> updateTask(int index, Task updatedTask) async {
     // Simula una operación asincrónica
     await Future.delayed(const Duration(milliseconds: 300));

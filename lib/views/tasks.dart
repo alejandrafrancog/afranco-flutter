@@ -74,8 +74,17 @@ class _TasksScreenState extends State<TasksScreen> {
         final taskIndex = tasks.length + index + 1; // Calcula el índice global de la tarea
         return Task(
           title: 'Tarea $taskIndex',
-          type: taskIndex % 2 == 0 ? 'urgente' : 'normal', // Par: urgente, Impar: normal
+          description: 'Random description',
+          type: taskIndex % 2 == 0 ? 'urgente' : 'normal',
+          fechaLimite: DateTime.now().add(Duration(days: taskIndex)),
+          pasos:['Paso 1: Planificar Tarea $taskIndex',
+                'Paso 2: Ejecutar Tarea $taskIndex',
+                'Paso 3: Revisar Tarea $taskIndex',
+          
+          ] // Simula una fecha límite
+           // Par: urgente, Impar: normal
         );
+        
       },
     );
 
