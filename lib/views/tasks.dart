@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import '../domain/task.dart';
+import '../constants.dart';
+import '../helpers/task_card_helper.dart';
+import '../components/task_modals.dart';
+import '../data/task_repository.dart'; // Importa TaskRepository
 
 void main() {
   runApp(MyApp());
@@ -11,7 +16,7 @@ class MyApp extends StatelessWidget {
       title: 'Lista de Tareas',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.grey,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       home: TasksScreen(),
@@ -25,226 +30,227 @@ class TasksScreen extends StatefulWidget {
 }
 
 class _TasksScreenState extends State<TasksScreen> {
-  // Lista de tareas
-  final List<Map<String, dynamic>> tasks = [];
+  final TaskRepository _taskRepository = TaskRepository(); // Instancia del repositorio
+  final ScrollController _scrollController = ScrollController();
+  List<Task> tasks = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadInitialTasks();
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _loadInitialTasks() async {
+    final initialTasks = await _taskRepository.getTasks(); // Obtiene las tareas iniciales del repositorio
+    setState(() {
+      tasks = initialTasks;
+    });
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent) {
+      _loadMoreTasks();
+    }
+  }
+
+void _loadMoreTasks() async {
+  final newTasks = List.generate(
+    5,
+    (index) {
+      final taskIndex = tasks.length + index + 1; // Calcula el índice global de la tarea
+      return Task(
+        title: 'Tarea $taskIndex',
+        type: taskIndex % 2 == 0 ? 'urgente' : 'normal', // Par: urgente, Impar: normal
+      );
+    },
+  );
+  await Future.delayed(const Duration(milliseconds: 300)); // Simula una operación asincrónica
+  setState(() {
+    tasks.addAll(newTasks);
+  });
+}
+
+  void _addTask(Task newTask) async {
+    await _taskRepository.addTask(newTask); // Agrega la tarea al repositorio
+    setState(() {
+      tasks.add(newTask);
+    });
+  }
+
+  void _updateTask(int index, Task updatedTask) async {
+    await _taskRepository.updateTask(index, updatedTask); // Actualiza la tarea en el repositorio
+    setState(() {
+      tasks[index] = updatedTask;
+    });
+  }
+
+  void _deleteTask(int index) async {
+    await _taskRepository.deleteTaskByIndex(index); // Elimina la tarea del repositorio
+    setState(() {
+      tasks.removeAt(index);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Lista de Tareas'),
+        title: Text(AppConstants.TITLE_APPBAR),
         centerTitle: true,
       ),
       body: tasks.isEmpty
           ? Center(
-              child: Text('No hay tareas. Agrega una nueva.'),
+              child: Text(AppConstants.EMPTY_LIST),
             )
           : ListView.builder(
+              controller: _scrollController,
               itemCount: tasks.length,
               itemBuilder: (context, index) {
-                final task = tasks[index];
-                return Card(
-                  margin: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                  child: ListTile(
-                    title: Text(task['titulo']),
-                    subtitle: Text(
-                        '${task['descripcion']} - ${task['fecha'] ?? 'Sin fecha'}'),
-                    trailing: Icon(Icons.arrow_forward),
-                    onTap: () {
-                      _showTaskOptionsModal(context, index);
-                    },
+                return GestureDetector(
+                  onTap: () => showEditTaskModal(
+                    context,
+                    tasks[index],
+                    (updatedTask) => _updateTask(index, updatedTask), // Usa el método para actualizar
+                    () => _deleteTask(index), // Usa el método para eliminar
                   ),
+                  child: buildTaskCard(tasks[index]),
                 );
               },
             ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          _showTaskModal(context);
-        },
+        onPressed: () => showAddTaskModal(
+          context,
+          (newTask) => _addTask(newTask), // Usa el método para agregar
+        ),
         child: Icon(Icons.add),
       ),
     );
   }
+}
+/*import 'package:flutter/material.dart';
+import '../domain/task.dart';
+import '../constants.dart';
+import '../helpers/task_card_helper.dart';
+import '../components/task_modals.dart';
 
-  void _showTaskModal(BuildContext context) {
-    final TextEditingController titleController = TextEditingController();
-    final TextEditingController descriptionController = TextEditingController();
-    DateTime? selectedDate;
+void main() {
+  runApp(MyApp());
+}
 
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Agregar Tarea'),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: titleController,
-                  decoration: InputDecoration(labelText: 'Título'),
-                ),
-                TextField(
-                  controller: descriptionController,
-                  decoration: InputDecoration(labelText: 'Descripción'),
-                ),
-                SizedBox(height: 10),
-                Row(
-  children: [
-    Text(selectedDate == null
-        ? 'Seleccionar fecha'
-        : 'Fecha: ${selectedDate!.toLocal().toString().split(' ')[0]}'),
-    Spacer(),
-    TextButton(
-      onPressed: () async {
-        DateTime? pickedDate = await showDatePicker(
-          context: context,
-          initialDate: selectedDate ?? DateTime.now(),
-          firstDate: DateTime(2000),
-          lastDate: DateTime(2100),
-        );
-        if (pickedDate != null) {
-          setState(() {
-            selectedDate = pickedDate;
-          });
-        }
-      },
-      child: Text(selectedDate == null
-          ? 'Elegir Fecha'
-          : '${selectedDate!.toLocal().toString().split(' ')[0]}'),
-    ),
-  ],
-),
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('Cancelar'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                if (titleController.text.isNotEmpty &&
-                    descriptionController.text.isNotEmpty) {
-                  setState(() {
-                    tasks.add({
-                      'titulo': titleController.text,
-                      'descripcion': descriptionController.text,
-                      'fecha': selectedDate != null
-                          ? '${selectedDate!.toLocal().toString().split(' ')[0]}'
-                          : 'Sin fecha',
-                    });
-                  });
-                  Navigator.of(context).pop();
-                } else {
-                  // Mostrar un mensaje de error si los campos están vacíos
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Por favor, completa todos los campos')),
-                  );
-                }
-              },
-              child: Text('Guardar'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void _showTaskOptionsModal(BuildContext context, int index) {
-    final task = tasks[index];
-    final TextEditingController titleController =
-        TextEditingController(text: task['titulo']);
-    final TextEditingController descriptionController =
-        TextEditingController(text: task['descripcion']);
-    DateTime? selectedDate = task['fecha'] != 'Sin fecha'
-        ? DateTime.parse(task['fecha'])
-        : null;
-
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Editar Tarea'),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: titleController,
-                  decoration: const InputDecoration(labelText: 'Título'),
-                ),
-                TextField(
-                  controller: descriptionController,
-                  decoration: const InputDecoration(labelText: 'Descripción'),
-                ),
-                const SizedBox(height: 10),
-                Row(
-  children: [
-    Text(selectedDate == null
-        ? 'Seleccionar fecha'
-        : 'Fecha: ${selectedDate!.toLocal().toString().split(' ')[0]}'),
-    Spacer(),
-    TextButton(
-      onPressed: () async {
-        DateTime? pickedDate = await showDatePicker(
-          context: context,
-          initialDate: selectedDate ?? DateTime.now(),
-          firstDate: DateTime(2000),
-          lastDate: DateTime(2100),
-        );
-        if (pickedDate != null) {
-          setState(() {
-            selectedDate = pickedDate;
-          });
-        }
-      },
-      child: Text(selectedDate == null
-          ? 'Elegir Fecha'
-          : '${selectedDate!.toLocal().toString().split(' ')[0]}'),
-    ),
-  ],
-),
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('Cancelar'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                  setState(() {
-                    tasks[index] = {
-                      'titulo': titleController.text,
-                      'descripcion': descriptionController.text,
-                      'fecha': selectedDate != null
-                          ? '${selectedDate?.toLocal().toString().split(' ')[0]}'
-                          : 'Sin fecha',
-                    };
-                  });
-                  Navigator.of(context).pop();
-              },
-              child: const Text('Guardar'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                setState(() {
-                  tasks.removeAt(index); // Elimina la tarea de la lista
-                });
-                Navigator.of(context).pop(); // Cierra el diálogo
-              },
-              child: const Text('Eliminar'),
-            ),
-          ],
-        );
-      },
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Lista de Tareas',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        primarySwatch: Colors.grey,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+      ),
+      home: TasksScreen(),
     );
   }
 }
+
+class TasksScreen extends StatefulWidget {
+  @override
+  _TasksScreenState createState() => _TasksScreenState();
+}
+
+class _TasksScreenState extends State<TasksScreen> {
+  List<Task> tasks = [];
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadInitialTasks();
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _loadInitialTasks() {
+    setState(() {
+      tasks = List.generate(
+        10,
+        (index) => Task(title: 'Tarea ${index + 1}', type: 'normal'),
+      );
+    });
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent) {
+      _loadMoreTasks();
+    }
+  }
+
+  void _loadMoreTasks() {
+    setState(() {
+      final newTasks = List.generate(
+        5,
+        (index) => Task(title: 'Tarea ${tasks.length + index + 1}', type: 'normal'),
+      );
+      tasks.addAll(newTasks);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(AppConstants.TITLE_APPBAR),
+        centerTitle: true,
+      ),
+      body: tasks.isEmpty
+          ? Center(
+              child: Text(AppConstants.EMPTY_LIST),
+            )
+          : ListView.builder(
+              controller: _scrollController,
+              itemCount: tasks.length,
+              itemBuilder: (context, index) {
+                return GestureDetector(
+                  onTap: () => showEditTaskModal(
+                    context,
+                    tasks[index],
+                    (updatedTask) {
+                      setState(() {
+                        tasks[index] = updatedTask;
+                      });
+                    },
+                    () {
+                      setState(() {
+                        tasks.removeAt(index);
+                      });
+                    },
+                  ),
+                  child: buildTaskCard(tasks[index]),
+                );
+              },
+            ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => showAddTaskModal(
+          context,
+          (newTask) {
+            setState(() {
+              tasks.add(newTask);
+            });
+          },
+        ),
+        child: Icon(Icons.add),
+      ),
+    );
+  }
+}*/

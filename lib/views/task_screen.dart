@@ -1,28 +1,63 @@
 import 'package:flutter/material.dart';
-import '../constants.dart';
-import '../domain/task.dart';
 import '../data/task_repository.dart';
+import '../domain/task.dart';
+import '../constants.dart';
+import '../components/task_card.dart'; // Importa la clase TaskCard
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Task Screen',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: TaskScreen(),
+    );
+  }
+}
 
 class TaskScreen extends StatefulWidget {
-  const TaskScreen({super.key});
-
   @override
-  State<TaskScreen> createState() => _TaskScreenState();
+  _TaskScreenState createState() => _TaskScreenState();
 }
 
 class _TaskScreenState extends State<TaskScreen> {
-  final TaskRepository _repository = TaskRepository();
-  late Future<List<Task>> _tasksFuture;
+  final TaskRepository _taskRepository = TaskRepository();
+  final ScrollController _scrollController = ScrollController();
+  late List<Task> _tasks;
 
   @override
   void initState() {
     super.initState();
-    _tasksFuture = _repository.getAllTasks();
+    _tasks = _taskRepository.getTasks(); // Obtiene las tareas iniciales
+    _scrollController.addListener(_onScroll);
   }
 
-  void _refreshTasks() {
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent) {
+      _loadMoreTasks();
+    }
+  }
+
+  void _loadMoreTasks() {
     setState(() {
-      _tasksFuture = _repository.getAllTasks();
+      final newTasks = List.generate(
+        5,
+        (index) => Task(title: 'Tarea ${_tasks.length + index + 1}', type: 'normal'),
+      );
+      _tasks.addAll(newTasks);
     });
   }
 
@@ -30,61 +65,92 @@ class _TaskScreenState extends State<TaskScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(TITLE_APPBAR),
+        title: const Text(AppConstants.TITLE_APPBAR),
       ),
-      body: FutureBuilder<List<Task>>(
-        future: _tasksFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          }
-
-          final tasks = snapshot.data ?? [];
-
-          if (tasks.isEmpty) {
-            return Center(child: Text(EMPTY_LIST));
-          }
-
-          return ListView.builder(
-            itemCount: tasks.length,
-            itemBuilder: (context, index) {
-              final task = tasks[index];
-              return ListTile(
-                title: Text(task.title),
-                leading: Checkbox(
-                  value: task.isCompleted,
-                  onChanged: (value) async {
-                    await _repository.toggleTaskCompletion(task.id);
-                    _refreshTasks();
-                  },
-                ),
-                trailing: IconButton(
-                  icon: const Icon(Icons.delete),
-                  onPressed: () async {
-                    await _repository.deleteTask(task.id);
-                    _refreshTasks();
-                  },
-                ),
-              );
-            },
-          );
-        },
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          final newTask = Task(
-            id: DateTime.now().millisecondsSinceEpoch.toString(),
-            title: 'Tarea ${DateTime.now().second}',
-          );
-          await _repository.addTask(newTask);
-          _refreshTasks();
-        },
-        child: const Icon(Icons.add),
-      ),
+      body: _tasks.isEmpty
+          ? const Center(
+              child: Text(
+                AppConstants.EMPTY_LIST,
+                style: TextStyle(fontSize: 18),
+              ),
+            )
+          : ListView.builder(
+              controller: _scrollController,
+              itemCount: _tasks.length,
+              itemBuilder: (context, index) {
+                final task = _tasks[index];
+                return TaskCard(task: task); // Usa la clase TaskCard
+              },
+            ),
     );
   }
 }
+/*import 'package:flutter/material.dart';
+import '../data/task_repository.dart';
+import '../domain/task.dart';
+import '../constants.dart';
+import '../components/task_card.dart'; // Importa la clase TaskCard
+
+class TaskScreen extends StatefulWidget {
+  @override
+  _TaskScreenState createState() => _TaskScreenState();
+}
+
+class _TaskScreenState extends State<TaskScreen> {
+  final TaskRepository _taskRepository = TaskRepository();
+  final ScrollController _scrollController = ScrollController();
+  late List<Task> _tasks;
+
+  @override
+  void initState() {
+    super.initState();
+    _tasks = _taskRepository.getTasks(); // Obtiene las tareas iniciales
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent) {
+      _loadMoreTasks();
+    }
+  }
+
+  void _loadMoreTasks() {
+    setState(() {
+      final newTasks = List.generate(
+        5,
+        (index) => Task(title: 'Tarea ${_tasks.length + index + 1}', type: 'normal'),
+      );
+      _tasks.addAll(newTasks);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text(AppConstants.TITLE_APPBAR),
+      ),
+      body: _tasks.isEmpty
+          ? const Center(
+              child: Text(
+                AppConstants.EMPTY_LIST,
+                style: TextStyle(fontSize: 18),
+              ),
+            )
+          : ListView.builder(
+              controller: _scrollController,
+              itemCount: _tasks.length,
+              itemBuilder: (context, index) {
+                final task = _tasks[index];
+                return TaskCard(task: task); // Usa la clase TaskCard
+              },
+            ),
+    );
+  }
+}*/
