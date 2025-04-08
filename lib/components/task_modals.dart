@@ -57,6 +57,12 @@ Future<void> showAddTaskModal(BuildContext context, Function(Task) onAddTask) as
                       title: titleController.text,
                       description: descriptionController.text,
                       type: selectedType,
+                      fechaLimite: DateTime.now().add(Duration(days: 7)), // Fecha límite predeterminada
+                      pasos: [
+                        'Paso 1: Planificar ${titleController.text}',
+                        'Paso 2: Ejecutar ${titleController.text}',
+                        'Paso 3: Revisar ${titleController.text}',
+                      ], // Pasos simulados
                     );
                     onAddTask(newTask);
                     Navigator.of(context).pop();
@@ -132,6 +138,8 @@ Future<void> showEditTaskModal(BuildContext context, Task task, Function(Task) o
                       title: titleController.text,
                       description: descriptionController.text,
                       type: selectedType,
+                      fechaLimite: task.fechaLimite, // Mantiene la fecha límite existente
+                      pasos: task.pasos, // Mantiene los pasos existentes
                     );
                     onEditTask(updatedTask);
                     Navigator.of(context).pop();
