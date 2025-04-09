@@ -3,4 +3,5 @@ class AppConstants {
   static const String EMPTY_LIST = 'No hay tareas';
   static const String TASK_TYPE_LABEL = 'Tipo';
   static const String PASOS_TITULO = 'Pasos para completar';
+  static const String FECHA_LIMITE = 'Fecha Límite';
 }

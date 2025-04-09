@@ -4,6 +4,8 @@ import '../constants.dart';
 import '../helpers/task_card_helper.dart';
 import '../components/task_modals.dart';
 import '../data/task_repository.dart'; // Importa TaskRepository
+import '../api/service/task_service.dart'; // Importa TaskService
+import '../views/task_detail_screen.dart';
 
 void main() {
   runApp(MyApp());
@@ -32,6 +34,7 @@ class TasksScreen extends StatefulWidget {
 class _TasksScreenState extends State<TasksScreen> {
   final TaskRepository _taskRepository = TaskRepository(); // Instancia del repositorio
   final ScrollController _scrollController = ScrollController();
+  final TaskService _taskService = TaskService(); // Instancia del servicio
   List<Task> tasks = [];
   bool isLoading = false; // Indicador de carga
 
@@ -48,58 +51,31 @@ class _TasksScreenState extends State<TasksScreen> {
     super.dispose();
   }
 
-  void _loadInitialTasks() async {
-    final initialTasks = await _taskRepository.getTasks(); // Obtiene las tareas iniciales del repositorio
-    setState(() {
-      tasks = initialTasks;
-    });
-  }
-
   void _onScroll() {
     if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent && !isLoading) {
       _loadMoreTasks();
     }
   }
 
-  void _loadMoreTasks() async {
-    setState(() {
-      isLoading = true; // Activa el indicador de carga
-    });
+void _loadMoreTasks() async {
+  setState(() {
+    isLoading = true; // Activa el indicador de carga
+  });
 
-    await Future.delayed(const Duration(milliseconds: 500)); // Simula una operación asincrónica
+  final newTasks = await _taskService.generarTareas(5, tasks.length); // Usa TaskService para generar tareas
 
-    final newTasks = List.generate(
-      5,
-      (index) {
-        final taskIndex = tasks.length + index + 1; // Calcula el índice global de la tarea
-        return Task(
-          title: 'Tarea $taskIndex',
-          description: 'Random description',
-          type: taskIndex % 2 == 0 ? 'urgente' : 'normal',
-          fechaLimite: DateTime.now().add(Duration(days: taskIndex)),
-          pasos:['Paso 1: Planificar Tarea $taskIndex',
-                'Paso 2: Ejecutar Tarea $taskIndex',
-                'Paso 3: Revisar Tarea $taskIndex',
-          
-          ] // Simula una fecha límite
-           // Par: urgente, Impar: normal
-        );
-        
-      },
-    );
-
-    setState(() {
-      tasks.addAll(newTasks);
-      isLoading = false; // Desactiva el indicador de carga
-    });
-  }
+  setState(() {
+    tasks.addAll(newTasks);
+    isLoading = false; // Desactiva el indicador de carga
+  });
+}
 
   void _addTask(Task newTask) async {
-    await _taskRepository.addTask(newTask); // Agrega la tarea al repositorio
-    setState(() {
-      tasks.add(newTask);
-    });
-  }
+  await _taskService.addTask(newTask); // Delega la lógica a TaskService
+  setState(() {
+    tasks = _taskService.getAllTasks(); // Sincroniza la lista local con el repositorio
+  });
+}
 
   void _updateTask(int index, Task updatedTask) async {
     await _taskRepository.updateTask(index, updatedTask); // Actualiza la tarea en el repositorio
@@ -130,28 +106,32 @@ class _TasksScreenState extends State<TasksScreen> {
                     child: Text(AppConstants.EMPTY_LIST),
                   )
                 : ListView.builder(
-                    controller: _scrollController,
-                    itemCount: tasks.length + (isLoading ? 1 : 0), // Agrega un elemento extra si está cargando
-                    itemBuilder: (context, index) {
-                      if (index == tasks.length && isLoading) {
-                        return const Padding(
-                          padding: EdgeInsets.all(16.0),
-                          child: Center(
-                            child: CircularProgressIndicator(), // Indicador de carga
-                          ),
-                        );
-                      }
-                      return GestureDetector(
-                        onTap: () => showEditTaskModal(
-                          context,
-                          tasks[index],
-                          (updatedTask) => _updateTask(index, updatedTask),
-                          () => _deleteTask(index),
-                        ),
-                        child: buildTaskCard(tasks[index]),
-                      );
-                    },
+              controller: _scrollController,
+              itemCount: tasks.length + (isLoading ? 1 : 0), // Agrega un elemento extra si está cargando
+              itemBuilder: (context, index) {
+                if (index == tasks.length && isLoading) {
+                  return const Padding(
+                    padding: EdgeInsets.all(16.0),
+                    child: Center(
+                      child: CircularProgressIndicator(), // Indicador de carga
+                    ),
+                  );
+                }
+                final task = tasks[index];
+                // Usa construirTarjetaDeportiva en lugar de ListTile
+                return GestureDetector(
+                onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => TaskDetailScreen(task: task, indice: index),
                   ),
+                );
+          },
+          child: construirTarjetaDeportiva(task, index),
+        );
+              },
+            ),
           ),
         ],
       ),
@@ -164,4 +144,13 @@ class _TasksScreenState extends State<TasksScreen> {
       ),
     );
   }
+void _loadInitialTasks() async {
+  // Obtiene las tareas iniciales desde el repositorio
+  final initialTasks = _taskRepository.getTasks();
+
+  // Actualiza el estado de la pantalla con las tareas iniciales
+  setState(() {
+    tasks = initialTasks;
+  });
+}
 }
