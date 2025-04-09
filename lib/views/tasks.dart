@@ -25,7 +25,7 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-
+  
 class TasksScreen extends StatefulWidget {
   @override
   _TasksScreenState createState() => _TasksScreenState();
@@ -90,60 +90,113 @@ void _loadMoreTasks() async {
       tasks.removeAt(index);
     });
   }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(AppConstants.TITLE_APPBAR),
-        centerTitle: true,
-      ),
-      body: Column(
-        children: [
-          Expanded(
-            child: tasks.isEmpty
-                ? Center(
-                    child: Text(AppConstants.EMPTY_LIST),
-                  )
-                : ListView.builder(
-              controller: _scrollController,
-              itemCount: tasks.length + (isLoading ? 1 : 0), // Agrega un elemento extra si está cargando
-              itemBuilder: (context, index) {
-                if (index == tasks.length && isLoading) {
-                  return const Padding(
-                    padding: EdgeInsets.all(16.0),
-                    child: Center(
-                      child: CircularProgressIndicator(), // Indicador de carga
-                    ),
-                  );
-                }
-                final task = tasks[index];
-                // Usa construirTarjetaDeportiva en lugar de ListTile
-                return GestureDetector(
-                onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => TaskDetailScreen(task: task, indice: index),
-                  ),
-                );
-          },
-          child: construirTarjetaDeportiva(task, index),
-        );
-              },
-            ),
+@override
+Widget build(BuildContext context) {
+  return Scaffold(
+    appBar: AppBar(
+      title: Text(AppConstants.TITLE_APPBAR),
+      centerTitle: true,
+    ),
+    body: Column(
+      children: [
+        Expanded(
+          child: tasks.isEmpty
+              ? Center(
+                  child: Text(AppConstants.EMPTY_LIST),
+                )
+              : ListView.builder(
+                  controller: _scrollController,
+                  itemCount: tasks.length + (isLoading ? 1 : 0), // Agrega un elemento extra si está cargando
+                  itemBuilder: (context, index) {
+                    if (index == tasks.length && isLoading) {
+                      return const Padding(
+                        padding: EdgeInsets.all(16.0),
+                        child: Center(
+                          child: CircularProgressIndicator(), // Indicador de carga
+                        ),
+                      );
+                    }
+                    final task = tasks[index];
+                    // Llama a construirTarjetaDeportiva con todos los parámetros requeridos
+                    return construirTarjetaDeportiva(
+                      context, // Pasa el contexto
+                      task,    // Pasa la tarea actual
+                      index,   // Pasa el índice actual
+                      // Callback para editar la tarea
+                      () {
+                        showEditTaskModal(
+                          context,
+                          task,
+                          (updatedTask) {
+                            setState(() {
+                              tasks[index] = updatedTask; // Actualiza la tarea en la lista
+                            });
+                          },
+                          // Callback para eliminar la tarea desde la tarjeta
+  () {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Eliminar tarea'),
+        content: const Text('¿Estás seguro de que deseas eliminar esta tarea?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              setState(() {
+                tasks.removeAt(index); // Elimina la tarea de la lista
+              });
+            },
+            child: const Text('Eliminar'),
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => showAddTaskModal(
-          context,
-          (newTask) => _addTask(newTask),
-        ),
-        child: Icon(Icons.add),
-      ),
     );
-  }
+  },
+                        );
+                      },
+                      // Callback para eliminar la tarea
+                      () {
+                        showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: const Text('Eliminar tarea'),
+                            content: const Text('¿Estás seguro de que deseas eliminar esta tarea?'),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(context),
+                                child: const Text('Cancelar'),
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                  _deleteTask(index); // Llama a la función para eliminar la tarea
+                                },
+                                child: const Text('Eliminar'),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    );
+                  },
+                ),
+        ),
+      ],
+    ),
+    floatingActionButton: FloatingActionButton(
+      onPressed: () => showAddTaskModal(
+        context,
+        (newTask) => _addTask(newTask),
+      ),
+      child: const Icon(Icons.add),
+    ),
+  );
+}
 void _loadInitialTasks() async {
   // Obtiene las tareas iniciales desde el repositorio
   final initialTasks = _taskRepository.getTasks();

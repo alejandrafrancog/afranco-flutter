@@ -69,7 +69,6 @@ Future<void> addTask(Task task) async {
   );
 }
 
-
   // Método para obtener pasos simulados según el título de la tarea
 
 }
