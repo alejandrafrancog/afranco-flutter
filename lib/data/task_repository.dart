@@ -2,37 +2,31 @@ import '../domain/task.dart';
 
 class TaskRepository {
   // Lista mutable de tareas
-  final List<Task> _tasks = List.generate(
-    12,
-    (index) {
-      final fechaLimite = DateTime.now().add(Duration(days: index + 1));
-      return Task(
-        title: 'Tarea ${index + 1}',
-        type: index % 2 == 0 ? 'normal' : 'urgente',
-        fechaLimite: fechaLimite,
-        pasos: _generateStepsWithDate('Tarea ${index + 1}', fechaLimite), // Genera pasos con fecha
-      );
-    },
-  );
-    static List<String> _generateStepsWithDate(String title, DateTime fechaLimite) {
-    final String fechaFormateada = '${fechaLimite.day.toString().padLeft(2, '0')}/'
-        '${fechaLimite.month.toString().padLeft(2, '0')}/'
-        '${fechaLimite.year}';
-    return [
-      'Paso 1: Planificar antes del $fechaFormateada',
-      'Paso 2: Ejecutar $title',
-      'Paso 3: Revisar $title',
-    ];
-  }
+final List<Task> _tasks = List.generate(
+  12,
+  (index) {
+    final fechaLimite = DateTime.now().add(Duration(days: index + 1));
+    return Task(
+      title: 'Tarea ${index + 1}',
+      type: index % 2 == 0 ? 'normal' : 'urgente',
+      fechaLimite: fechaLimite,
+      pasos: generateSteps('Tarea ${index + 1}', fechaLimite), // Genera pasos con la función reutilizable
+    );
+  },
+);
 
-  /*static List<String> _generateSteps(String title) {
-    return [
-      'Paso 1: Planificar $title',
-      'Paso 2: Ejecutar $title',
-      'Paso 3: Revisar $title',
-    ];
-  }*/
-  // Obtener todas las tareas
+  static List<String> generateSteps(String title, DateTime fechaLimite) {
+  final String fechaFormateada = '${fechaLimite.day.toString().padLeft(2, '0')}/'
+      '${fechaLimite.month.toString().padLeft(2, '0')}/'
+      '${fechaLimite.year}';
+  return [
+    'Paso 1: Planificar antes del $fechaFormateada',
+    'Paso 2: Ejecutar $title',
+    'Paso 3: Revisar $title',
+  ];
+}
+
+
   List<Task> getTasks() {
     return _tasks;
   }
