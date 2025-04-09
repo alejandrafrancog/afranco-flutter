@@ -3,30 +3,47 @@ import '../domain/task.dart';
 class TaskRepository {
   // Lista mutable de tareas
   final List<Task> _tasks = List.generate(
-    10,
-    (index) => Task(
-      title: 'Tarea ${index + 1}',
-      type: index % 2 == 0 ? 'normal' : 'urgente', // Alterna entre 'normal' y 'urgente'
-      fechaLimite: DateTime.now().add(Duration(days: index + 1)), // Fecha límite dinámica
-      pasos: [
-        'Paso 1: Planificar Tarea ${index + 1}',
-        'Paso 2: Ejecutar Tarea ${index + 1}',
-        'Paso 3: Revisar Tarea ${index + 1}',
-      ], // Pasos simulados
-    ),
+    12,
+    (index) {
+      final fechaLimite = DateTime.now().add(Duration(days: index + 1));
+      return Task(
+        title: 'Tarea ${index + 1}',
+        type: index % 2 == 0 ? 'normal' : 'urgente',
+        fechaLimite: fechaLimite,
+        pasos: _generateStepsWithDate('Tarea ${index + 1}', fechaLimite), // Genera pasos con fecha
+      );
+    },
   );
+    static List<String> _generateStepsWithDate(String title, DateTime fechaLimite) {
+    final String fechaFormateada = '${fechaLimite.day.toString().padLeft(2, '0')}/'
+        '${fechaLimite.month.toString().padLeft(2, '0')}/'
+        '${fechaLimite.year}';
+    return [
+      'Paso 1: Planificar antes del $fechaFormateada',
+      'Paso 2: Ejecutar $title',
+      'Paso 3: Revisar $title',
+    ];
+  }
 
+  /*static List<String> _generateSteps(String title) {
+    return [
+      'Paso 1: Planificar $title',
+      'Paso 2: Ejecutar $title',
+      'Paso 3: Revisar $title',
+    ];
+  }*/
   // Obtener todas las tareas
   List<Task> getTasks() {
     return _tasks;
   }
 
   // Agregar una nueva tarea
-  Future<void> addTask(Task task) async {
-    // Simula una operación asincrónica
-    await Future.delayed(const Duration(milliseconds: 300));
+ Future<void> addTask(Task task) async {
+  await Future.delayed(const Duration(milliseconds: 300)); // Simula una operación asincrónica
+  if (!_tasks.contains(task)) { // Verifica que la tarea no exista ya en la lista
     _tasks.add(task);
   }
+}
 
   // Eliminar una tarea por título
   void deleteTask(String title) {

@@ -4,7 +4,7 @@ class Task {
   final String description;
   String? type;
   final DateTime fechaLimite; // Nuevo atributo: Fecha límite
-  final List<String> pasos; // Nuevo atributo: Lista de pasos
+  final List<String> pasos; 
 
   Task({
     required this.title,
