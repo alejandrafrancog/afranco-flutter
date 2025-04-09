@@ -21,6 +21,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.grey,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
+      
       home: TasksScreen(),
     );
   }
@@ -70,10 +71,19 @@ void _loadMoreTasks() async {
   });
 }
 
-  void _addTask(Task newTask) async {
-  await _taskService.addTask(newTask); // Delega la lógica a TaskService
+void _addTask(Task newTask) async {
+  // Asegúrate de que los valores no sean nulos antes de pasarlos
+  final title = newTask.title ?? 'Título predeterminado'; // Proveer un valor predeterminado
+  final type = newTask.type ?? 'normal'; // Proveer un valor predeterminado
+  final fechaLimite = newTask.fechaLimite ?? DateTime.now(); // Proveer un valor predeterminado
+
+  await _taskService.addTask(title, type, fechaLimite);
+  await _loadTasks(); // Recarga las tareas después de agregar una nueva
+}
+Future<void> _loadTasks() async {
+  final loadedTasks = await _taskService.getAllTasks(); // Obtiene las tareas desde el servicio
   setState(() {
-    tasks = _taskService.getAllTasks(); // Sincroniza la lista local con el repositorio
+    tasks = loadedTasks; // Actualiza la lista local de tareas
   });
 }
 
@@ -198,12 +208,16 @@ Widget build(BuildContext context) {
   );
 }
 void _loadInitialTasks() async {
-  // Obtiene las tareas iniciales desde el repositorio
-  final initialTasks = _taskRepository.getTasks();
-
-  // Actualiza el estado de la pantalla con las tareas iniciales
   setState(() {
-    tasks = initialTasks;
+    isLoading = true; // Activa el indicador de carga
+  });
+
+  // Obtiene las tareas iniciales desde el servicio
+  final initialTasks = await _taskService.getAllTasks();
+
+  setState(() {
+    tasks = initialTasks; // Actualiza la lista de tareas
+    isLoading = false; // Desactiva el indicador de carga
   });
 }
 }
