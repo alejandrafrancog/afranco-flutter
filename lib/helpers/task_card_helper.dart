@@ -161,6 +161,14 @@ Widget construirTarjetaDeportiva(BuildContext context, Task task, int indice, Vo
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
+                       Icon(
+                          task.type == 'urgente' ? Icons.warning : Icons.task,
+                          color: task.type == 'urgente' 
+                          ? Colors.red.withAlpha(128) 
+                          : Colors.blue.withAlpha(128),
+                          size:20,
+        ),
+                      const Spacer(),
                       IconButton(
                         icon: const Icon(Icons.edit),
                         onPressed: onEdit, // Llama al callback para editar

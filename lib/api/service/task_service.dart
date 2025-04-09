@@ -1,10 +1,11 @@
 import '../../data/task_repository.dart';
 import '../../domain/task.dart';
+import '../../data/assistant_repository.dart';
 
 
 class TaskService {
   final TaskRepository _taskRepository = TaskRepository();
-
+  final AssistantRepository _assistantRepository = AssistantRepository();
   // Obtener todas las tareas
   List<Task> getAllTasks() {
     final tasks = _taskRepository.getTasks();
@@ -14,12 +15,22 @@ class TaskService {
   }
 
   // Agregar una nueva tarea con fecha límite y pasos
-Future<void> addTask(Task task) async {
+/*Future<void> addTask(Task task) async {
   // Agrega la tarea al repositorio
   await _taskRepository.addTask(task);
   print('Operación: Agregar tarea');
   print('Tarea agregada: ${task.title}, Tipo: ${task.type}, Fecha límite: ${task.fechaLimite}');
-}
+}*/
+  Future<void> addTask(String title, String type, DateTime fechaLimite) async {
+    final pasos = await _assistantRepository.generateSteps(title, fechaLimite);
+    final newTask = Task(
+      title: title,
+      type: type,
+      fechaLimite: fechaLimite,
+      pasos: pasos,
+    );
+    await _taskRepository.addTask(newTask);
+  }
   // Eliminar una tarea por título
   void deleteTask(String title) {
     _taskRepository.deleteTask(title);

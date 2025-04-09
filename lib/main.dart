@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'views/login_screen.dart'; // Mantén esta línea y elimina la duplicada
-
+import 'constants.dart';
 void main() {
   runApp(const MyApp());
 }
@@ -13,8 +13,9 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color.fromARGB(255, 0, 0, 0),
+        colorScheme: ColorScheme.light(
+          primary:  Colors.teal,
+          secondary: Colors.tealAccent,
         ),
         useMaterial3: true,
       ),
@@ -100,6 +101,7 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ),
             ElevatedButton(
+              style:AppStyles.elevatedButtonStyle,
               onPressed: () {
                 showDialog(
                   context: context,
@@ -123,24 +125,26 @@ class _MyHomePageState extends State<MyHomePage> {
               },
               child: const Text('Mostrar Advertencia'),
             ),
-            ElevatedButton(
-  onPressed: () {
-    try {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const LoginScreen()),
-      );
-    } catch (e) {
-      // Maneja el error aquí, por ejemplo, mostrando un mensaje en la consola
-      print('Error al navegar a LoginScreen: $e');
-      // Opcional: Muestra un SnackBar con el error
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: No se pudo abrir la pantalla de login')),
-      );
-    }
-  },
-  child: const Text('Alejandra login'),
-),
+            SizedBox(height: 20),
+        ElevatedButton(
+              style:AppStyles.elevatedButtonStyle,
+                onPressed: () {
+                  try {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const LoginScreen()),
+                    );
+                  } catch (e) {
+                    // Maneja el error aquí, por ejemplo, mostrando un mensaje en la consola
+                    print('Error al navegar a LoginScreen: $e');
+                    // Opcional: Muestra un SnackBar con el error
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Error: No se pudo abrir la pantalla de login')),
+                    );
+                  }
+                },
+              child: const Text('Login'),
+      ),
           ],
         ),
       ),

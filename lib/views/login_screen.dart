@@ -45,7 +45,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Login')),
+      appBar: AppBar(title: const Text('')),
 
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -54,6 +54,16 @@ class _LoginScreenState extends State<LoginScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
 
           children: [
+            Text(
+              "Iniciar Sesión",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 40,
+                color: Theme.of(context).colorScheme.primary,
+                
+              ),
+            ),
+            SizedBox(height: 26),
             TextField(
               controller: _usernameController,
 
