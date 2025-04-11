@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import '../domain/task.dart';
 import '../constants.dart';
-import '../helpers/task_card_helper.dart';
 import '../components/task_modals.dart';
 import '../data/task_repository.dart'; // Importa TaskRepository
 import '../api/service/task_service.dart'; // Importa TaskService
-import '../views/task_detail_screen.dart';
+import '../helpers/common_widgets_helper.dart'; 
+import '../components/task_image.dart';
+import 'task_detail_screen.dart';
 
 void main() {
   runApp(MyApp());
@@ -73,9 +74,9 @@ void _loadMoreTasks() async {
 
 void _addTask(Task newTask) async {
   // Asegúrate de que los valores no sean nulos antes de pasarlos
-  final title = newTask.title ?? 'Título predeterminado'; // Proveer un valor predeterminado
+  final title = newTask.title; // Proveer un valor predeterminado
   final type = newTask.type ?? 'normal'; // Proveer un valor predeterminado
-  final fechaLimite = newTask.fechaLimite ?? DateTime.now(); // Proveer un valor predeterminado
+  final fechaLimite = newTask.fechaLimite; // Proveer un valor predeterminado
 
   await _taskService.addTask(title, type, fechaLimite);
   await _loadTasks(); // Recarga las tareas después de agregar una nueva
@@ -87,12 +88,6 @@ Future<void> _loadTasks() async {
   });
 }
 
-  void _updateTask(int index, Task updatedTask) async {
-    await _taskRepository.updateTask(index, updatedTask); // Actualiza la tarea en el repositorio
-    setState(() {
-      tasks[index] = updatedTask;
-    });
-  }
 
   void _deleteTask(int index) async {
     await _taskRepository.deleteTaskByIndex(index); // Elimina la tarea del repositorio
@@ -101,112 +96,119 @@ Future<void> _loadTasks() async {
     });
   }
 @override
-Widget build(BuildContext context) {
-  return Scaffold(
-    appBar: AppBar(
-      title: Text(AppConstants.TITLE_APPBAR),
-      centerTitle: true,
-    ),
-    body: Column(
-      children: [
-        Expanded(
-          child: tasks.isEmpty
-              ? Center(
-                  child: Text(AppConstants.EMPTY_LIST),
-                )
-              : ListView.builder(
-                  controller: _scrollController,
-                  itemCount: tasks.length + (isLoading ? 1 : 0), // Agrega un elemento extra si está cargando
-                  itemBuilder: (context, index) {
-                    if (index == tasks.length && isLoading) {
-                      return const Padding(
-                        padding: EdgeInsets.all(16.0),
-                        child: Center(
-                          child: CircularProgressIndicator(), // Indicador de carga
-                        ),
-                      );
-                    }
-                    final task = tasks[index];
-                    // Llama a construirTarjetaDeportiva con todos los parámetros requeridos
-                    return construirTarjetaDeportiva(
-                      context, // Pasa el contexto
-                      task,    // Pasa la tarea actual
-                      index,   // Pasa el índice actual
-                      // Callback para editar la tarea
-                      () {
-                        showEditTaskModal(
-                          context,
-                          task,
-                          (updatedTask) {
-                            setState(() {
-                              tasks[index] = updatedTask; // Actualiza la tarea en la lista
-                            });
-                          },
-                          // Callback para eliminar la tarea desde la tarjeta
-  () {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Eliminar tarea'),
-        content: const Text('¿Estás seguro de que deseas eliminar esta tarea?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              setState(() {
-                tasks.removeAt(index); // Elimina la tarea de la lista
-              });
-            },
-            child: const Text('Eliminar'),
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(AppConstants.TITLE_APPBAR),
+        centerTitle: true,
+      ),
+      body: Column(
+        children: [
+          Expanded(
+            child: tasks.isEmpty
+                ? Center(child: Text(AppConstants.EMPTY_LIST))
+                : ListView.builder(
+                    controller: _scrollController,
+                    itemCount: tasks.length + (isLoading ? 1 : 0),
+                    itemBuilder: (context, index) {
+                      if (index >= tasks.length) {
+                        return const Padding(
+                          padding: EdgeInsets.all(16.0),
+                          child: Center(child: CircularProgressIndicator()),
+                        );
+                      }
+                      final task = tasks[index];
+                      return _buildTaskItem(task, index);
+                    },
+                  ),
           ),
         ],
       ),
-    );
-  },
-                        );
-                      },
-                      // Callback para eliminar la tarea
-                      () {
-                        showDialog(
-                          context: context,
-                          builder: (context) => AlertDialog(
-                            title: const Text('Eliminar tarea'),
-                            content: const Text('¿Estás seguro de que deseas eliminar esta tarea?'),
-                            actions: [
-                              TextButton(
-                                onPressed: () => Navigator.pop(context),
-                                child: const Text('Cancelar'),
-                              ),
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                  _deleteTask(index); // Llama a la función para eliminar la tarea
-                                },
-                                child: const Text('Eliminar'),
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                    );
-                  },
-                ),
-        ),
-      ],
-    ),
-    floatingActionButton: FloatingActionButton(
-      onPressed: () => showAddTaskModal(
-        context,
-        (newTask) => _addTask(newTask),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => showAddTaskModal(context, _addTask),
+        child: const Icon(Icons.add),
       ),
-      child: const Icon(Icons.add),
+    );
+  }
+
+
+Widget _buildTaskItem(Task task, int index) {
+  return Dismissible(
+    key: Key('${task.title}_$index'),
+    direction: DismissDirection.endToStart,
+    background: Container(
+      color: Colors.red,
+      alignment: Alignment.centerRight,
+      padding: const EdgeInsets.only(right: 20),
+      child: const Icon(Icons.delete, color: Colors.white),
+    ),
+    onDismissed: (direction) {
+      final deletedTask = tasks[index];
+      _deleteTask(index);
+      _showDeleteSnackbar(context, deletedTask, index);
+    },
+    child: GestureDetector( // <--- AQUÍ SE AGREGA
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => TaskDetailScreen(
+            task: task,
+            indice: index,
+          ),
+        ),
+      ),
+      child: Container( // <--- Este es el Container original
+        decoration: CommonWidgetsHelper.buildRoundedBorder(),
+        margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+        child: Column(
+          children: [
+            TaskImage(
+              randomIndex: index, 
+              height: 150,
+            ),
+            ListTile(
+              contentPadding: const EdgeInsets.all(16),
+              title: CommonWidgetsHelper.buildBoldTitle(task.title),
+              subtitle: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  CommonWidgetsHelper.buildSpacing(),
+                  CommonWidgetsHelper.buildInfoLines(
+                    line1: 'Tipo: ${task.type}',
+                    line2: task.pasos.isNotEmpty 
+                        ? 'Primer paso: ${task.pasos[0]}' 
+                        : 'Sin pasos',
+                  ),
+                  CommonWidgetsHelper.buildSpacing(),
+                  CommonWidgetsHelper.buildBoldFooter(
+                    'Fecha: ${_formatDate(task.fechaLimite)}'
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     ),
   );
 }
+  void _showDeleteSnackbar(BuildContext context, Task task, int index) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Tarea eliminada: ${task.title}'),
+        action: SnackBarAction(
+          label: 'Deshacer',
+          onPressed: () => setState(() => tasks.insert(index, task)),
+        ),
+      ),
+    );
+  }
+
+  String _formatDate(DateTime? date) {
+    return date != null
+        ? '${date.day}/${date.month}/${date.year}'
+        : 'Sin fecha';
+  }
 void _loadInitialTasks() async {
   setState(() {
     isLoading = true; // Activa el indicador de carga
