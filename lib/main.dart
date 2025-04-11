@@ -126,25 +126,7 @@ class _MyHomePageState extends State<MyHomePage> {
               child: const Text('Mostrar Advertencia'),
             ),
             SizedBox(height: 20),
-        /*ElevatedButton(
-              style:AppStyles.elevatedButtonStyle,
-                onPressed: () {
-                  try {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const LoginScreen()),
-                    );
-                  } catch (e) {
-                    // Maneja el error aquí, por ejemplo, mostrando un mensaje en la consola
-                    print('Error al navegar a LoginScreen: $e');
-                    // Opcional: Muestra un SnackBar con el error
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Error: No se pudo abrir la pantalla de login')),
-                    );
-                  }
-                },
-              child: const Text('Login'),
-      ),*/
+        
           ],
         ),
       ),
