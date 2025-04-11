@@ -14,13 +14,7 @@ class TaskService {
     return tasks;
   }
 
-  // Agregar una nueva tarea con fecha límite y pasos
-/*Future<void> addTask(Task task) async {
-  // Agrega la tarea al repositorio
-  await _taskRepository.addTask(task);
-  print('Operación: Agregar tarea');
-  print('Tarea agregada: ${task.title}, Tipo: ${task.type}, Fecha límite: ${task.fechaLimite}');
-}*/
+
   Future<void> addTask(String title, String type, DateTime fechaLimite) async {
     final pasos = await _assistantRepository.generateSteps(title, fechaLimite);
     final newTask = Task(
@@ -64,7 +58,8 @@ class TaskService {
       pasos: pasos,
     );
   }
-  Future<List<Task>> generarTareas(int cantidad, int inicio) async {
+
+Future<List<Task>> generarTareas(int cantidad, int inicio) async {
   return Future.wait(
     List.generate(
       cantidad,
