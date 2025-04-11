@@ -3,7 +3,7 @@ import '../domain/task.dart';
 class TaskRepository {
   // Lista mutable de tareas
 final List<Task> _tasks = List.generate(
-  12,
+  5,
   (index) {
     final fechaLimite = DateTime.now().add(Duration(days: index + 1));
     return Task(
