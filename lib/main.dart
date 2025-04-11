@@ -126,7 +126,7 @@ class _MyHomePageState extends State<MyHomePage> {
               child: const Text('Mostrar Advertencia'),
             ),
             SizedBox(height: 20),
-        ElevatedButton(
+        /*ElevatedButton(
               style:AppStyles.elevatedButtonStyle,
                 onPressed: () {
                   try {
@@ -144,7 +144,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   }
                 },
               child: const Text('Login'),
-      ),
+      ),*/
           ],
         ),
       ),
