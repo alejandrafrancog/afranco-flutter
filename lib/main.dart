@@ -90,7 +90,7 @@ class _MyHomePageState extends State<MyHomePage> {
               '$_counter',
               style: Theme.of(context).textTheme.headlineMedium,
             ),
-            const Text('Hola soy Ale F'),
+            //const Text('Hola soy Ale F'),
             // Nuevo widget Text que muestra el estado del contador
             Text(
               _getCounterMessage(),
