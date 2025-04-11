@@ -19,7 +19,7 @@ class MyApp extends StatelessWidget {
         ),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Alejandra Home Page'),
+      home: const LoginScreen(),
     );
   }
 }
