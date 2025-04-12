@@ -1,7 +1,8 @@
+import 'package:afranco/views/login_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:afranco/views/tasks.dart'; // Mantén esta línea
 import '../main.dart';
-//import '../constants.dart';
+import '../constants.dart';
 
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
@@ -26,7 +27,7 @@ drawer: Drawer(
       ),
       ListTile(
         leading: const Icon(Icons.task),
-        title: const Text('Tareas'),
+        title: const Text(AppConstants.titleAppBarT),
         onTap: () {
           Navigator.push(
             context,
@@ -36,13 +37,25 @@ drawer: Drawer(
       ),
       // Nuevo botón para Pantalla Principal
       ListTile(
-        leading: const Icon(Icons.home),
+        leading: const Icon(Icons.restart_alt),
         title: const Text('Contador'),
         onTap: () {
           Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) => MyHomePage(title:'Contador')),
+            
+          );
+        },
+      ),
+      ListTile(
+        leading: const Icon(Icons.exit_to_app),
+        title: const Text('Salir'),
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => LoginScreen()),
             
           );
         },
