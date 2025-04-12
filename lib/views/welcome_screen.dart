@@ -96,8 +96,13 @@ drawer: Drawer(
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () {
-                Navigator.of(context).popUntil((route) => route.isFirst);
-              },
+              // Navega a LoginScreen usando Navigator
+              Navigator.push(
+                context, // Necesitas el contexto aquí
+                MaterialPageRoute(builder: (context) => LoginScreen()),
+              );
+            },
+
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.green,
                 foregroundColor: Colors.white,

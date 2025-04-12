@@ -11,21 +11,31 @@ class CommonWidgetsHelper {
     );
   }
 
-  static Widget buildInfoLines({
-    required String line1,
-    String? line2,
-    String? line3,
-  }) {
-    final lines = <Widget>[
-      Text(line1, style: const TextStyle(fontSize: 16)),
-      if (line2 != null) Text(line2, style: const TextStyle(fontSize: 14)),
-      if (line3 != null) Text(line3, style: const TextStyle(fontSize: 14)),
-    ];
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: lines,
-    );
-  }
+ static Widget buildInfoLines({
+  required String line1,
+  String? line2,
+  String? line3,
+  Color? iconColor, // Nuevo parámetro opcional
+  IconData? icon,    // Nuevo parámetro opcional
+}) {
+  final lines = <Widget>[
+    Text(line1, style: const TextStyle(fontSize: 16)),
+    if (line2 != null) Text(line2, style: const TextStyle(fontSize: 14)),
+    if (line3 != null) 
+      Row(
+        children: [
+          if (icon != null)
+            Icon(icon, color: iconColor, size: 18),
+          if (icon != null) const SizedBox(width: 4),
+          Text(line3, style: const TextStyle(fontSize: 14, color: Colors.grey,fontWeight:FontWeight.bold)),
+        ],
+      ),
+  ];
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: lines,
+  );
+}
 
   static Widget buildBoldFooter(String text) {
     return Text(
