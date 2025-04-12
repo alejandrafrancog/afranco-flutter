@@ -4,30 +4,39 @@ import '../domain/task.dart';
 import '../api/service/task_service.dart';
 import '../components/task_image.dart';
 import '../components/task_date_widget.dart';
-import '../components/task_modals.dart';
 import '../helpers/common_widgets_helper.dart';
 class TaskDetailScreen extends StatelessWidget {
   final Task task;
   final int indice;
+  final Future<void> Function() onNeedMoreTasks; // Callback para cargar más
 
   const TaskDetailScreen({
     Key? key,
     required this.task,
     required this.indice,
+    required this.onNeedMoreTasks,
   }) : super(key: key);
 
-  void _navigateToAdjacentTask(BuildContext context, int offset) {
-    final tasks = TaskService().getAllTasks();
-    final newIndex = indice + offset;
-    
-    if (newIndex >= 0 && newIndex < tasks.length) {
-      Navigator.pushReplacement(
-        context,
-        PageRouteBuilder(
-          pageBuilder: (_, __, ___) => TaskDetailScreen(
-            task: tasks[newIndex],
-            indice: newIndex,
-          ),
+void _navigateToAdjacentTask(BuildContext context, int offset) async {
+  var tasks = TaskService().getAllTasks(); 
+  int newIndex = indice + offset;
+
+  // Si se necesita cargar más tareas
+  if (newIndex >= tasks.length) {
+    await onNeedMoreTasks(); // <<< Espera la carga
+    tasks = TaskService().getAllTasks(); // Obtiene lista actualizada
+  }
+
+  if (newIndex >= 0 && newIndex < tasks.length) {
+    // Navegar a la nueva tarea
+    Navigator.pushReplacement(
+      context,
+      PageRouteBuilder(
+        pageBuilder: (_, __, ___) => TaskDetailScreen(
+          task: tasks[newIndex],
+          indice: newIndex,
+          onNeedMoreTasks: onNeedMoreTasks,
+        ),
           transitionsBuilder: (context, animation, _, child) {
             final slideOffset = Offset(offset.sign.toDouble(), 0);
             return SlideTransition(
