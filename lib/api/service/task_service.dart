@@ -42,15 +42,13 @@ class TaskService {
   // Eliminar una tarea por título
   void deleteTask(String title) {
     _taskRepository.deleteTask(title);
-    print('Operación: Eliminar tarea');
-    print('Tarea eliminada: $title');
+  
   }
 
   // Actualizar el tipo de una tarea
   void updateTaskType(String title, String newType) {
     _taskRepository.updateTaskType(title, newType);
-    print('Operación: Actualizar tarea');
-    print('Tarea actualizada: $title, Nuevo tipo: $newType');
+  
   } 
   Future<List<String>> obtenerPasos(String tituloTarea, DateTime fechaLimite) async {
     await Future.delayed(const Duration(milliseconds: 300)); // Simula un retraso

@@ -99,7 +99,7 @@ void _deleteTask(int index) async {
         children: [
           Expanded(
             child: tasks.isEmpty
-                ? Center(child: Text(AppConstants.EMPTY_LIST))
+                ? Center(child: Text(AppConstants.emptyList))
                 : ListView.builder(
                     controller: _scrollController,
                     itemCount: tasks.length + (isLoading ? 1 : 0),

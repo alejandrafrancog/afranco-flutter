@@ -5,6 +5,8 @@ void main() {
 }
 
 class MiApp extends StatelessWidget {
+  const MiApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -14,6 +16,8 @@ class MiApp extends StatelessWidget {
 }
 
 class PantallaPrincipal extends StatefulWidget {
+  const PantallaPrincipal({super.key});
+
   @override
   _PantallaPrincipalState createState() => _PantallaPrincipalState();
 }
