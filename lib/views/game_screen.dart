@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../api/service/question_service.dart';
-import '../domain/question.dart';
-import 'result_screen.dart';
+import 'package:afranco/api/service/question_service.dart';
+import 'package:afranco/domain/question.dart';
+import 'package:afranco/views/result_screen.dart';
 
 class GameScreen extends StatefulWidget {
   final QuestionService questionService;
@@ -94,7 +94,7 @@ class _GameScreenState extends State<GameScreen> {
                   ),
                 ),
               );
-            }).toList(),
+            }),
           ],
         ),
       ),
