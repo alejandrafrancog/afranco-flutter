@@ -9,6 +9,13 @@ class AppConstants {
   static const String titleAppBar = "Mis Tareas"; // Texto base
 
 }
+class GameConstants {
+  static const String titleApp = 'Mis Juegos'; // Texto base
+  static const String welcomeMessage = 'Bienvenido al Juego de Preguntas';
+  static const String startGame = 'Iniciar juego';
+  static const String finalScore = 'Puntuación final';
+  static const String playAgain = 'Jugar de nuevo';
+}
 class AppStyles {
   static final ButtonStyle elevatedButtonStyle = ElevatedButton.styleFrom(
     fixedSize: const Size(200, 45), // Ancho máximo (responsive),
