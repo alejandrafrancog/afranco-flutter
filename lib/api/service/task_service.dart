@@ -52,9 +52,7 @@ class TaskService {
   } 
   Future<List<String>> obtenerPasos(String tituloTarea, DateTime fechaLimite) async {
     await Future.delayed(const Duration(milliseconds: 300)); // Simula un retraso
-    final String fechaFormateada = '${fechaLimite.day.toString().padLeft(2, '0')}/'
-        '${fechaLimite.month.toString().padLeft(2, '0')}/'
-        '${fechaLimite.year}';
+
     
     return TaskRepository.generateSteps(tituloTarea,DateTime(2025,04,10));
   }

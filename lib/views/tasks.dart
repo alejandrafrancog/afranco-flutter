@@ -198,11 +198,7 @@ Widget _buildTaskItem(Task task, int index) {
     );
   }
 
-  String _formatDate(DateTime? date) {
-    return date != null
-        ? '${date.day}/${date.month}/${date.year}'
-        : 'Sin fecha';
-  }
+
 
   void _loadInitialTasks() async {
   setState(() => isLoading = true);
@@ -231,7 +227,7 @@ Future<void> _loadMoreTasks() async {
   });
 }
 
-  Future<void> _showEditTaskModal(Task task, int index) async {
+  /*Future<void> _showEditTaskModal(Task task, int index) async {
     await showEditTaskModal(
       context,
       task,
@@ -242,5 +238,5 @@ Future<void> _loadMoreTasks() async {
       },
       () => _deleteTask(index),
     );
-  }
+  }*/
 }
