@@ -6,10 +6,10 @@ class TaskImage extends StatelessWidget {
   final double height;
 
   const TaskImage({
-    Key? key,
+    super.key,
     required this.randomIndex,
     this.height = 200,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

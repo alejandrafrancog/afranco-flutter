@@ -1,19 +1,21 @@
 import 'package:flutter/material.dart';
-import '../domain/task.dart';
-import '../constants.dart';
-import '../components/task_modals.dart';
-import '../data/task_repository.dart'; // Importa TaskRepository
-import '../api/service/task_service.dart'; // Importa TaskService
-import '../helpers/common_widgets_helper.dart'; 
-import '../components/task_image.dart';
-import 'task_detail_screen.dart';
+import 'package:afranco/domain/task.dart';
+import 'package:afranco/constants.dart';
+import 'package:afranco/components/task_modals.dart';
+import 'package:afranco/data/task_repository.dart'; // Importa TaskRepository
+import 'package:afranco/api/service/task_service.dart'; // Importa TaskService
+import 'package:afranco/helpers/common_widgets_helper.dart'; 
+import 'package:afranco/components/task_image.dart';
+import 'package:afranco/views/task_detail_screen.dart';
 import 'package:intl/intl.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -24,12 +26,14 @@ class MyApp extends StatelessWidget {
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       
-      home: TasksScreen(),
+      home: const TasksScreen(),
     );
   }
 }
   
 class TasksScreen extends StatefulWidget {
+  const TasksScreen({super.key});
+
   @override
   _TasksScreenState createState() => _TasksScreenState();
 }
@@ -70,7 +74,7 @@ void _addTask(Task newTask) async {
   await _loadTasks(); // Recarga las tareas después de agregar una nueva
 }
 Future<void> _loadTasks() async {
-  final loadedTasks = await _taskService.getAllTasks(); // Obtiene las tareas desde el servicio
+  final loadedTasks = _taskService.getAllTasks(); // Obtiene las tareas desde el servicio
   setState(() {
     tasks = loadedTasks; // Actualiza la lista local de tareas
   });
@@ -79,7 +83,7 @@ void _deleteTask(int index) async {
   final taskToDelete = tasks[index];
   
   await _taskRepository.deleteTaskById(taskToDelete.id); // <<< Elimina por ID
-  final updatedTasks = await _taskService.getAllTasks();
+  final updatedTasks = _taskService.getAllTasks();
 
   setState(() => tasks = updatedTasks);
   
@@ -100,7 +104,7 @@ void _deleteTask(int index) async {
         children: [
           Expanded(
             child: tasks.isEmpty
-                ? Center(child: Text(AppConstants.emptyList))
+                ? const Center(child: Text(AppConstants.emptyList))
                 : ListView.builder(
                     controller: _scrollController,
                     itemCount: tasks.length + (isLoading ? 1 : 0),

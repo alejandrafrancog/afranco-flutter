@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -9,7 +9,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       title: 'Cambio de Color',
       home: ColorChangerScreen(),
     );
@@ -63,7 +63,7 @@ class _ColorChangerScreenState extends State<ColorChangerScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Cambiador de Color'),
+        title: const Text('Cambiador de Color'),
       ),
       body: Center(
         child: Column(
@@ -77,7 +77,7 @@ class _ColorChangerScreenState extends State<ColorChangerScreen> {
                 color: _colors[_currentColorIndex],
                 borderRadius: BorderRadius.circular(10), // Bordes redondeados opcionales
               ),
-              child: Center(
+              child: const Center(
                 child: Text(
                   '¡Cambio de color!',
                   style: TextStyle(
@@ -88,22 +88,22 @@ class _ColorChangerScreenState extends State<ColorChangerScreen> {
                 ),
               ),
             ),
-            SizedBox(height: 30), // Espacio entre el Container y el botón
+            const SizedBox(height: 30), // Espacio entre el Container y el botón
             // Botón para cambiar el color
             ElevatedButton(
               onPressed: _changeColor,
               style: ElevatedButton.styleFrom(
-                padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
               ),
-              child: Text('Cambiar Color'),
+              child: const Text('Cambiar Color'),
             ),
-            SizedBox(height: 30),
+            const SizedBox(height: 30),
             ElevatedButton(
               onPressed: _resetToWhite,
               style: ElevatedButton.styleFrom(
-                padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
               ),
-              child: Text('Cambiar a Blanco'),
+              child: const Text('Cambiar a Blanco'),
             ),
           ],
         ),

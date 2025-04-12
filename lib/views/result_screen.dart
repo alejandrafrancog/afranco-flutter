@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'start_screen.dart';
+import 'package:afranco/views/start_screen.dart';
 
 class ResultScreen extends StatelessWidget {
   final int finalScore;

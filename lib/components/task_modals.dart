@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../domain/task.dart';
-import 'task_form.dart';
-import '../data/task_repository.dart';
+import 'package:afranco/domain/task.dart';
+import 'package:afranco/components/task_form.dart';
+import 'package:afranco/data/task_repository.dart';
 
 Future<void> showEditTaskModal(
   BuildContext context,

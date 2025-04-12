@@ -18,9 +18,9 @@ drawer: Drawer(
   child: ListView(
     padding: EdgeInsets.zero,
     children: [
-      DrawerHeader(
-        decoration: const BoxDecoration(color: Colors.teal),
-        child: const Text(
+      const DrawerHeader(
+        decoration: BoxDecoration(color: Colors.teal),
+        child: Text(
           'Menú de Navegación',
           style: TextStyle(color: Colors.white, fontSize: 24),
         ),
@@ -43,7 +43,7 @@ drawer: Drawer(
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => MyHomePage(title:'Contador')),
+              builder: (context) => const MyHomePage(title:'Contador')),
             
           );
         },
@@ -55,7 +55,7 @@ drawer: Drawer(
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => LoginScreen()),
+              builder: (context) => const LoginScreen()),
             
           );
         },
@@ -99,7 +99,7 @@ drawer: Drawer(
               // Navega a LoginScreen usando Navigator
               Navigator.push(
                 context, // Necesitas el contexto aquí
-                MaterialPageRoute(builder: (context) => LoginScreen()),
+                MaterialPageRoute(builder: (context) => const LoginScreen()),
               );
             },
 

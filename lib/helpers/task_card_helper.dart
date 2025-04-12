@@ -54,7 +54,7 @@ Widget construirTarjetaDeportiva(BuildContext context, Task task, int indice, Vo
           children: [
             // Imagen aleatoria
             ClipRRect(
-              borderRadius: BorderRadius.vertical(top: Radius.circular(12.0)),
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(12.0)),
               child: Image.network(
                 'https://picsum.photos/200/300?random=$indice',
                 fit: BoxFit.cover,
