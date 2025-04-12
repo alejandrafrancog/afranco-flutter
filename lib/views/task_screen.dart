@@ -75,12 +75,12 @@ class _TaskScreenState extends State<TaskScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(AppConstants.TITLE_APPBAR),
+        title: const Text(AppConstants.titleAppBarT),
       ),
       body: _tasks.isEmpty
           ? const Center(
               child: Text(
-                AppConstants.EMPTY_LIST,
+                AppConstants.emptyList,
                 style: TextStyle(fontSize: 18),
               ),
             )

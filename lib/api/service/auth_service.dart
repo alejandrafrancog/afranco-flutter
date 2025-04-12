@@ -12,10 +12,6 @@ class MockAuthService {
     await Future.delayed(Duration(seconds: 1));
 
     // Imprime las credenciales en la consola
-    print('Intentando iniciar sesión con:');
-    print('Usuario: $username');
-    print('Contraseña: $password');
-
     // Retorna true para simular un login exitoso
     return true;
   }
@@ -26,10 +22,9 @@ void main() async {
 
   // Simula un login
   final success = await authService.login('usuario_prueba', 'contrasena123');
-
   if (success) {
-    print('Inicio de sesión exitoso.');
+    print('Login exitoso');
   } else {
-    print('Error en el inicio de sesión.');
+    print('Login fallido');
   }
 }

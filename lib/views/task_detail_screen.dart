@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import '../domain/task.dart';
 import '../api/service/task_service.dart';
 import '../components/task_image.dart';
-import '../components/task_date_widget.dart';
 import '../helpers/common_widgets_helper.dart';
 class TaskDetailScreen extends StatelessWidget {
   final Task task;
@@ -141,38 +140,9 @@ Widget _buildTaskTypeTag(BuildContext context) {
   );
 }
 
-  Widget _buildDetailSection(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Descripción:',
-          style: Theme.of(context).textTheme.titleLarge,
-        ),
-        const SizedBox(height: 10),
-        Text(
-          task.pasos.join('\n\n'),
-          style: Theme.of(context).textTheme.bodyLarge,
-        ),
-        const SizedBox(height: 20),
-        TaskDateWidget(task: task),
-        const SizedBox(height: 20),
-        _buildTaskTypeChip(context),
-      ],
-    );
-  }
 
-  Widget _buildTaskTypeChip(BuildContext context) {
-    return Chip(
-      label: Text(
-        task.type.toString().toUpperCase(),
-        style: TextStyle(
-          color: task.type == 'urgente' ? Colors.red : Colors.green,
-        ),
-      ),
-      backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
-    );
-  }
+
+
 
   void _showEditDialog(BuildContext context) {
     showDialog(

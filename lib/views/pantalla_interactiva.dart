@@ -5,6 +5,8 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -15,6 +17,8 @@ class MyApp extends StatelessWidget {
 }
 
 class ColorChangerScreen extends StatefulWidget {
+  const ColorChangerScreen({super.key});
+
   @override
   _ColorChangerScreenState createState() => _ColorChangerScreenState();
 }
@@ -88,18 +92,18 @@ class _ColorChangerScreenState extends State<ColorChangerScreen> {
             // Botón para cambiar el color
             ElevatedButton(
               onPressed: _changeColor,
-              child: Text('Cambiar Color'),
               style: ElevatedButton.styleFrom(
                 padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
               ),
+              child: Text('Cambiar Color'),
             ),
             SizedBox(height: 30),
             ElevatedButton(
               onPressed: _resetToWhite,
-              child: Text('Cambiar a Blanco'),
               style: ElevatedButton.styleFrom(
                 padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
               ),
+              child: Text('Cambiar a Blanco'),
             ),
           ],
         ),

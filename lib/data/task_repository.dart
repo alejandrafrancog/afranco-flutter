@@ -2,14 +2,14 @@ import '../domain/task.dart';
 import 'package:uuid/uuid.dart';
 class TaskRepository {
   static final TaskRepository _instance = TaskRepository._privado();
+  
   List<Task> _tasks = [];
 
   TaskRepository._privado();
 
   // Factory para acceso global
   factory TaskRepository() => _instance;
-
-  // Métodos existentes...
+  
   List<Task> getTasks() => _tasks;
   TaskRepository._internal() {
   _tasks = List.generate(5, (index) {
