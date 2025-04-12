@@ -1,6 +1,6 @@
 // Task entity/model
 class Task {
-  final String? id;
+  final String id;
   final String title;
   final String description;
   String? type;
@@ -9,15 +9,20 @@ class Task {
 
 
   Task({
-    this.id,
+    required this.id,
     required this.title,
     this.type = 'normal',
     this.description = '',
     required this.fechaLimite, // Requerido
     this.pasos = const [], // Lista vacía por defecto
   });
+  @override
+  bool operator ==(Object other) =>
+    identical(this, other) ||
+    other is Task && runtimeType == other.runtimeType && title == other.title;
 
+  @override
+  int get hashCode => title.hashCode;
   // Static list of task types
   static const List<String> taskTypes = ['normal', 'urgente'];
-  String get effectiveId => id ?? '${title}_${fechaLimite.millisecondsSinceEpoch}';
 }

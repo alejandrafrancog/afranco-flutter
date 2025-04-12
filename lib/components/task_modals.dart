@@ -18,13 +18,13 @@ Future<void> showEditTaskModal(
           child: TaskForm(
             task: task,
             onSave: (updatedTask) {
-              // Regenerar pasos usando generateSteps
               final newTask = Task(
+                id: task.id, // <<< Conserva el ID original
                 title: updatedTask.title,
                 description: updatedTask.description,
                 type: updatedTask.type,
                 fechaLimite: updatedTask.fechaLimite,
-                pasos: TaskRepository.generateSteps(updatedTask.title, updatedTask.fechaLimite),
+                pasos: updatedTask.pasos, // <<< Mantiene los pasos existentes
               );
               onEditTask(newTask);
               Navigator.pop(context);
@@ -43,8 +43,7 @@ Future<void> showEditTaskModal(
       );
     },
   );
-}
-Future<void> showAddTaskModal(BuildContext context, Function(Task) onAddTask) async {
+}Future<void> showAddTaskModal(BuildContext context, Function(Task) onAddTask) async {
   await showDialog(
     context: context,
     builder: (context) {
@@ -53,8 +52,8 @@ Future<void> showAddTaskModal(BuildContext context, Function(Task) onAddTask) as
         content: SingleChildScrollView(
           child: TaskForm(
             onSave: (newTask) {
-              // Generar pasos usando generateSteps
               final updatedTask = Task(
+                id: newTask.id, // <<< Conserva el ID generado en TaskForm
                 title: newTask.title,
                 description: newTask.description,
                 type: newTask.type,

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart'; // Para los widgets de Flutter como Form, TextFormField, etc.
 import '../domain/task.dart'; // Para el modelo de datos Task.
-
+import 'package:uuid/uuid.dart';
 class TaskForm extends StatefulWidget {
   final Task? task;
   final Function(Task) onSave;
@@ -74,21 +74,21 @@ class _TaskFormState extends State<TaskForm> {
           ),
           const SizedBox(height: 16),
           ElevatedButton(
-            onPressed: () {
-              if (_formKey.currentState!.validate()) {
-                final newTask = Task(
-                  id: widget.task?.id,
-                  title: _titleController.text,
-                  description: _descriptionController.text,
-                  type: _type,
-                  fechaLimite: _fecha,
-                  pasos: widget.task?.pasos ?? [],
-                );
-                widget.onSave(newTask);
-              }
-            },
-            child: const Text('Guardar'),
-          ),
+  onPressed: () {
+    if (_formKey.currentState!.validate()) {
+      final newTask = Task(
+        id: widget.task?.id ?? const Uuid().v4(), // <<< Genera ID solo para nuevas tareas
+        title: _titleController.text,
+        description: _descriptionController.text,
+        type: _type,
+        fechaLimite: _fecha,
+        pasos: widget.task?.pasos ?? [],
+      );
+      widget.onSave(newTask);
+    }
+  },
+  child: const Text('Guardar'),
+),
         ],
       ),
     );

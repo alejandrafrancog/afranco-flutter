@@ -6,6 +6,8 @@ class AppConstants {
   static const String TASK_TYPE_LABEL = 'Tipo';
   static const String PASOS_TITULO = 'Pasos para completar';
   static const String FECHA_LIMITE = 'Fecha Límite';
+  static const String titleAppBar = "Mis Tareas"; // Texto base
+
 }
 class AppStyles {
   static final ButtonStyle elevatedButtonStyle = ElevatedButton.styleFrom(

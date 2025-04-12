@@ -59,19 +59,6 @@ class _TasksScreenState extends State<TasksScreen> {
     }
   }
 
-void _loadMoreTasks() async {
-  setState(() {
-    isLoading = true; // Activa el indicador de carga
-  });
-
-  final newTasks = await _taskService.generarTareas(5, tasks.length); // Usa TaskService para generar tareas
-
-  setState(() {
-    tasks.addAll(newTasks);
-    isLoading = false; // Desactiva el indicador de carga
-  });
-}
-
 void _addTask(Task newTask) async {
   // Asegúrate de que los valores no sean nulos antes de pasarlos
   final title = newTask.title; // Proveer un valor predeterminado
@@ -87,19 +74,25 @@ Future<void> _loadTasks() async {
     tasks = loadedTasks; // Actualiza la lista local de tareas
   });
 }
+void _deleteTask(int index) async {
+  final taskToDelete = tasks[index];
+  
+  await _taskRepository.deleteTaskById(taskToDelete.id); // <<< Elimina por ID
+  final updatedTasks = await _taskService.getAllTasks();
 
+  setState(() => tasks = updatedTasks);
+  
+  _showDeleteSnackbar(context, taskToDelete, index);
+}
 
-  void _deleteTask(int index) async {
-    await _taskRepository.deleteTaskByIndex(index); // Elimina la tarea del repositorio
-    setState(() {
-      tasks.removeAt(index);
-    });
-  }
+  // En _TasksScreenState (tasks.dart)
+
 @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(AppConstants.TITLE_APPBAR),
+        title:Text('${AppConstants.titleAppBar} - Total: ${tasks.length}'),
+         // Título dinámico
         centerTitle: true,
       ),
       body: Column(
@@ -134,7 +127,7 @@ Future<void> _loadTasks() async {
 
 Widget _buildTaskItem(Task task, int index) {
   return Dismissible(
-    key: Key('${task.title}_$index'),
+    key: Key(task.id),
     direction: DismissDirection.endToStart,
     background: Container(
       color: Colors.red,
@@ -154,6 +147,7 @@ Widget _buildTaskItem(Task task, int index) {
           builder: (context) => TaskDetailScreen(
             task: task,
             indice: index,
+            onNeedMoreTasks: _loadMoreTasks, // <-- Callback correcto
           ),
         ),
       ),
@@ -209,17 +203,44 @@ Widget _buildTaskItem(Task task, int index) {
         ? '${date.day}/${date.month}/${date.year}'
         : 'Sin fecha';
   }
-void _loadInitialTasks() async {
-  setState(() {
-    isLoading = true; // Activa el indicador de carga
-  });
 
-  // Obtiene las tareas iniciales desde el servicio
-  final initialTasks = await _taskService.getAllTasks();
+  void _loadInitialTasks() async {
+  setState(() => isLoading = true);
+  
+  final initialTasks = await _taskService.generarTareas(5, 0);
+  // Añadir cada tarea al repositorio
+  for (final task in initialTasks) {
+    await _taskRepository.addTask(task); // Necesitarás un método en TaskService para esto
+  }
+  
+  await _loadTasks(); // Ahora carga desde el repositorio
+  
+  setState(() => isLoading = false);
+}
+Future<void> _loadMoreTasks() async {
+  if (isLoading) return;
 
+  setState(() => isLoading = true);
+  
+  // Usa el TaskService para cargar más tareas
+  final nuevasTareas = await TaskService().generarTareas(5, tasks.length);
+  
   setState(() {
-    tasks = initialTasks; // Actualiza la lista de tareas
-    isLoading = false; // Desactiva el indicador de carga
+    tasks.addAll(nuevasTareas);
+    isLoading = false;
   });
 }
+
+  Future<void> _showEditTaskModal(Task task, int index) async {
+    await showEditTaskModal(
+      context,
+      task,
+      (updatedTask) {
+        setState(() {
+          tasks[index] = updatedTask;
+        });
+      },
+      () => _deleteTask(index),
+    );
+  }
 }
