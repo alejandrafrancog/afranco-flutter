@@ -12,7 +12,7 @@ class Task {
     required this.id,
     required this.title,
     this.type = 'normal',
-    this.description = '',
+    this.description = 'This is a random description',
     required this.fechaLimite, // Requerido
     this.pasos = const [], // Lista vacía por defecto
   });

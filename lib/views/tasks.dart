@@ -7,6 +7,7 @@ import '../api/service/task_service.dart'; // Importa TaskService
 import '../helpers/common_widgets_helper.dart'; 
 import '../components/task_image.dart';
 import 'task_detail_screen.dart';
+import 'package:intl/intl.dart';
 
 void main() {
   runApp(MyApp());
@@ -168,15 +169,14 @@ Widget _buildTaskItem(Task task, int index) {
                 children: [
                   CommonWidgetsHelper.buildSpacing(),
                   CommonWidgetsHelper.buildInfoLines(
-                    line1: 'Tipo: ${task.type}',
-                    line2: task.pasos.isNotEmpty 
-                        ? 'Primer paso: ${task.pasos[0]}' 
-                        : 'Sin pasos',
+                      line1: task.pasos.elementAt(0),
+                      line2: task.description,
+                      line3: DateFormat('dd/MM/yyyy').format(task.fechaLimite),
+                      icon: task.type == 'urgente' ? Icons.warning : Icons.task,
+                      iconColor: task.type == 'urgente' ? Colors.red : Colors.blue,
                   ),
                   CommonWidgetsHelper.buildSpacing(),
-                  CommonWidgetsHelper.buildBoldFooter(
-                    'Fecha: ${_formatDate(task.fechaLimite)}'
-                  ),
+                 
                 ],
               ),
             ),

@@ -55,19 +55,16 @@ class TaskService {
     final String fechaFormateada = '${fechaLimite.day.toString().padLeft(2, '0')}/'
         '${fechaLimite.month.toString().padLeft(2, '0')}/'
         '${fechaLimite.year}';
-    return [
-      'Paso 1: Planificar antes del $fechaFormateada',
-      'Paso 2: Ejecutar $tituloTarea',
-      'Paso 3: Revisar $tituloTarea',
-    ];
+    
+    return TaskRepository.generateSteps(tituloTarea,DateTime(2025,04,10));
   }
 Future<Task> generarTarea(String titulo, DateTime fechaLimite, String tipo) async {
   final pasos = await obtenerPasos(titulo, fechaLimite);
   return Task(
-    id: const Uuid().v4(), // Usa el paquete uuid (añádelo a pubspec.yaml)
+    id: const Uuid().v4(),
     title: titulo,
     type: tipo,
-    fechaLimite: fechaLimite,
+    fechaLimite: DateTime(2025,04,10),
     pasos: pasos,
   );
 }
