@@ -1,4 +1,5 @@
 import 'package:afranco/views/login_screen.dart';
+import 'package:afranco/views/start_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:afranco/views/tasks.dart'; // Mantén esta línea
 import '../main.dart';
@@ -49,6 +50,18 @@ drawer: Drawer(
         },
       ),
       ListTile(
+        leading: const Icon(Icons.emoji_events),
+        title: const Text(GameConstants.titleApp),
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const StartScreen()),
+            
+          );
+        },
+      ),
+      ListTile(
         leading: const Icon(Icons.exit_to_app),
         title: const Text('Salir'),
         onTap: () {
@@ -60,6 +73,7 @@ drawer: Drawer(
           );
         },
       ),
+
     ],
   ),
 ),
