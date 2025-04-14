@@ -101,7 +101,7 @@ Widget build(BuildContext context) {
                     // Pasos con formato de lista
                     CommonWidgetsHelper.buildInfoLines(
                       line1: 'Pasos:',
-                      line2: task.pasos.join('\n'),
+                      line2: task.pasos.take(2).join('\n'),
                     ),
                     CommonWidgetsHelper.buildSpacing(),
 
