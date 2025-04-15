@@ -16,6 +16,22 @@ class GameConstants {
   static const String finalScore = 'Puntuación final';
   static const String playAgain = 'Jugar de nuevo';
 }
+class QuoteConstants{
+  static const String titleApp = 'Cotizaciones Financieras';
+  static const String loadingMessage = 'Cargando cotizaciones...';
+  static const String emptyList = 'No hay cotizaciones disponibles';
+  static const String errorMessage = 'Error al cargar cotizaciones';
+  static const int pageSize = 10; // Tamaño de página para paginación
+
+}
+
+
+
+
+
+
+
+
 class AppStyles {
   static final ButtonStyle elevatedButtonStyle = ElevatedButton.styleFrom(
     fixedSize: const Size(200, 45), // Ancho máximo (responsive),

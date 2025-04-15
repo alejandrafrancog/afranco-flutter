@@ -1,3 +1,5 @@
+import 'quote_screen.dart';
+
 import 'package:afranco/views/login_screen.dart';
 import 'package:afranco/views/start_screen.dart';
 import 'package:flutter/material.dart';
@@ -61,6 +63,19 @@ drawer: Drawer(
           );
         },
       ),
+      ListTile(
+        leading: const Icon(Icons.money),
+        title: const Text('Cotizaciones'),
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const QuoteScreen()),
+            
+          );
+        },
+      ),
+
       ListTile(
         leading: const Icon(Icons.exit_to_app),
         title: const Text('Salir'),
