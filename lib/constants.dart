@@ -22,6 +22,7 @@ class QuoteConstants{
   static const String emptyList = 'No hay cotizaciones disponibles';
   static const String errorMessage = 'Error al cargar cotizaciones';
   static const int pageSize = 10; // Tamaño de página para paginación
+  static const String dateFormat = 'dd/MM/yyyy HH:mm'; 
 
 }
 

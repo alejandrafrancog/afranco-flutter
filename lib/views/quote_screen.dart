@@ -16,6 +16,7 @@ class _QuoteScreenState extends State<QuoteScreen> {
   bool _isLoading = false;
   int _currentPage = 1;
   bool _hasMore = true;
+  final double spacingHeight = 10; // Variable para el espacio entre Cards
 
   @override
   void initState() {
@@ -57,9 +58,11 @@ class _QuoteScreenState extends State<QuoteScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Cotizaciones en Tiempo Real')),
-      body: ListView.builder(
+      backgroundColor: Colors.grey[200], // Fondo gris claro
+      body: ListView.separated(
         controller: _scrollController,
         itemCount: _quotes.length + (_isLoading ? 1 : 0),
+        separatorBuilder: (context, index) => SizedBox(height: spacingHeight), // Espacio entre Cards
         itemBuilder: (context, index) {
           if (index >= _quotes.length) {
             return _buildLoader();
@@ -81,7 +84,7 @@ class _QuoteScreenState extends State<QuoteScreen> {
     final isPositive = quote.changePercentage >= 0;
     
     return Card(
-      margin: const EdgeInsets.all(8),
+      margin: const EdgeInsets.symmetric(horizontal: 8), // Ajuste de márgenes
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
