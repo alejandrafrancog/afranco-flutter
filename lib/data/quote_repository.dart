@@ -13,11 +13,16 @@ class QuoteRepository {
   ];
 
   Future<List<Quote>> getPaginatedQuotes(int page) async {
-    await Future.delayed(const Duration(seconds: 2));
-    
-    return List.generate(QuoteConstants.pageSize, (index) => _generateRandomQuote());
-  }
-
+  await Future.delayed(const Duration(seconds: 2));
+  
+  final newQuotes = List.generate(
+    QuoteConstants.pageSize, 
+    (index) => _generateRandomQuote()
+  );
+  
+  _quotes.addAll(newQuotes); // Guarda las nuevas quotes en la lista
+  return newQuotes;
+}
   Quote _generateRandomQuote(){
     return Quote(
       companyName: _companyNames[_random.nextInt(_companyNames.length)]+" # ${_random.nextInt(20)}",
