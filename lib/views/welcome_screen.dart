@@ -77,6 +77,18 @@ drawer: Drawer(
           );
         },
       ),
+      ListTile(
+        leading: const Icon(Icons.newspaper),
+        title: const Text('Noticias'),
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => NoticiaScreen()),
+            
+          );
+        },
+      ),
 
       ListTile(
         leading: const Icon(Icons.exit_to_app),
@@ -90,18 +102,7 @@ drawer: Drawer(
           );
         },
       ),
-      ListTile(
-        leading: const Icon(Icons.newspaper),
-        title: const Text('Noticias'),
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => NoticiaScreen()),
-            
-          );
-        },
-      ),
+
 
     ],
   ),
