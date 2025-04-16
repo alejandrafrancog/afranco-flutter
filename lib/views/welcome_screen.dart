@@ -1,3 +1,5 @@
+import 'package:afranco/views/noticia_screen.dart';
+
 import 'quote_screen.dart';
 
 import 'package:afranco/views/login_screen.dart';
@@ -84,6 +86,18 @@ drawer: Drawer(
             context,
             MaterialPageRoute(
               builder: (context) => const LoginScreen()),
+            
+          );
+        },
+      ),
+      ListTile(
+        leading: const Icon(Icons.newspaper),
+        title: const Text('Noticias'),
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => NoticiaScreen()),
             
           );
         },
