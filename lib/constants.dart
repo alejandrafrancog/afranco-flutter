@@ -25,6 +25,35 @@ class QuoteConstants{
   static const String dateFormat = 'dd/MM/yyyy HH:mm'; 
 
 }
+class NoticiaConstants {
+  static const int pageSize = 15; // 15 noticias por página
+  static const List<String> fuentes = [
+    'CNN',
+    'BBC',
+    'New York Times',
+    'The Guardian',
+    'Reuters',
+    'El País',
+    'Washington Post',
+    'ABC Color',
+    'La Nación',
+    'Infonegocios',
+    'La República',
+    'Última Hora',
+    'Paraguay.com',
+    'Extra',
+    'Crónica',
+    'Hoy',
+    'Infobae',
+  ];
+  static const String appTitle = 'Noticias Técnicas...';
+  static const String loadingMessage = 'Cargando noticias...';
+  static const String emptyList = 'No hay noticias disponibles';
+  static const String errorMessage = 'Error al cargar noticias';
+  static const String noMoreNews = 'No hay más noticias disponibles';
+  static const String formatoFecha = 'dd/MM/yyyy HH:mm'; // Formato de fecha
+  static const double spacingHeight = 10; // Espacio entre Cards
+}
 
 
 
