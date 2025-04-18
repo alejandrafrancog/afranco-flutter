@@ -25,7 +25,7 @@ class NoticiaEstilos {
     fontSize: 13,
     fontStyle: FontStyle.normal,
     fontWeight: FontWeight.bold,
-    color: Colors.blueGrey,
+    color: Colors.grey,
   );
 
   static const TextStyle fechaNoticia = TextStyle(
