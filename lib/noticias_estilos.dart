@@ -4,7 +4,7 @@ class NoticiaEstilos {
   static const TextStyle tituloAppBar = TextStyle(
     fontSize: 20,
     fontWeight: FontWeight.bold,
-    color: Colors.black,
+    color: Colors.white,
   );
   static const margenCard = EdgeInsets.symmetric(
     horizontal: 16,
@@ -13,7 +13,6 @@ class NoticiaEstilos {
 
   static const TextStyle tituloNoticia = TextStyle(
     fontSize: 18,
-  
     fontWeight: FontWeight.bold,
   );
 
@@ -23,9 +22,10 @@ class NoticiaEstilos {
   );
 
   static const TextStyle fuenteNoticia = TextStyle(
-    fontSize: 12,
-    fontStyle: FontStyle.italic,
-    color: Colors.blue,
+    fontSize: 13,
+    fontStyle: FontStyle.normal,
+    fontWeight: FontWeight.bold,
+    color: Colors.blueGrey,
   );
 
   static const TextStyle fechaNoticia = TextStyle(
@@ -53,5 +53,8 @@ class NoticiaEstilos {
     fontWeight: FontWeight.w500,
   );
 
-  static const EdgeInsets paddingCard = EdgeInsets.all(16);
+
+
+
+  static const EdgeInsets paddingCard = EdgeInsets.all(10);
 }
