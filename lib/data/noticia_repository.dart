@@ -4,7 +4,33 @@ import 'dart:math';
 
 class NoticiaRepository {
   static final Random _random = Random();
+ 
+  final _titulosPosibles = [
+  "Se reeligió al presidente en una ajustada votación",
+  "Nueva ley de educación entra en vigor",
+  "Descubren nueva especie en el Chaco paraguayo",
+  "La inflación baja por tercer mes consecutivo",
+  "Paraguay lanza programa de reciclaje nacional",
+  "Corte Suprema emite fallo histórico",
+  "Comienza la construcción del puente bioceánico",
+  "Científicos paraguayos logran avance médico",
+  "Estudiantes protestan frente al Congreso",
+  "Inauguran nuevo hospital regional en el interior",
+  "Tecnología blockchain será adoptada por bancos locales",
+  "Paraguay firma acuerdo comercial con la UE",
+  "Paraguay lanza campaña de vacunación masiva",
+  "Paraguay se une a la iniciativa de reforestación global",
+  "Paraguay recibe premio por su gestión ambiental",
+  "Paraguay lanza programa de becas para estudiantes",
+  "Paraguay se convierte en líder en energías renovables",
+  "Paraguay celebra el Día de la Independencia con desfiles",
+  "Paraguay lanza programa de alfabetización digital",
+  "Paraguay recibe inversión extranjera récord",
+  "Paraguay lanza programa de apoyo a emprendedores",
+  "Paraguay se une a la lucha contra el cambio climático",
   
+];
+
   Future<List<Noticia>> getNoticiasPaginadas(int pagina) async {
     // Simula retardo de red
     await Future.delayed(const Duration(seconds: 2));
@@ -20,10 +46,11 @@ class NoticiaRepository {
     final id = '${pagina}_$index';
     final fuente = NoticiaConstants.fuentes[_random.nextInt(NoticiaConstants.fuentes.length)];
     final diasAleatorios = _random.nextInt(365);
+    final titulo = _titulosPosibles[_random.nextInt(_titulosPosibles.length)];
     
     return Noticia(
       id: id,
-      titulo: 'Noticia ${pagina * NoticiaConstants.pageSize + index}',
+      titulo:titulo,
       fuente: fuente,
       publicadaEl: DateTime.now().subtract(Duration(days: diasAleatorios)),
       descripcion: _generarContenidoAleatorio(),

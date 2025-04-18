@@ -69,6 +69,7 @@ class _NoticiaScreenState extends State<NoticiaScreen> {
       backgroundColor: Colors.grey[200],
       appBar: AppBar(
         title: Text('Últimas Noticias', style: NoticiaEstilos.tituloAppBar),
+        backgroundColor: Colors.lightGreen,
       ),
       body: _buildBodyContent(),
     );

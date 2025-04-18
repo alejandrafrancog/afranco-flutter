@@ -1,6 +1,5 @@
 import '../../data/noticia_repository.dart';
 import '../../domain/noticia.dart';
-
 class NoticiaService {
   static const int tamanoPaginaConst = 15;
   final NoticiaRepository _repositorio = NoticiaRepository();
@@ -64,6 +63,7 @@ class NoticiaService {
       throw NoticiaServiceException('Datos inválidos:\n${errores.join('\n')}');
     }
   }
+
 }
 
 class NoticiaServiceException implements Exception {
