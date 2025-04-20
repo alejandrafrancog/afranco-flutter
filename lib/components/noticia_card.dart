@@ -75,58 +75,44 @@ Widget build(BuildContext context) {
             ),
           ),
 
-          Padding(
-                padding: const EdgeInsets.only(left:12,right:15).copyWith(top: 10),
-                
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    // Fuente y Tiempo
-                    Padding(padding: EdgeInsets.all(4)),
-                    Row(
-                      
-                      children: [
-                        Text(
-                          noticia.fuente,
-                          style: NoticiaEstilos.fuenteNoticia,
-                        ),
-                        const SizedBox(width: 6),
-                        Text(
-                          "${noticia.tiempoLectura} min",
-                          style: NoticiaEstilos.fuenteNoticia,
-                        ),
-                      ],
-                      
-                    ),
-                   // Padding(padding:EdgeInsets.only(left:noticia.fuente.length.toDouble()*2.5)),                    
-                    // Iconos
-                    //const SizedBox(width:56),Spacer(),
-                    Spacer(),Spacer(),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 30),
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.star_border, size: 24),
-                          onPressed: () {
-                          },
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.share, size: 24),
-                          onPressed: () {},
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.more_vert, size: 24),
-                          onPressed: () {},
-                        ),
-                        
-                      ],
-                    ),
-                  ],
-                ),
-              ),
+Padding(
+  padding: const EdgeInsets.only(left: 22, right: 5, top: 10),
+  child: Row(
+    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    children: [
+      Row(
+        children: [
+          Text(
+            noticia.fuente,
+            style: NoticiaEstilos.fuenteNoticia,
+          ),
+          const SizedBox(width: 8),
+          Text(
+            "${noticia.tiempoLectura} min",
+            style: NoticiaEstilos.fuenteNoticia,
+          ),
+        ],
+      ),
+      // Iconos
+      Row(
+        children: [
+          IconButton(
+            icon: const Icon(Icons.star_border, size: 24),
+            onPressed: () {},
+          ),
+          IconButton(
+            icon: const Icon(Icons.share, size: 24),
+            onPressed: () {},
+          ),
+          IconButton(
+            icon: const Icon(Icons.more_vert, size: 24),
+            onPressed: () {},
+          ),
+        ],
+      ),
+    ],
+  ),
+),
 
         ],
       ),
