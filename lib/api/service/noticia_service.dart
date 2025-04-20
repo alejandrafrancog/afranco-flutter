@@ -1,5 +1,5 @@
-import '../../data/noticia_repository.dart';
-import '../../domain/noticia.dart';
+import 'package:afranco/data/noticia_repository.dart';
+import 'package:afranco/domain/noticia.dart';
 class NoticiaService {
   static const int tamanoPaginaConst = 15;
   final NoticiaRepository _repositorio = NoticiaRepository();
