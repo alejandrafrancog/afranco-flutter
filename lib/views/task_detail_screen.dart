@@ -1,20 +1,20 @@
 
 import 'package:flutter/material.dart';
-import '../domain/task.dart';
-import '../api/service/task_service.dart';
-import '../components/task_image.dart';
-import '../helpers/common_widgets_helper.dart';
+import 'package:afranco/domain/task.dart';
+import 'package:afranco/api/service/task_service.dart';
+import 'package:afranco/components/task_image.dart';
+import 'package:afranco/helpers/common_widgets_helper.dart';
 class TaskDetailScreen extends StatelessWidget {
   final Task task;
   final int indice;
   final Future<void> Function() onNeedMoreTasks; // Callback para cargar más
 
   const TaskDetailScreen({
-    Key? key,
+    super.key,
     required this.task,
     required this.indice,
     required this.onNeedMoreTasks,
-  }) : super(key: key);
+  });
 
 void _navigateToAdjacentTask(BuildContext context, int offset) async {
   var tasks = TaskService().getAllTasks(); 

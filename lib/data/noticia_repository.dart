@@ -1,5 +1,5 @@
-import '../constants.dart';
-import '../domain/noticia.dart';
+import 'package:afranco/constants.dart';
+import 'package:afranco/domain/noticia.dart';
 import 'dart:math';
 
 class NoticiaRepository {

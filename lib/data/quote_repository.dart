@@ -1,6 +1,6 @@
 import 'dart:math';
-import '../domain/quote.dart';
-import '../constants.dart';
+import 'package:afranco/domain/quote.dart';
+import 'package:afranco/constants.dart';
 
 class QuoteRepository {
   static final Random _random = Random();

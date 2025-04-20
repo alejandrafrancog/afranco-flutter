@@ -1,5 +1,5 @@
-import '../../domain/quote.dart';
-import '../../data/quote_repository.dart';
+import 'package:afranco/domain/quote.dart';
+import 'package:afranco/data/quote_repository.dart';
 
 /// QuoteService is responsible for managing the business logic related to quotes.
 class QuoteService {

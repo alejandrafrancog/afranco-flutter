@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart'; // Para los widgets de Flutter como Form, TextFormField, etc.
-import '../domain/task.dart'; // Para el modelo de datos Task.
+import 'package:afranco/domain/task.dart'; // Para el modelo de datos Task.
 import 'package:uuid/uuid.dart';
 class TaskForm extends StatefulWidget {
   final Task? task;
   final Function(Task) onSave;
 
-  const TaskForm({Key? key, this.task, required this.onSave}) : super(key: key);
+  const TaskForm({super.key, this.task, required this.onSave});
 
   @override
-  _TaskFormState createState() => _TaskFormState();
+  TaskFormState createState() => TaskFormState();
 }
 
-class _TaskFormState extends State<TaskForm> {
+class TaskFormState extends State<TaskForm> {
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _titleController;
   late TextEditingController _descriptionController;
@@ -24,7 +24,7 @@ class _TaskFormState extends State<TaskForm> {
     _titleController = TextEditingController(text: widget.task?.title ?? '');
     _descriptionController = TextEditingController(text: widget.task?.description ?? '');
     _type = widget.task?.type ?? 'normal';
-    _fecha = widget.task?.fechaLimite ?? DateTime.now().add(Duration(days: 7));
+    _fecha = widget.task?.fechaLimite ?? DateTime.now().add(const Duration(days: 7));
   }
 
   @override

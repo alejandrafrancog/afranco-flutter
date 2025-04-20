@@ -1,6 +1,5 @@
-// components/task_date_widget.dart
 import 'package:flutter/material.dart';
-import '../domain/task.dart';
+import 'package:afranco/domain/task.dart';
 
 class TaskDateWidget extends StatelessWidget {
   final Task task;

@@ -1,4 +1,3 @@
-// components/task_image.dart
 import 'package:flutter/material.dart';
 
 class TaskImage extends StatelessWidget {

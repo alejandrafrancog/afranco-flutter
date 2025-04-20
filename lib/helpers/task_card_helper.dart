@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../domain/task.dart';
-import '../constants.dart';
-import '../views/task_detail_screen.dart';  
+import 'package:afranco/domain/task.dart';
+import 'package:afranco/constants.dart';
+import 'package:afranco/views/task_detail_screen.dart';  
 Widget buildTaskCard(Task task) {
   return Card(
     margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),

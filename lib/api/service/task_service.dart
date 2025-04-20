@@ -1,6 +1,6 @@
-import '../../data/task_repository.dart';
-import '../../domain/task.dart';
-import '../../data/assistant_repository.dart';
+import 'package:afranco/data/task_repository.dart';
+import 'package:afranco/domain/task.dart';
+import 'package:afranco/data/assistant_repository.dart';
 import 'package:uuid/uuid.dart';
 
 class TaskService {

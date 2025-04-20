@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'views/login_screen.dart'; // Mantén esta línea y elimina la duplicada
-import 'constants.dart';
+import 'package:afranco/views/login_screen.dart'; // Mantén esta línea y elimina la duplicada
+import 'package:afranco/constants.dart';
 void main() {
   runApp(const MyApp());
 }
@@ -13,7 +13,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-        colorScheme: ColorScheme.light(
+        colorScheme: const ColorScheme.light(
           primary:  Colors.teal,
           secondary: Colors.tealAccent,
         ),
@@ -125,7 +125,7 @@ class _MyHomePageState extends State<MyHomePage> {
               },
               child: const Text('Mostrar Advertencia'),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
         
           ],
         ),

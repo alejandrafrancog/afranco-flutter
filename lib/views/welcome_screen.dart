@@ -1,14 +1,12 @@
 import 'package:afranco/views/noticia_screen.dart';
 import 'package:afranco/views/pantalla_interactiva.dart';
-
-import 'quote_screen.dart';
-
+import 'package:afranco/views/quote_screen.dart';
 import 'package:afranco/views/login_screen.dart';
 import 'package:afranco/views/start_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:afranco/views/tasks.dart'; // Mantén esta línea
-import '../main.dart';
-import '../constants.dart';
+import 'package:afranco/main.dart';
+import 'package:afranco/constants.dart';
 
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
@@ -37,7 +35,7 @@ drawer: Drawer(
         onTap: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => TasksScreen()),
+            MaterialPageRoute(builder: (context) => const TasksScreen()),
           );
         },
       ),
@@ -97,7 +95,7 @@ drawer: Drawer(
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => ColorChangerScreen()),
+              builder: (context) => const ColorChangerScreen()),
             
           );
         },
@@ -145,7 +143,7 @@ drawer: Drawer(
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => TasksScreen(),
+                    builder: (context) => const TasksScreen(),
                   ),
                 );
               },

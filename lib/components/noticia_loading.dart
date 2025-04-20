@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../noticias_estilos.dart';
+import 'package:afranco/noticias_estilos.dart';
 class FullScreenLoading extends StatelessWidget {
   const FullScreenLoading({super.key});
 

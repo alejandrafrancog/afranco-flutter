@@ -33,7 +33,7 @@ class _LoginScreenState extends State<LoginScreen> {
       // Redirige a WelcomeScreen después del login exitoso
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => WelcomeScreen()),
+        MaterialPageRoute(builder: (context) => const WelcomeScreen()),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -63,7 +63,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 
               ),
             ),
-            SizedBox(height: 26),
+            const SizedBox(height: 26),
             TextField(
               controller: _usernameController,
 

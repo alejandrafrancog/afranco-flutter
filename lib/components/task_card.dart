@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import '../domain/task.dart';
-import '../constants.dart';
+import 'package:afranco/domain/task.dart';
+import 'package:afranco/constants.dart';
 
 class TaskCard extends StatelessWidget {
   final Task task;
 
-  const TaskCard({Key? key, required this.task}) : super(key: key);
+  const TaskCard({super.key, required this.task});
 
   @override
   Widget build(BuildContext context) {

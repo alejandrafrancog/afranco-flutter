@@ -20,10 +20,10 @@ class ColorChangerScreen extends StatefulWidget {
   const ColorChangerScreen({super.key});
 
   @override
-  _ColorChangerScreenState createState() => _ColorChangerScreenState();
+  ColorChangerScreenState createState() => ColorChangerScreenState();
 }
 
-class _ColorChangerScreenState extends State<ColorChangerScreen> {
+class ColorChangerScreenState extends State<ColorChangerScreen> {
   // Lista de colores disponibles
   final List<Color> _colors = [
     Colors.blue,

@@ -1,10 +1,9 @@
 
-import '../domain/task.dart';
+import 'package:afranco/domain/task.dart';
 import 'package:uuid/uuid.dart';
 class TaskRepository {
   static final TaskRepository _instance = TaskRepository._privado();
   
-  List<Task> _tasks = [];
 
   TaskRepository._privado();
 
@@ -12,8 +11,8 @@ class TaskRepository {
   factory TaskRepository() => _instance;
   
   List<Task> getTasks() => _tasks;
-  TaskRepository._internal() {
-  _tasks = List.generate(5, (index) {
+  
+  final _tasks = List.generate(5, (index) {
     final fechaLimite = DateTime(2025, 4,  10); // Genera fechas únicas);
     return Task(
       id: const Uuid().v4(), // <<< Genera ID único
@@ -23,7 +22,7 @@ class TaskRepository {
       pasos: generateSteps('Tarea ${index + 1}', fechaLimite),
     );
   });
-}
+
  static List<String> generateSteps(String title, DateTime fecha) {
   String formatoSimple(DateTime fecha) {
     // Agrega 0 izquierdo a día/mes si son menores a 10

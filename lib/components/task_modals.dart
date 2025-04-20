@@ -19,12 +19,12 @@ Future<void> showEditTaskModal(
             task: task,
             onSave: (updatedTask) {
               final newTask = Task(
-                id: task.id, // <<< Conserva el ID original
+                id: task.id, 
                 title: updatedTask.title,
                 description: updatedTask.description,
                 type: updatedTask.type,
                 fechaLimite: updatedTask.fechaLimite,
-                pasos: updatedTask.pasos, // <<< Mantiene los pasos existentes
+                pasos: updatedTask.pasos, 
               );
               onEditTask(newTask);
               Navigator.pop(context);
@@ -53,7 +53,7 @@ Future<void> showEditTaskModal(
           child: TaskForm(
             onSave: (newTask) {
               final updatedTask = Task(
-                id: newTask.id, // <<< Conserva el ID generado en TaskForm
+                id: newTask.id, 
                 title: newTask.title,
                 description: newTask.description,
                 type: newTask.type,

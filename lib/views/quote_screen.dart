@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
-import '../domain/quote.dart';
-import '../api/service/quote_service.dart';
+import 'package:afranco/domain/quote.dart';
+import 'package:afranco/api/service/quote_service.dart';
 
 class QuoteScreen extends StatefulWidget {
   const QuoteScreen({super.key});
 
   @override
-  _QuoteScreenState createState() => _QuoteScreenState();
+  QuoteScreenState createState() => QuoteScreenState();
 }
 
-class _QuoteScreenState extends State<QuoteScreen> {
+class QuoteScreenState extends State<QuoteScreen> {
   final List<Quote> _quotes = [];
   final QuoteService _service = QuoteService();
   final ScrollController _scrollController = ScrollController();

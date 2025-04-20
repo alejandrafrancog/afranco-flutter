@@ -1,5 +1,5 @@
-import '../../domain/question.dart';
-import '../../data/question_repository.dart';
+import 'package:afranco/domain/question.dart';
+import 'package:afranco/data/question_repository.dart';
 
 class QuestionService {
   final QuestionRepository _questionRepository;

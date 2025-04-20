@@ -35,10 +35,10 @@ class TasksScreen extends StatefulWidget {
   const TasksScreen({super.key});
 
   @override
-  _TasksScreenState createState() => _TasksScreenState();
+  TasksScreenState createState() => TasksScreenState();
 }
 
-class _TasksScreenState extends State<TasksScreen> {
+class TasksScreenState extends State<TasksScreen> {
   final TaskRepository _taskRepository = TaskRepository(); // Instancia del repositorio
   final ScrollController _scrollController = ScrollController();
   final TaskService _taskService = TaskService(); // Instancia del servicio

@@ -1,21 +1,21 @@
 import 'package:flutter/material.dart';
-import '../api/service/noticia_service.dart';
-import '../domain/noticia.dart';
-import '../noticias_estilos.dart';
-import '../components/noticia_error.dart';
-import '../components/noticia_card.dart';
-import '../components/noticia_loading.dart';
-import '../components/noticia_empty_state.dart';
+import 'package:afranco/api/service/noticia_service.dart';
+import 'package:afranco/domain/noticia.dart';
+import 'package:afranco/noticias_estilos.dart';
+import 'package:afranco/components/noticia_error.dart';
+import 'package:afranco/components/noticia_card.dart';
+import 'package:afranco/components/noticia_loading.dart';
+import 'package:afranco/components/noticia_empty_state.dart';
 class NoticiaScreen extends StatefulWidget {
   final NoticiaService service = NoticiaService();
   
    NoticiaScreen({super.key});
 
   @override
-  _NoticiaScreenState createState() => _NoticiaScreenState();
+  NoticiaScreenState createState() => NoticiaScreenState();
 }
 
-class _NoticiaScreenState extends State<NoticiaScreen> {
+class NoticiaScreenState extends State<NoticiaScreen> {
   final List<Noticia> _noticias = [];
   final ScrollController _scrollController = ScrollController();
   bool _isLoading = false;
@@ -68,7 +68,7 @@ class _NoticiaScreenState extends State<NoticiaScreen> {
     return Scaffold(
       backgroundColor: Colors.grey[200],
       appBar: AppBar(
-        title: Text('Últimas Noticias', style: NoticiaEstilos.tituloAppBar),
+        title: const Text('Últimas Noticias', style: NoticiaEstilos.tituloAppBar),
         backgroundColor: Colors.lightGreen,
       ),
       body: _buildBodyContent(),

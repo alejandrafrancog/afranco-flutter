@@ -12,10 +12,10 @@ class GameScreen extends StatefulWidget {
   });
 
   @override
-  _GameScreenState createState() => _GameScreenState();
+  GameScreenState createState() => GameScreenState();
 }
 
-class _GameScreenState extends State<GameScreen> {
+class GameScreenState extends State<GameScreen> {
   late List<Question> questionsList;
   int currentQuestionIndex = 0;
   int userScore = 0;
