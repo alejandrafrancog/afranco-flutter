@@ -1,4 +1,5 @@
 import 'package:afranco/views/noticia_screen.dart';
+import 'package:afranco/views/pantalla_interactiva.dart';
 
 import 'quote_screen.dart';
 
@@ -89,6 +90,19 @@ drawer: Drawer(
           );
         },
       ),
+      ListTile(
+        leading: const Icon(Icons.palette_outlined),
+        title: const Text('Colores'),
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ColorChangerScreen()),
+            
+          );
+        },
+      ),
+
 
       ListTile(
         leading: const Icon(Icons.exit_to_app),
