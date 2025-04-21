@@ -26,7 +26,7 @@ class QuoteConstants{
 
 }
 class NoticiaConstants {
-  static const int pageSize = 15; // 15 noticias por página
+  static const int pageSize = 10; // 10 noticias por página
   static const List<String> fuentes = [
     'CNN',
     'BBC',
@@ -53,15 +53,12 @@ class NoticiaConstants {
   static const String noMoreNews = 'No hay más noticias disponibles';
   static const String formatoFecha = 'dd/MM/yyyy HH:mm'; 
   static const double spacingHeight = 10; 
-  static const String apiKey = '598a6784b15e7fd46ad36c07d02f1ea7';
-  static const String newsUrl = 'https://gnews.io/api/v4/top-headlines';
-}
-
-
-
-
-
-
+  static const String newsAPIUrl = 'https://newsapi.org/v2/everything';
+  static const String newsApiKey = 'aa63139a431c4837a87f6fdd398b9305';
+  static const String language = "es";
+  static const String category = "tecnología";
+  
+  }
 
 
 class AppStyles {
