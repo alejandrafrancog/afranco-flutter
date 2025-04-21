@@ -80,12 +80,19 @@ Padding(
   child: Row(
     mainAxisAlignment: MainAxisAlignment.spaceBetween,
     children: [
-      Row(
+      Expanded(
+        child:Row(
         children: [
-          Text(
-            noticia.fuente,
-            style: NoticiaEstilos.fuenteNoticia,
+          Flexible(
+            child:Text(
+               noticia.fuente,
+                style: NoticiaEstilos.fuenteNoticia,
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+            ),
+
           ),
+          
           const SizedBox(width: 8),
           Text(
             "${noticia.tiempoLectura} min",
@@ -93,8 +100,11 @@ Padding(
           ),
         ],
       ),
+      ),
+      
       // Iconos
       Row(
+        mainAxisSize:MainAxisSize.min,
         children: [
           IconButton(
             icon: const Icon(Icons.star_border, size: 24),
