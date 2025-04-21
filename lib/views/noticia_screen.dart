@@ -6,6 +6,7 @@ import 'package:afranco/components/noticia_error.dart';
 import 'package:afranco/components/noticia_card.dart';
 import 'package:afranco/components/noticia_loading.dart';
 import 'package:afranco/components/noticia_empty_state.dart';
+import 'package:afranco/constants.dart';
 class NoticiaScreen extends StatefulWidget {
   final NoticiaService service = NoticiaService();
   
@@ -68,7 +69,7 @@ class NoticiaScreenState extends State<NoticiaScreen> {
     return Scaffold(
       backgroundColor: Colors.grey[200],
       appBar: AppBar(
-        title: const Text('Últimas Noticias', style: NoticiaEstilos.tituloAppBar),
+        title: const Text(NoticiaConstants.appTitle, style: NoticiaEstilos.tituloAppBar),
         backgroundColor: Colors.lightGreen,
       ),
       body: _buildBodyContent(),
@@ -101,7 +102,7 @@ class NoticiaScreenState extends State<NoticiaScreen> {
         }
         return NoticiaCard(
           noticia: _noticias[index],
-          imageUrl: 'https://picsum.photos/400/200?random=$index',
+          imageUrl: _noticias[index].imagen,
         );
       },
     );

@@ -46,13 +46,15 @@ class NoticiaConstants {
     'Hoy',
     'Infobae',
   ];
-  static const String appTitle = 'Noticias Técnicas...';
+  static const String appTitle = 'Noticias Técnicas';
   static const String loadingMessage = 'Cargando noticias...';
   static const String emptyList = 'No hay noticias disponibles';
   static const String errorMessage = 'Error al cargar noticias';
   static const String noMoreNews = 'No hay más noticias disponibles';
-  static const String formatoFecha = 'dd/MM/yyyy HH:mm'; // Formato de fecha
-  static const double spacingHeight = 10; // Espacio entre Cards
+  static const String formatoFecha = 'dd/MM/yyyy HH:mm'; 
+  static const double spacingHeight = 10; 
+  static const String apiKey = '598a6784b15e7fd46ad36c07d02f1ea7';
+  static const String newsUrl = 'https://gnews.io/api/v4/top-headlines';
 }
 
 

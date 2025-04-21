@@ -1,10 +1,12 @@
 import 'package:afranco/constants.dart';
 import 'package:afranco/domain/noticia.dart';
+import 'package:dio/dio.dart';
 import 'dart:math';
 
 class NoticiaRepository {
   static final Random _random = Random();
- 
+   final Dio _dio = Dio();
+
   final _titulosPosibles = [
   "Se reeligió al presidente en una ajustada votación",
   "Nueva ley de educación entra en vigor",
@@ -52,8 +54,10 @@ class NoticiaRepository {
       id: id,
       titulo:titulo,
       fuente: fuente,
+      imagen: '',
       publicadaEl: DateTime.now().subtract(Duration(days: diasAleatorios)),
       descripcion: _generarContenidoAleatorio(),
+      url:'',
     );
   }
 
@@ -87,5 +91,29 @@ class NoticiaRepository {
       ];
     
     return List.generate(50, (_) => palabras[_random.nextInt(palabras.length)]).join(' ');
+  }
+  Future<List<Noticia>> getTechnologyNews() async {
+    try {
+      const String url = NoticiaConstants.newsUrl;
+      
+      final response = await _dio.get(
+        url,
+        queryParameters: {
+          'category': 'technology',
+          'apikey': NoticiaConstants.apiKey,
+          'lang': 'es',
+          'max': 10
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> articlesJson = response.data['articles'];
+        return articlesJson.map((json) => Noticia.fromJson(json)).toList();
+      }
+      return [];
+    } catch (e) {
+      print('Error: $e');
+      return [];
+    }
   }
 }

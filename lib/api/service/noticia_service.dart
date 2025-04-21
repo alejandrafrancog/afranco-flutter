@@ -12,7 +12,7 @@ class NoticiaService {
     _validarParametros(numeroPagina, tamanoPagina);
 
     // Obtener datos del repositorio
-    final noticias = await _repositorio.getNoticiasPaginadas(numeroPagina);
+    final noticias = await _repositorio.getTechnologyNews();
     
     // Validar datos recibidos
     _validarNoticias(noticias);
