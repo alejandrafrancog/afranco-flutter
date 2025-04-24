@@ -1,6 +1,8 @@
+import 'package:afranco/components/noticia_edit_modal.dart';
 import 'package:flutter/material.dart';
 import 'package:afranco/domain/noticia.dart';
 import 'package:afranco/noticias_estilos.dart';
+
 
 class NoticiaCard extends StatelessWidget {
   final Noticia noticia;
@@ -27,14 +29,29 @@ Widget build(BuildContext context) {
         children: [
           // Título
          Padding(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.only(left:20,right:20,top:20),
           child: Text(
           noticia.titulo,
           style: NoticiaEstilos.tituloNoticia,
           overflow: TextOverflow.visible, // Elimina el truncamiento
           softWrap: true, // Permite saltos de línea
-        ),
-),
+        ),  
+      ),
+      
+      Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        
+        children: [
+          
+          Padding(padding: const EdgeInsets.only(left: 20),
+            child:Text( '${noticia.publicadaEl.day}/${noticia.publicadaEl.month}/${noticia.publicadaEl.year}', style:NoticiaEstilos.fuenteNoticia),
+
+          ),
+
+        ],
+
+      ),
+
 
           // Contenido: Imagen + Descripción
           Padding(
@@ -53,6 +70,7 @@ Widget build(BuildContext context) {
                       maxLines: 5,
                       overflow: TextOverflow.ellipsis,
                     ),
+                    
                   ),
                 ),
                 
@@ -98,6 +116,7 @@ Padding(
             "${noticia.tiempoLectura} min",
             style: NoticiaEstilos.fuenteNoticia,
           ),
+          
         ],
       ),
       ),
@@ -106,6 +125,7 @@ Padding(
       Row(
         mainAxisSize:MainAxisSize.min,
         children: [
+         
           IconButton(
             icon: const Icon(Icons.star_border, size: 24),
             onPressed: () {},
@@ -114,10 +134,35 @@ Padding(
             icon: const Icon(Icons.share, size: 24),
             onPressed: () {},
           ),
-          IconButton(
-            icon: const Icon(Icons.more_vert, size: 24),
-            onPressed: () {},
+          
+          PopupMenuButton<String>(
+            onSelected: (value){
+              switch(value){
+                case 'edit':
+                showDialog(
+                  context: context,
+                  builder: (context) => NoticiaEditModal(noticia:noticia, id:noticia.id),
+                );
+                break;
+                case 'delete':
+                  break;
+              }
+
+            },
+            itemBuilder: (BuildContext context)=>[
+              const PopupMenuItem<String> (
+                value:'edit',
+                child:Text('Editar'),
+                
+              ),
+              const PopupMenuItem<String>(
+                value:'delete',
+                child:Text('Eliminar')
+              ),
+            ],
+            icon:const Icon(Icons.more_vert),
           ),
+         
         ],
       ),
     ],
@@ -128,5 +173,7 @@ Padding(
       ),
     ),
   );
-}}
+  }
+ 
+}
 

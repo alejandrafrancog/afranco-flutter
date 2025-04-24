@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:afranco/api/service/noticia_service.dart';
 import 'package:afranco/domain/noticia.dart';
@@ -7,8 +10,12 @@ import 'package:afranco/components/noticia_card.dart';
 import 'package:afranco/components/noticia_loading.dart';
 import 'package:afranco/components/noticia_empty_state.dart';
 import 'package:afranco/constants.dart';
+import 'package:afranco/components/noticia_creation_modal.dart';
+import 'package:intl/intl.dart';
+
 class NoticiaScreen extends StatefulWidget {
   final NoticiaService service = NoticiaService();
+
   
    NoticiaScreen({super.key});
 
@@ -19,10 +26,13 @@ class NoticiaScreen extends StatefulWidget {
 class NoticiaScreenState extends State<NoticiaScreen> {
   final List<Noticia> _noticias = [];
   final ScrollController _scrollController = ScrollController();
+  DateTime? _ultimaActualizacion; // Nueva variable de estado
+
   bool _isLoading = false;
   int _currentPage = 1;
   bool _hasMore = true;
   String? _errorMessage;
+  bool _ordenarPorFecha = true; // Nuevo estado para controlar el orden
 
   @override
   void initState() {
@@ -30,52 +40,127 @@ class NoticiaScreenState extends State<NoticiaScreen> {
     _scrollController.addListener(_scrollListener);
     _loadMoreNoticias();
   }
-
+  
   void _scrollListener() {
     if (_scrollController.position.pixels >= 
         _scrollController.position.maxScrollExtent * 0.8) {
       _loadMoreNoticias();
     }
   }
+  Future<void> _loadMoreNoticias({bool resetear = false}) async {
+  if (_isLoading || (!_hasMore && !resetear)) return;
 
-  Future<void> _loadMoreNoticias() async {
-    if (_isLoading || !_hasMore) return;
-    
+  setState(() {
+    _isLoading = true;
+    _errorMessage = null;
+    if (resetear) {
+      _currentPage = 1;
+      _noticias.clear();
+      _hasMore = true;
+      _ultimaActualizacion = null; // Resetear última actualización
+    }
+  });
+
+  try {
+    final nuevasNoticias = await widget.service.obtenerNoticiasPaginadas(
+      numeroPagina: _currentPage,
+      ordenarPorFecha: _ordenarPorFecha,
+    ).timeout(const Duration(seconds: 15)); // Timeout para evitar esperas infinitas
+
+    if (!mounted) return; // Verificar si el widget está montado
+
     setState(() {
-      _isLoading = true;
-      _errorMessage = null;
+      _noticias.addAll(nuevasNoticias);
+      _currentPage++;
+      _hasMore = nuevasNoticias.isNotEmpty;
+
+      if (nuevasNoticias.isNotEmpty) {
+        _ultimaActualizacion = DateTime.now(); // Actualizar con hora local
+      }
     });
-    
-    try {
-      final nuevasNoticias = await widget.service.obtenerNoticiasPaginadas(
-        numeroPagina: _currentPage,
-      );
-      
-      setState(() {
-        _noticias.addAll(nuevasNoticias);
-        _currentPage++;
-        _hasMore = nuevasNoticias.isNotEmpty;
-      });
-      
-    } catch (e) {
-      setState(() => _errorMessage = e.toString());
-    } finally {
+
+  } on TimeoutException catch (_) {
+    setState(() => _errorMessage = "Tiempo de espera agotado. Verifica tu conexión");
+  } on SocketException catch (_) {
+    setState(() => _errorMessage = "Error de conexión a internet");
+  } on HttpException catch (e) {
+    setState(() => _errorMessage = "Error del servidor: ${e.message}");
+  } on FormatException catch (_) {
+    setState(() => _errorMessage = "Error en el formato de los datos");
+  } catch (e) {
+    setState(() => _errorMessage = "Error inesperado: ${e.toString()}");
+  } finally {
+    if (mounted) {
       setState(() => _isLoading = false);
     }
   }
+}
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.grey[200],
-      appBar: AppBar(
-        title: const Text(NoticiaConstants.appTitle, style: NoticiaEstilos.tituloAppBar),
-        backgroundColor: Colors.lightGreen,
+
+  void _mostrarModalCreacion() {
+    showDialog(
+      context: context,
+      builder: (context) => NoticiaCreationModal(
+        service: widget.service,
+        onNoticiaCreated: (nuevaNoticia) => _loadMoreNoticias(resetear: true),
       ),
-      body: _buildBodyContent(),
     );
   }
-
+void _alternarOrden() {
+  setState(() {
+    _ordenarPorFecha = !_ordenarPorFecha;
+    _noticias.clear(); // Limpiar lista existente inmediatamente
+  });
+  _loadMoreNoticias(resetear: true); // Forzar recarga desde página 1
+}
+@override
+Widget build(BuildContext context) {
+  return Scaffold(
+    backgroundColor: Colors.grey[200],
+    appBar: AppBar(
+      title: const Text(NoticiaConstants.appTitle, 
+      style: NoticiaEstilos.tituloAppBar),
+      backgroundColor: Colors.lightGreen,
+      actions: [
+        IconButton(
+          icon: Icon(Icons.sort, 
+          color: _ordenarPorFecha ? const Color.fromARGB(255, 255, 255, 255) : Colors.green),
+          tooltip: NoticiaConstants.tooltipOrden,
+          onPressed: _alternarOrden,
+        ),
+      ],
+  ),
+    body: Column(
+      children: [
+        // Sección de última actualización
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+          color: Colors.grey[300],
+          child: _ultimaActualizacion != null
+              ? Text(
+                  'Última actualización: ${DateFormat('dd/MM/yyyy HH:mm').format(_ultimaActualizacion!)}',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey[700],
+                    fontStyle: FontStyle.italic,
+                  ),
+                )
+              : const SizedBox.shrink(),
+        ),
+        // Lista de noticias
+        Expanded(
+          child: _buildBodyContent(),
+        ),
+      ],
+    ),
+    floatingActionButton: FloatingActionButton(
+      backgroundColor: Colors.lightGreen,
+      onPressed: _mostrarModalCreacion,
+      child: const Icon(Icons.add),
+    ),
+  );
+}
   Widget _buildBodyContent() {
     if (_errorMessage != null) {
       return ErrorMessage(

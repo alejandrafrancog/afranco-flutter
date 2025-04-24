@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import 'package:afranco/env_constants.dart';
 class AppConstants {
   static const String titleAppBarT = 'Lista de Tareas';
   static const String emptyList = 'No hay tareas';
@@ -26,7 +26,12 @@ class QuoteConstants{
 
 }
 class NoticiaConstants {
-  static const int pageSize = 10; // 10 noticias por página
+  static int get pageSize => EnvConstants.newsPageSize;
+  static String get newsAPIUrl => EnvConstants.newsApiUrl;
+  static String get crudApiUrl => EnvConstants.curlApiUrl;
+  static String get newsApiKey => EnvConstants.newsApiKey;
+  static String get language => EnvConstants.language;
+  static String get category => EnvConstants.category;
   static const List<String> fuentes = [
     'CNN',
     'BBC',
@@ -53,10 +58,10 @@ class NoticiaConstants {
   static const String noMoreNews = 'No hay más noticias disponibles';
   static const String formatoFecha = 'dd/MM/yyyy HH:mm'; 
   static const double spacingHeight = 10; 
-  static const String newsAPIUrl = 'https://newsapi.org/v2/everything';
-  static const String newsApiKey = 'aa63139a431c4837a87f6fdd398b9305';
-  static const String language = "es";
-  static const String category = "tecnología";
+ 
+  static const String etiquetaUltimaActualizacion = 'Última actualización';
+  static const String tooltipOrden = 'Cambiar orden';
+
   
   }
 
