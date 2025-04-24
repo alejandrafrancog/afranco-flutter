@@ -25,13 +25,25 @@ class QuoteConstants{
   static const String dateFormat = 'dd/MM/yyyy HH:mm'; 
 
 }
+class ApiConstants {
+  static String get crudApiUrl => EnvConstants.curlApiUrl;
+  static String noticiasEndpoint = '/noticias';
+  static String get newsApiKey => EnvConstants.newsApiKey;
+  static String get newsAPIUrl => EnvConstants.newsApiUrl;
+  static String categoryEndpoint = 'categorias';
+}
+class CategoriaConstants{
+  static String errorTimeout = 'Tiempo de espera agotado';
+  static String errorNoCategory = 'Categoría no encontrada';
+  static String defaultCategoryId = 'sin_categoria';
+}
 class NoticiaConstants {
   static int get pageSize => EnvConstants.newsPageSize;
-  static String get newsAPIUrl => EnvConstants.newsApiUrl;
-  static String get crudApiUrl => EnvConstants.curlApiUrl;
-  static String get newsApiKey => EnvConstants.newsApiKey;
   static String get language => EnvConstants.language;
   static String get category => EnvConstants.category;
+  static int timeOutSeconds = 10;
+
+
   static const List<String> fuentes = [
     'CNN',
     'BBC',
@@ -61,6 +73,7 @@ class NoticiaConstants {
  
   static const String etiquetaUltimaActualizacion = 'Última actualización';
   static const String tooltipOrden = 'Cambiar orden';
+
 
   
   }
