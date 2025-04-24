@@ -7,7 +7,7 @@ import 'dart:math';
 class NoticiaRepository {
   static final Random _random = Random();
   final Dio _dio = Dio();
-  static String _baseUrl = 'https://crudcrud.com/api/${NoticiaConstants.crudApiUrl}/noticias';
+  static String _baseUrl = '${ApiConstants.crudApiUrl}${ApiConstants.noticiasEndpoint}';
 
   final _titulosPosibles = [
     "Se reeligió al presidente en una ajustada votación",
@@ -51,38 +51,52 @@ class NoticiaRepository {
     
     return List.generate(50, (_) => palabras[_random.nextInt(palabras.length)]).join(' ');
   }
-  Future<List<Noticia>> getTechnologyNews({
-    required int page,       // Página actual
-  }) async {
+  Future<List<Noticia>> getTechnologyNews({required int page}) async {
     try {
       final response = await _dio.get(
-        NoticiaConstants.crudApiUrl,
+        '${ApiConstants.crudApiUrl}${ApiConstants.noticiasEndpoint}',
         queryParameters: {
           'q': NoticiaConstants.category,
           'language': NoticiaConstants.language,
           'pageSize': NoticiaConstants.pageSize,
           'page': page,
-          'sortBy':'publishedAt',
+          'sortBy': 'publishedAt',
         },
         options: Options(
           headers: {
-            'X-Api-Key': NoticiaConstants.newsApiKey,
+            'X-Api-Key': ApiConstants.newsApiKey,
           },
         ),
-        );
+      ).timeout(const Duration(seconds: 10));
 
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> data = response.data;
-        if (data['status'] == 'ok' && data['articles'] != null) {
-          return (data['articles'] as List)
-              .map((json) => Noticia.fromJson(json))
-              .toList();
-        }
+      switch (response.statusCode) {
+        case 200:
+          final Map<String, dynamic> data = response.data;
+          if (data['status'] == 'ok' && data['articles'] != null) {
+            return (data['articles'] as List)
+                .map((json) => Noticia.fromJson(json))
+                .toList();
+          }
+          return [];
+        case 400:
+          throw Exception("Error 400");
+        case 401:
+          throw Exception('No autorizado');
+        case 404:
+          throw Exception('Noticias no encontradas');
+        case 500:
+          throw Exception('Error del servidor');
+        default:
+          throw Exception('Error inesperado: ${response.statusCode}');
       }
-      return [];
     } on DioException catch (e) {
-      print('Error: ${e.response?.data ?? e.message}');
-      return [];
+      if (e.type == DioExceptionType.connectionTimeout || e.type == DioExceptionType.receiveTimeout) {
+        throw Exception(e.toString());
+      } else {
+        throw Exception('Error de red: ${e.message}');
+      }
+    } catch (e) {
+      throw Exception('Error inesperado: $e');
     }
   }
   /*Future<void> createNoticia(Noticia noticia) async {
@@ -135,7 +149,7 @@ class NoticiaRepository {
   Future<void> createNoticia(Noticia noticia) async {
     try {
       final response = await _dio.post(
-        NoticiaConstants.crudApiUrl,
+        '${ApiConstants.crudApiUrl}/noticias',
         data: {
           'titulo': noticia.titulo,
           'descripcion': noticia.descripcion,
@@ -157,7 +171,7 @@ class NoticiaRepository {
     Future<void> updateNoticia(Noticia noticia, {String? titulo, String? descripcion,String? fuente}) async {
     try {
       final response = await _dio.put(
-        '${NoticiaConstants.crudApiUrl}/${noticia.id}',
+        '${ApiConstants.crudApiUrl}noticia/${noticia.id}',
         data: {
           'titulo': titulo ?? noticia.titulo,
           'descripcion': descripcion ?? noticia.descripcion,
@@ -179,7 +193,7 @@ class NoticiaRepository {
   Future<List<Noticia>> getTechNews({required int page}) async {
     try {
       final response = await _dio.get(
-        NoticiaConstants.crudApiUrl,
+        '${ApiConstants.crudApiUrl}noticias',
         options: Options(headers: {}),
       );
 
@@ -235,7 +249,7 @@ class NoticiaRepository {
   Future<Response> deleteNoticia(String id) async {
     try {
       final response = await _dio.delete(
-        '${NoticiaConstants.crudApiUrl}/$id',
+        '${ApiConstants.crudApiUrl}/$id',
       );
       return response;
     } on DioException catch (e) {

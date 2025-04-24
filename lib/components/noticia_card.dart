@@ -1,3 +1,4 @@
+import 'package:afranco/components/delete_noticia_modal.dart';
 import 'package:afranco/components/noticia_edit_modal.dart';
 import 'package:flutter/material.dart';
 import 'package:afranco/domain/noticia.dart';
@@ -145,6 +146,18 @@ Padding(
                 );
                 break;
                 case 'delete':
+                showDialog(
+                context: context,
+                builder: (context) => NoticiaDeleteModal(
+                  noticia: noticia,
+                  id: noticia.id,
+                ),
+                ).then((resultado) {
+                  if (resultado == true) {
+                    // Actualizar la lista de noticias aquí
+                    
+                  }
+                });
                   break;
               }
 

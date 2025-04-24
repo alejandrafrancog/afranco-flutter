@@ -1,3 +1,4 @@
+import 'package:afranco/views/categoria_screen.dart';
 import 'package:afranco/views/noticia_screen.dart';
 import 'package:afranco/views/pantalla_interactiva.dart';
 import 'package:afranco/views/quote_screen.dart';
@@ -7,7 +8,6 @@ import 'package:flutter/material.dart';
 import 'package:afranco/views/tasks.dart'; // Mantén esta línea
 import 'package:afranco/main.dart';
 import 'package:afranco/constants.dart';
-
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
 
@@ -100,7 +100,18 @@ drawer: Drawer(
           );
         },
       ),
-
+      ListTile(
+        leading: const Icon(Icons.category),
+        title: const Text('Categorías'),
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const CategoriaScreen()),
+            
+          );
+        },
+      ),
 
       ListTile(
         leading: const Icon(Icons.exit_to_app),
