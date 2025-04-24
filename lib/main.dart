@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:afranco/views/login_screen.dart'; // Mantén esta línea y elimina la duplicada
 import 'package:afranco/constants.dart';
-void main() {
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
+Future<void> main() async {
+  await dotenv.load(fileName: ".env");
   runApp(const MyApp());
 }
 

@@ -42,9 +42,41 @@ class Noticia {
       contenido: json['content'],
     );
   }
+  Map<String, dynamic> toJson() {
+    return {
+      '_id': id, 
+      'titulo': titulo,
+      'descripcion': descripcion,
+      'fuente': fuente,
+      'publicadaEl': publicadaEl.toIso8601String(),
+      'url': url,
+    };
+  }
 
-
-
+factory Noticia.fromCrudApiJson(Map<String, dynamic> json) {
+    // Verifica el formato de fecha y provee un valor por defecto si falla
+  DateTime parsearFecha(String fechaStr) {
+    try {
+      return DateTime.parse(fechaStr);
+    } catch (e) {
+      print('Error al parsear fecha: $fechaStr. Usando fecha actual.');
+      return DateTime.now();
+    }
+  }
+  
+  Random random = Random(100);
+  return Noticia(
+    id: json['_id'] ?? '',
+    titulo: json['titulo'] ?? '',
+    fuente: json['fuente'] ?? 'Fuente desconocida',
+    imagen: json['urlImagen'] ?? 'https://picsum.photos/200/300?random=${random.toString()}',
+    publicadaEl: parsearFecha(json['publicadaEl'] ?? DateTime.now().toIso8601String()),
+    descripcion: json['descripcion'] ?? 'Default description...',
+    url: json['url'] ?? '',
+  );
+  
+}
+  
   // Método para formato de fecha corta
   String fechaCorta() {
     return '${publicadaEl.day}/${publicadaEl.month}/${publicadaEl.year}';
