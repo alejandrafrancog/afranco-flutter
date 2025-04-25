@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+/*import 'package:flutter/material.dart';
 import 'package:afranco/domain/category.dart';
 Future<void> showEditCategoryDialog(BuildContext context, Category category, void Function(String nombre, String imagenUrl) onSave) async {
   final nombreController = TextEditingController(text: category.nombre);
@@ -40,3 +40,4 @@ Future<void> showEditCategoryDialog(BuildContext context, Category category, voi
     },
   );
 }
+*/

@@ -25,12 +25,19 @@ class QuoteConstants{
   static const String dateFormat = 'dd/MM/yyyy HH:mm'; 
 
 }
+class SuccessMessages {
+  static String successCreated = 'Noticia/Categoria creada';
+  static String successUpdated = 'Noticia/Categoria creada';
+  static String successDeleted = 'Noticia/Categoria creada';
+
+}
 class ApiConstants {
   static String get crudApiUrl => EnvConstants.curlApiUrl;
-  static String noticiasEndpoint = '/noticias';
+  static String noticiasEndpoint = 'noticias';
   static String get newsApiKey => EnvConstants.newsApiKey;
   static String get newsAPIUrl => EnvConstants.newsApiUrl;
   static String categoryEndpoint = 'categorias';
+  static String urlCategorias = '${EnvConstants.curlApiUrl}categorias';
 }
 class CategoriaConstants{
   static String errorTimeout = 'Tiempo de espera agotado';

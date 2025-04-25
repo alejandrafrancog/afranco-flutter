@@ -3,7 +3,7 @@ import 'package:afranco/constants.dart';
 import 'package:afranco/domain/noticia.dart';
 import 'package:dio/dio.dart';
 import 'dart:math';
-
+import 'package:afranco/exceptions/api_exception.dart';
 class NoticiaRepository {
   static final Random _random = Random();
   final Dio _dio = Dio();
@@ -12,18 +12,48 @@ class NoticiaRepository {
   final _titulosPosibles = [
     "Se reeligió al presidente en una ajustada votación",
     "Nueva ley de educación entra en vigor",
-    // ... (rest of your titles remain the same)
   ];
 
-  Future<List<Noticia>> getNoticiasPaginadas(int pagina) async {
-    // Simula retardo de red
+Future<List<Noticia>> getNoticiasPaginadas(int pagina) async {
+  try {
+    // Simula un retardo de red
     await Future.delayed(const Duration(seconds: 2));
-    
+
+    // Aquí podrías añadir una lógica para verificar si la página es válida
+    if (pagina <= 0) {
+      throw ApiException(
+        message: 'Número de página inválido',
+        statusCode: 400, // Bad Request
+      );
+    }
+
+    // Simula un error de red o un fallo del servidor
+    final randomFail = false; // Cambia esto por alguna lógica que simule un fallo
+    if (randomFail) {
+      throw ApiException(
+        message: 'Error al obtener las noticias',
+        statusCode: 500, // Internal Server Error
+      );
+    }
+
+    // Si no hay errores, genera las noticias como normalmente lo harías
     return List.generate(
       NoticiaConstants.pageSize,
       (index) => _generarNoticia(pagina, index),
     );
+  } catch (e) {
+    // Lanza la ApiException si es necesario
+    if (e is ApiException) {
+      rethrow; // Si es un ApiException, simplemente lo volvemos a lanzar
+    } else {
+      throw ApiException(
+        message: 'Error desconocido al obtener noticias',
+        statusCode: 520, // Error genérico
+      );
+    }
   }
+}
+
   
   Noticia _generarNoticia(int pagina, int index) {
     // Genera datos únicos y aleatorios
