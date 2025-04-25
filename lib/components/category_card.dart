@@ -1,5 +1,5 @@
 import 'package:afranco/domain/category.dart';
-import 'package:afranco/api/service/categoria_service.dart';
+import 'package:afranco/api/service/categoria_repository.dart';
 import 'package:afranco/components/delete_category_modal.dart';
 import 'package:flutter/material.dart';
 import 'package:afranco/components/edit_category_modal.dart'; 
@@ -14,7 +14,7 @@ class CategoryCard extends StatelessWidget {
   });
 
   void _eliminarCategoria(BuildContext context) async {
-    final categoriaService = CategoriaService(); // Usamos el nombre correcto
+    final categoriaService = CategoriaRepository(); // Usamos el nombre correcto
     try {
       await categoriaService.eliminarCategoria(category.id!); // Método actualizado
       onCategoriaEliminada(); // Refrescar la lista

@@ -1,8 +1,8 @@
-import 'package:afranco/data/noticia_repository.dart';
+import 'package:afranco/data/noticia_service.dart';
 import 'package:afranco/domain/noticia.dart';
-class NoticiaService {
+class NoticiaRepository {
   static const int tamanoPaginaConst = 10;
-  final NoticiaRepository _repositorio = NoticiaRepository();
+  final NoticiaService _service = NoticiaService();
 
 
 // En NoticiaService
@@ -10,7 +10,7 @@ Future<List<Noticia>> obtenerNoticiasPaginadas({
   required int numeroPagina,
   required bool ordenarPorFecha,
 }) async {
-  final noticias = await _repositorio.getTechNews(page: numeroPagina);
+  final noticias = await _service.getTechNews(page: numeroPagina);
   
   // Ordenamiento definitivo (considera mayúsculas y tildes)
   return ordenarPorFecha 
@@ -34,7 +34,7 @@ List<Noticia> _ordenarPorFuenteAscendente(List<Noticia> noticias) {
 }
     Future<void> crearNoticia(Noticia noticia) async {
     try {
-      await NoticiaRepository().createNoticia(noticia);
+      await NoticiaService().createNoticia(noticia);
     } catch (e) {
       throw NoticiaServiceException('Error creando noticia: ${e.toString()}');
     }
@@ -42,11 +42,11 @@ List<Noticia> _ordenarPorFuenteAscendente(List<Noticia> noticias) {
 
 
  Future<void> eliminarNoticia(String id) async {
-  await _repositorio.eliminarNoticia(id);
+  await _service.eliminarNoticia(id);
 }
 
 Future<void> actualizarNoticia(Noticia noticia) async {
-  await _repositorio.updateNoticia(noticia);
+  await _service.updateNoticia(noticia);
 }
 
 }

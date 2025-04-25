@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:afranco/views/categoria_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:afranco/api/service/noticia_service.dart';
+import 'package:afranco/api/service/noticia_repository.dart';
 import 'package:afranco/domain/noticia.dart';
 import 'package:afranco/noticias_estilos.dart';
 import 'package:afranco/components/noticia_error.dart';
@@ -16,7 +16,7 @@ import 'package:afranco/exceptions/api_exception.dart';
 import 'package:afranco/components/noticia_edit_modal.dart';
 
 class NoticiaScreen extends StatefulWidget {
-  final NoticiaService service = NoticiaService();
+  final NoticiaRepository service = NoticiaRepository();
 
   
    NoticiaScreen({super.key});

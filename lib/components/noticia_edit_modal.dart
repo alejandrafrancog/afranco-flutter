@@ -1,14 +1,14 @@
 // components/noticia_edit_modal.dart
 import 'package:flutter/material.dart';
 import 'package:afranco/domain/noticia.dart';
-import 'package:afranco/api/service/noticia_service.dart';
+import 'package:afranco/api/service/noticia_repository.dart';
 
 class NoticiaEditModal extends StatefulWidget {
   final Noticia noticia;
   final String id;
   final Function()? onNoticiaUpdated; // Nuevo callback
 
-  final service = NoticiaService();
+  final service = NoticiaRepository();
 
   NoticiaEditModal({
     super.key,

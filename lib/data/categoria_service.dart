@@ -4,7 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:afranco/constants.dart';
 import 'package:afranco/domain/category.dart';
 import 'package:afranco/exceptions/api_exception.dart';
-class CategoriaRepository {
+class CategoriaService {
   final Dio _dio = Dio();
   static String _baseUrl = 
       '${ApiConstants.crudApiUrl}${ApiConstants.categoryEndpoint}';

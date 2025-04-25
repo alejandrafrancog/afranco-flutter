@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:afranco/domain/noticia.dart';
-import 'package:afranco/api/service/noticia_service.dart';
+import 'package:afranco/api/service/noticia_repository.dart';
 
 class NoticiaDeleteModal extends StatefulWidget {
   final Noticia noticia;
   final String id;
-  final service = NoticiaService();
+  final service = NoticiaRepository();
 
   NoticiaDeleteModal({
     super.key,

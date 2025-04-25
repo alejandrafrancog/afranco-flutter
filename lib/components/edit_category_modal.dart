@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:afranco/domain/category.dart';
-import 'package:afranco/api/service/categoria_service.dart';
+import 'package:afranco/api/service/categoria_repository.dart';
 
 
 Future<void> showEditCategoryDialog({
@@ -17,7 +17,7 @@ Future<void> showEditCategoryDialog({
       TextEditingController(text: categoria.imagenUrl ?? '');
 
   final formKey = GlobalKey<FormState>();
-  final categoriaService = CategoriaService();
+  final categoriaService = CategoriaRepository();
 
   await showDialog(
     context: context,
