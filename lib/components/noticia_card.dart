@@ -8,11 +8,13 @@ import 'package:afranco/noticias_estilos.dart';
 class NoticiaCard extends StatelessWidget {
   final Noticia noticia;
   final String imageUrl;
+  final Function(Noticia) onEditPressed; // <-- Nuevo parámetro
 
   const NoticiaCard({
     super.key,
     required this.noticia,
     required this.imageUrl,
+    required this.onEditPressed
   });
 
 @override
@@ -140,10 +142,9 @@ Padding(
             onSelected: (value){
               switch(value){
                 case 'edit':
-                showDialog(
-                  context: context,
-                  builder: (context) => NoticiaEditModal(noticia:noticia, id:noticia.id),
-                );
+                        onEditPressed(noticia); // <-- Usar el callback
+
+                
                 break;
                 case 'delete':
                 showDialog(

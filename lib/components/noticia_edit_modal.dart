@@ -6,12 +6,15 @@ import 'package:afranco/api/service/noticia_service.dart';
 class NoticiaEditModal extends StatefulWidget {
   final Noticia noticia;
   final String id;
+  final Function()? onNoticiaUpdated; // Nuevo callback
+
   final service = NoticiaService();
 
   NoticiaEditModal({
     super.key,
     required this.noticia,
     required this.id,
+    this.onNoticiaUpdated
 
   });
 
@@ -39,11 +42,50 @@ class _NoticiaEditModalState extends State<NoticiaEditModal> {
     _urlController = TextEditingController(text: widget.noticia.url);
     _originalImagen = widget.noticia.imagen;
   }
-
   Future<void> _submitForm() async {
+  if (!_formKey.currentState!.validate()) return;
+
+  setState(() => _isSubmitting = true);
+  
+  try {
+    final imagenUrl = _imagenController.text.isNotEmpty 
+        ? _imagenController.text 
+        : _originalImagen;
+
+    final noticiaActualizada = Noticia(
+      id: widget.noticia.id,
+      titulo: _tituloController.text,
+      fuente: _fuenteController.text,
+      imagen: imagenUrl,
+      publicadaEl: widget.noticia.publicadaEl, 
+      descripcion: _descripcionController.text,
+      url: _urlController.text,
+    );
+
+    // 1. Hacer la llamada a la API
+    await widget.service.actualizarNoticia(noticiaActualizada);
+    
+    // 2. Si existe el callback, ejecutarlo para notificar a la pantalla principal
+    if (widget.onNoticiaUpdated != null) {
+      widget.onNoticiaUpdated!(); // <--- Esta es la línea clave que falta
+    }
+
+    // 3. Cerrar el modal
+    Navigator.pop(context);
+    
+  } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error al actualizar: ${e.toString()}')),
+      );
+    } finally {
+      if(mounted) setState(() => _isSubmitting = false);
+    }
+}
+  /*Future<void> _submitForm() async {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _isSubmitting = true);
+    
     
     try {
       final imagenUrl = _imagenController.text.isNotEmpty 
@@ -71,7 +113,7 @@ class _NoticiaEditModalState extends State<NoticiaEditModal> {
     } finally {
       if(mounted) setState(() => _isSubmitting = false);
     }
-  }
+  }*/
 
   @override
   Widget build(BuildContext context) {

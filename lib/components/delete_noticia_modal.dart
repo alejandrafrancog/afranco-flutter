@@ -58,7 +58,7 @@ class _NoticiaDeleteModalState extends State<NoticiaDeleteModal> {
           Text(
             'Confirmar eliminación',
             style: TextStyle(
-              color: Colors.red.shade700,
+              color:Colors.black,
               fontWeight: FontWeight.bold,
               fontSize: 20,
             ),

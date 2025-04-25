@@ -124,7 +124,7 @@ Future<List<Noticia>> getNoticiasPaginadas(int pagina) async {
   Future<void> createNoticia(Noticia noticia) async {
     try {
       final response = await _dio.post(
-        '${ApiConstants.crudApiUrl}/noticias',
+        '${ApiConstants.crudApiUrl}${ApiConstants.noticiasEndpoint}',
         data: {
           'titulo': noticia.titulo,
           'descripcion': noticia.descripcion,
@@ -146,7 +146,7 @@ Future<List<Noticia>> getNoticiasPaginadas(int pagina) async {
     Future<void> updateNoticia(Noticia noticia, {String? titulo, String? descripcion,String? fuente}) async {
     try {
       final response = await _dio.put(
-        '${ApiConstants.crudApiUrl}noticia/${noticia.id}',
+        '${ApiConstants.crudApiUrl}${ApiConstants.noticiasEndpoint}/${noticia.id}',
         data: {
           'titulo': titulo ?? noticia.titulo,
           'descripcion': descripcion ?? noticia.descripcion,
