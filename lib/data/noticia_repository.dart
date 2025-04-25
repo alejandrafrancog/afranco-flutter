@@ -4,10 +4,11 @@ import 'package:afranco/domain/noticia.dart';
 import 'package:dio/dio.dart';
 import 'dart:math';
 import 'package:afranco/exceptions/api_exception.dart';
+import 'package:afranco/helpers/error_helper.dart';
 class NoticiaRepository {
   static final Random _random = Random();
   final Dio _dio = Dio();
-  static String _baseUrl = '${ApiConstants.crudApiUrl}${ApiConstants.noticiasEndpoint}';
+  final String _baseUrl = '${ApiConstants.crudApiUrl}${ApiConstants.noticiasEndpoint}';
 
   final _titulosPosibles = [
     "Se reeligió al presidente en una ajustada votación",
@@ -16,27 +17,16 @@ class NoticiaRepository {
 
 Future<List<Noticia>> getNoticiasPaginadas(int pagina) async {
   try {
-    // Simula un retardo de red
+
     await Future.delayed(const Duration(seconds: 2));
 
-    // Aquí podrías añadir una lógica para verificar si la página es válida
     if (pagina <= 0) {
       throw ApiException(
         message: 'Número de página inválido',
         statusCode: 400, // Bad Request
       );
-    }
+    }   
 
-    // Simula un error de red o un fallo del servidor
-    final randomFail = false; // Cambia esto por alguna lógica que simule un fallo
-    if (randomFail) {
-      throw ApiException(
-        message: 'Error al obtener las noticias',
-        statusCode: 500, // Internal Server Error
-      );
-    }
-
-    // Si no hay errores, genera las noticias como normalmente lo harías
     return List.generate(
       NoticiaConstants.pageSize,
       (index) => _generarNoticia(pagina, index),
@@ -129,52 +119,7 @@ Future<List<Noticia>> getNoticiasPaginadas(int pagina) async {
       throw Exception('Error inesperado: $e');
     }
   }
-  /*Future<void> createNoticia(Noticia noticia) async {
-    try {
-      final response = await _dio.post(
-        NoticiaConstants.curlApiUrl,
-        data: {
-          'titulo': noticia.titulo,
-          'descripcion': noticia.descripcion,
-          'fuente': noticia.fuente,
-          'publicadaEl': noticia.publicadaEl.toIso8601String(),
-          'urlImagen': noticia.imagen,
-          'url': noticia.url,
-        },
-      );
-      
-      if (response.statusCode != 201) {
-        throw Exception('Error en la creación');
-      }
-    } on DioException catch (e) {
-      throw Exception('Error de red: ${e.message}');
-    }
-  }
-  Future<List<Noticia>> getTechNews({
-    required int page,
-  }) async {
-    try {
-      final response = await _dio.get(
-        NoticiaConstants.curlApiUrl,
-        options: Options(
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json', // ← Fuerza JSON válido
 
-          },
-        ),
-      );
-
-      if (response.statusCode == 200) {
-        final List<dynamic> data = response.data;
-        return data.map((json) => Noticia.fromCrudApiJson(json)).toList();
-      }
-      return [];
-    } on DioException catch (e) {
-      print('Error: ${e.response?.data ?? e.message}');
-      return [];
-    }
-  }*/
     
   Future<void> createNoticia(Noticia noticia) async {
     try {
@@ -220,24 +165,36 @@ Future<List<Noticia>> getNoticiasPaginadas(int pagina) async {
     }
   }
 
-  Future<List<Noticia>> getTechNews({required int page}) async {
-    try {
-      final response = await _dio.get(
-        '${ApiConstants.crudApiUrl}noticias',
-        options: Options(headers: {}),
-      );
+Future<List<Noticia>> getTechNews({required int page}) async {
+  try {
+    final response = await _dio.get(
+      '${ApiConstants.crudApiUrl}${ApiConstants.noticiasEndpoint}',
+      options: Options(headers: {}),
+    );
 
-      if (response.statusCode == 200) {
-        final List<dynamic> data = response.data;
-        return data.map((json) => Noticia.fromCrudApiJson(json)).toList();
-      }
-      return [];
-    } on DioException catch (e) {
-      _handle4xxError(e); // Nueva función de manejo de errores
-      print('Error: ${e.response?.data ?? e.message}');
-      return [];
+    if (response.statusCode == 200) {
+      final List<dynamic> data = response.data;
+      return data.map((json) => Noticia.fromCrudApiJson(json)).toList();
+    } else {
+      // En caso de que el código de estado no sea 200
+      throw ApiException(
+        message: 'Error en la solicitud. Código: ${response.statusCode}',
+        statusCode: response.statusCode,
+      );
     }
+  } on DioException catch (e) {
+    _handle4xxError(e); // Llamamos a la función de manejo de errores para 4xx
+    // Si el error es una excepción de Dio, manejamos los errores específicos con ApiException y ErrorHelper
+    final errorMessage = ErrorHelper.getErrorMessageAndColor(e.response?.statusCode);
+    print('Error: ${errorMessage['message']}');
+    return [];
+  } catch (e) {
+    // Manejo de errores generales
+    print('Error desconocido: ${e.toString()}');
+    return [];
   }
+}
+
 
   void _handle4xxError(DioException e) {
     if (e.response?.statusCode != null && 
