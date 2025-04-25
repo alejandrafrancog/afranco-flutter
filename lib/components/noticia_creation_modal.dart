@@ -1,11 +1,11 @@
 // components/noticia_modals.dart
 import 'package:flutter/material.dart';
 import 'package:afranco/domain/noticia.dart';
-import 'package:afranco/api/service/noticia_service.dart';
+import 'package:afranco/api/service/noticia_repository.dart';
 
 class NoticiaCreationModal extends StatefulWidget {
   final Function(Noticia) onNoticiaCreated;
-  final NoticiaService service;
+  final NoticiaRepository service;
 
   const NoticiaCreationModal({
     super.key,
