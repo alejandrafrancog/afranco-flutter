@@ -201,13 +201,7 @@ Future<void> _loadMoreNoticias({bool resetear = false}) async {
       ),
     );
   }
-void _alternarOrden() {
-  setState(() {
-    _ordenarPorFecha = !_ordenarPorFecha;
-    _noticias.clear(); // Limpiar lista existente inmediatamente
-  });
-  _loadMoreNoticias(resetear: true); // Forzar recarga desde página 1
-}
+
 @override
 Widget build(BuildContext context) {
   return Scaffold(

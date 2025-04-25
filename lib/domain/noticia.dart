@@ -1,7 +1,9 @@
 import 'dart:math';
+import 'package:afranco/constants.dart';
 
 class Noticia {
   final String id;
+  final String categoryId;
   final String titulo;
   final String fuente;
   final String imagen;
@@ -14,6 +16,7 @@ class Noticia {
 
   Noticia({
     required this.id,
+    String? categoryId,
     required this.titulo,
     required this.fuente,
     required this.imagen,
@@ -22,7 +25,8 @@ class Noticia {
     required this.url,
     this.autor,
     this.contenido,
-  }) : tiempoLectura = _generarTiempoLectura();
+  }) :categoryId = categoryId ?? NoticiaConstants.sinCategoria,
+  tiempoLectura = _generarTiempoLectura();
 
   static int _generarTiempoLectura() {
     final random = Random();
