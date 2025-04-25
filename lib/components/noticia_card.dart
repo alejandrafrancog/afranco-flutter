@@ -1,5 +1,4 @@
 import 'package:afranco/components/delete_noticia_modal.dart';
-import 'package:afranco/components/noticia_edit_modal.dart';
 import 'package:flutter/material.dart';
 import 'package:afranco/domain/noticia.dart';
 import 'package:afranco/noticias_estilos.dart';

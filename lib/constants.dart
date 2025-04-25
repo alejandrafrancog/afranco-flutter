@@ -43,12 +43,14 @@ class CategoriaConstants{
   static String errorTimeout = 'Tiempo de espera agotado';
   static String errorNoCategory = 'Categoría no encontrada';
   static String defaultCategoryId = 'sin_categoria';
+  static const int timeOutSeconds = 10;
 }
 class NoticiaConstants {
   static int get pageSize => EnvConstants.newsPageSize;
   static String get language => EnvConstants.language;
   static String get category => EnvConstants.category;
   static int timeOutSeconds = 10;
+  static String sinCategoria = "Sin categoría";
 
 
   static const List<String> fuentes = [

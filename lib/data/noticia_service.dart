@@ -7,7 +7,12 @@ import 'package:afranco/exceptions/api_exception.dart';
 import 'package:afranco/helpers/error_helper.dart';
 class NoticiaService {
   static final Random _random = Random();
-  final Dio _dio = Dio();
+  final Dio _dio = Dio(
+    BaseOptions(
+      connectTimeout: const Duration(seconds:CategoriaConstants.timeOutSeconds),
+      receiveTimeout: const Duration(seconds:CategoriaConstants.timeOutSeconds),
+    ),
+  );
   final String _baseUrl = '${ApiConstants.crudApiUrl}${ApiConstants.noticiasEndpoint}';
 
   final _titulosPosibles = [
