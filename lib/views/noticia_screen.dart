@@ -12,6 +12,8 @@ import 'package:afranco/components/noticia_empty_state.dart';
 import 'package:afranco/constants.dart';
 import 'package:afranco/components/noticia_creation_modal.dart';
 import 'package:intl/intl.dart';
+import 'package:afranco/helpers/error_helper.dart';
+import 'package:afranco/exceptions/api_exception.dart';
 
 class NoticiaScreen extends StatefulWidget {
   final NoticiaService service = NoticiaService();
@@ -47,7 +49,7 @@ class NoticiaScreenState extends State<NoticiaScreen> {
       _loadMoreNoticias();
     }
   }
-  Future<void> _loadMoreNoticias({bool resetear = false}) async {
+Future<void> _loadMoreNoticias({bool resetear = false}) async {
   if (_isLoading || (!_hasMore && !resetear)) return;
 
   setState(() {
@@ -57,7 +59,7 @@ class NoticiaScreenState extends State<NoticiaScreen> {
       _currentPage = 1;
       _noticias.clear();
       _hasMore = true;
-      _ultimaActualizacion = null; // Resetear última actualización
+      _ultimaActualizacion = null;
     }
   });
 
@@ -65,9 +67,9 @@ class NoticiaScreenState extends State<NoticiaScreen> {
     final nuevasNoticias = await widget.service.obtenerNoticiasPaginadas(
       numeroPagina: _currentPage,
       ordenarPorFecha: _ordenarPorFecha,
-    ).timeout(const Duration(seconds: 15)); // Timeout para evitar esperas infinitas
+    ).timeout(const Duration(seconds: 15));
 
-    if (!mounted) return; // Verificar si el widget está montado
+    if (!mounted) return;
 
     setState(() {
       _noticias.addAll(nuevasNoticias);
@@ -75,20 +77,30 @@ class NoticiaScreenState extends State<NoticiaScreen> {
       _hasMore = nuevasNoticias.isNotEmpty;
 
       if (nuevasNoticias.isNotEmpty) {
-        _ultimaActualizacion = DateTime.now(); // Actualizar con hora local
+        _ultimaActualizacion = DateTime.now();
       }
     });
 
-  } on TimeoutException catch (_) {
-    setState(() => _errorMessage = "Tiempo de espera agotado. Verifica tu conexión");
-  } on SocketException catch (_) {
-    setState(() => _errorMessage = "Error de conexión a internet");
-  } on HttpException catch (e) {
-    setState(() => _errorMessage = "Error del servidor: ${e.message}");
-  } on FormatException catch (_) {
-    setState(() => _errorMessage = "Error en el formato de los datos");
   } catch (e) {
-    setState(() => _errorMessage = "Error inesperado: ${e.toString()}");
+    String errorMessage = 'Error desconocido';
+    Color errorColor = Colors.grey;
+
+    if (e is ApiException) {
+      final errorData = ErrorHelper.getErrorMessageAndColor(e.statusCode);
+      errorMessage = errorData['message'];
+      errorColor = errorData['color'];
+    } else {
+      errorMessage = 'Error inesperado: $e';
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(errorMessage), backgroundColor: errorColor),
+    );
+
+    setState(() {
+      _isLoading = false;
+      _errorMessage = errorMessage;
+    });
   } finally {
     if (mounted) {
       setState(() => _isLoading = false);
