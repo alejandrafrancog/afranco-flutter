@@ -1,19 +1,19 @@
 // category.dart
-class Category {
+class Categoria {
   final String? id; 
   final String nombre; 
   final String descripcion; 
   final String imagenUrl; 
 
-  Category({
+  Categoria({
     this.id, 
     required this.nombre,
     required this.descripcion,
     required this.imagenUrl,
   });
 
-  factory Category.fromJson(Map<String, dynamic> json) {
-    return Category(
+  factory Categoria.fromJson(Map<String, dynamic> json) {
+    return Categoria(
       id: json['_id'] as String?, // El ID lo asigna CrudCrud
       nombre: json['nombre'] as String,
       descripcion: json['descripcion'] as String,

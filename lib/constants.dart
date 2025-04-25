@@ -31,6 +31,7 @@ class ApiConstants {
   static String get newsApiKey => EnvConstants.newsApiKey;
   static String get newsAPIUrl => EnvConstants.newsApiUrl;
   static String categoryEndpoint = 'categorias';
+  static String urlCategorias = '${EnvConstants.curlApiUrl}categorias';
 }
 class CategoriaConstants{
   static String errorTimeout = 'Tiempo de espera agotado';
