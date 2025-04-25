@@ -2,7 +2,7 @@ import 'package:afranco/domain/category.dart';
 import 'package:afranco/api/service/categoria_service.dart';
 import 'package:afranco/components/delete_category_modal.dart';
 import 'package:flutter/material.dart';
-
+import 'package:afranco/components/edit_category_modal.dart'; 
 class CategoryCard extends StatelessWidget {
   final Categoria category;
   final VoidCallback onCategoriaEliminada;
@@ -58,11 +58,15 @@ class CategoryCard extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             IconButton(
-              icon: const Icon(Icons.edit),
-              onPressed: () {
-                // Acá podés agregar tu lógica de editar
-              },
-            ),
+            icon: const Icon(Icons.edit),
+            onPressed: () {
+              showEditCategoryDialog(
+                context: context,
+                categoria: category,
+                onCategoriaActualizada: onCategoriaEliminada,
+              );
+            },
+          ),
             IconButton(
               icon: const Icon(Icons.delete, color: Colors.red),
               onPressed: () {

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:afranco/views/categoria_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:afranco/api/service/noticia_service.dart';
 import 'package:afranco/domain/noticia.dart';
@@ -12,6 +13,7 @@ import 'package:afranco/components/noticia_creation_modal.dart';
 import 'package:intl/intl.dart';
 import 'package:afranco/helpers/error_helper.dart';
 import 'package:afranco/exceptions/api_exception.dart';
+import 'package:afranco/components/noticia_edit_modal.dart';
 
 class NoticiaScreen extends StatefulWidget {
   final NoticiaService service = NoticiaService();
@@ -47,7 +49,22 @@ class NoticiaScreenState extends State<NoticiaScreen> {
       _loadMoreNoticias();
     }
   }
-Future<void> _loadMoreNoticias({bool resetear = false}) async {
+void _abrirModalEdicion(Noticia noticia) {
+  showDialog(
+    context: context,
+    builder: (context) => NoticiaEditModal(
+      noticia: noticia,
+      id: noticia.id,
+      onNoticiaUpdated: () {
+        // Ejecutar en el próximo frame para asegurar que el modal se cerró
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _loadMoreNoticias(resetear: true);
+        });
+      },
+    ),
+  );
+}
+/*Future<void> _loadMoreNoticias({bool resetear = false}) async {
   if (_isLoading || (!_hasMore && !resetear)) return;
 
   setState(() {
@@ -104,9 +121,77 @@ Future<void> _loadMoreNoticias({bool resetear = false}) async {
       setState(() => _isLoading = false);
     }
   }
+}*/
+Future<void> _loadMoreNoticias({bool resetear = false}) async {
+  if (_isLoading || (!_hasMore && !resetear)) return;
+
+  setState(() {
+    _isLoading = true;
+    _errorMessage = null;
+    if (resetear) {
+      _currentPage = 1;
+      _noticias.clear();
+      _hasMore = true;
+      _ultimaActualizacion = null;
+    }
+  });
+
+  try {
+    final nuevasNoticias = await widget.service.obtenerNoticiasPaginadas(
+      numeroPagina: _currentPage,
+      ordenarPorFecha: _ordenarPorFecha,
+    ).timeout(const Duration(seconds: 15));
+
+    if (!mounted) return;
+
+    setState(() {
+      if (resetear) {
+        _noticias
+          ..clear()
+          ..addAll(nuevasNoticias);
+        _currentPage = 2;
+      } else {
+        _noticias.addAll(nuevasNoticias);
+        _currentPage++;
+      }
+      
+      _hasMore = nuevasNoticias.length >= NoticiaConstants.pageSize;
+      _ultimaActualizacion = DateTime.now();
+    });
+
+  } catch (e) {
+    String errorMessage = 'Error desconocido';
+    Color errorColor = Colors.grey;
+
+    if (e is ApiException) {
+      final errorData = ErrorHelper.getErrorMessageAndColor(e.statusCode);
+      errorMessage = errorData['message'];
+      errorColor = errorData['color'];
+    } 
+    else if (e is TimeoutException) {
+      errorMessage = 'Tiempo de espera agotado';
+      errorColor = Colors.orange;
+    }
+    else {
+      errorMessage = 'Error inesperado: ${e.toString()}';
+    }
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(errorMessage), backgroundColor: errorColor),
+      );
+    }
+
+    setState(() {
+      _errorMessage = errorMessage;
+    });
+
+  } finally {
+    if (mounted) {
+      setState(() => _isLoading = false);
+    }
+  }
 }
-
-
   void _mostrarModalCreacion() {
     showDialog(
       context: context,
@@ -133,11 +218,20 @@ Widget build(BuildContext context) {
       backgroundColor: Colors.lightGreen,
       actions: [
         IconButton(
+          icon: Icon(Icons.category),
+          color: Colors.white,
+          onPressed: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(builder: (context) => CategoriaScreen()),
+            );
+          },
+        ),
+        /*IconButton(
           icon: Icon(Icons.sort, 
           color: _ordenarPorFecha ? const Color.fromARGB(255, 255, 255, 255) : Colors.green),
           tooltip: NoticiaConstants.tooltipOrden,
           onPressed: _alternarOrden,
-        ),
+        ),*/
       ],
   ),
     body: Column(
@@ -191,15 +285,22 @@ Widget build(BuildContext context) {
       controller: _scrollController,
       itemCount: _noticias.length + (_hasMore ? 1 : 0),
       separatorBuilder: (_, __) => const SizedBox(height: NoticiaEstilos.espaciadoAlto),
-      itemBuilder: (context, index) {
-        if (index >= _noticias.length) {
-          return _buildLoadingIndicator();
-        }
-        return NoticiaCard(
-          noticia: _noticias[index],
-          imageUrl: _noticias[index].imagen,
-        );
-      },
+     itemBuilder: (context, index) {
+  if (index >= _noticias.length) {
+    return _buildLoadingIndicator();
+  }
+  
+  // Añadir protección contra índices inválidos
+  if (index < 0 || index >= _noticias.length) {
+    return const SizedBox.shrink();
+  }
+
+  return NoticiaCard(
+    noticia: _noticias[index],
+    imageUrl: _noticias[index].imagen,
+    onEditPressed: _abrirModalEdicion,
+  );
+},
     );
   }
 
