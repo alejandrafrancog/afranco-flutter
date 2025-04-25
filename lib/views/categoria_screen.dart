@@ -5,7 +5,7 @@ import 'package:afranco/exceptions/api_exception.dart';
 import 'package:afranco/helpers/error_helper.dart';
 import 'package:afranco/components/category_card.dart';
 class CategoriaScreen extends StatefulWidget {
-  const CategoriaScreen({Key? key}) : super(key: key);
+  const CategoriaScreen({super.key});
 
   @override
   _CategoriaScreenState createState() => _CategoriaScreenState();

@@ -1,6 +1,4 @@
 import 'dart:async';
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:afranco/api/service/noticia_service.dart';
 import 'package:afranco/domain/noticia.dart';
