@@ -4,7 +4,6 @@ import 'package:afranco/domain/noticia.dart';
 import 'package:dio/dio.dart';
 import 'dart:math';
 import 'package:afranco/exceptions/api_exception.dart';
-import 'package:afranco/helpers/error_helper.dart';
 class NoticiaService {
   static final Random _random = Random();
   final Dio _dio = Dio(
