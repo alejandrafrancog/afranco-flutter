@@ -21,22 +21,7 @@ class Categoria {
     );
   }
 
-static Future<String> getCategoryName(String id, Future<List<Categoria>> categoriasFuture) async {
-  try {
-    final categorias = await categoriasFuture;
-    final categoria = categorias.firstWhere(
-      (c) => c.id == id,
-      orElse: () => Categoria(
-        nombre: 'Sin categoría',
-        descripcion: '',
-        imagenUrl: '',
-      ),
-    );
-    return categoria.nombre;
-  } catch (e) {
-    return 'Error al cargar categoría';
-  }
-}
+
   Map<String, dynamic> toJson() {
     return {
       'nombre': nombre,

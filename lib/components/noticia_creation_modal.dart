@@ -120,10 +120,20 @@ Future<void> _submitForm() async {
                 decoration: const InputDecoration(
                   labelText: 'URL Imagen',
                   hintText: 'Dejar vacío para imagen aleatoria',
-                ),
-                keyboardType: TextInputType.url,
               ),
-              
+              keyboardType: TextInputType.url,
+              validator: (value) {
+              if (value == null || value.isEmpty) return null; // Permitir vacío
+
+              final urlPattern = r'^(https?:\/\/)[^\s$.?#].[^\s]*$';
+              final result = RegExp(urlPattern, caseSensitive: false).hasMatch(value);
+
+              if (!result) {
+                return 'Ingrese una URL válida';
+              }
+              return null;
+  },
+),
               DropdownButtonFormField<Categoria>(
                   value: _categoriaSeleccionada,
                   decoration: const InputDecoration(labelText: 'Categoría'),

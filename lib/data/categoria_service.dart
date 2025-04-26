@@ -68,7 +68,7 @@ class CategoriaService {
     }
   }
 
-    Future<List<Categoria>> getCategorias() async {
+  Future<List<Categoria>> getCategorias() async {
       late var response;
     try {
        response = await _dio.get("${ApiConstants.crudApiUrl}${ApiConstants.categoryEndpoint}");
