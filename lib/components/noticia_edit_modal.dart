@@ -4,10 +4,11 @@ import 'package:afranco/domain/noticia.dart';
 import 'package:afranco/api/service/noticia_repository.dart';
 import 'package:afranco/domain/category.dart';
 import 'package:afranco/api/service/categoria_repository.dart';
+
 class NoticiaEditModal extends StatefulWidget {
   final Noticia noticia;
   final String id;
-  final Function()? onNoticiaUpdated; // Nuevo callback
+  final Function()? onNoticiaUpdated;
 
   final service = NoticiaRepository();
 
@@ -16,7 +17,6 @@ class NoticiaEditModal extends StatefulWidget {
     required this.noticia,
     required this.id,
     this.onNoticiaUpdated
-
   });
 
   @override
@@ -31,7 +31,8 @@ class _NoticiaEditModalState extends State<NoticiaEditModal> {
   late TextEditingController _imagenController;
   late TextEditingController _urlController;
   final CategoriaRepository _categoriaRepo = CategoriaRepository();
-
+  
+  late String _selectedCategoryId;
   List<Categoria> _categorias = [];
   bool _isLoading = true;
   bool _isSubmitting = false;
@@ -45,62 +46,69 @@ class _NoticiaEditModalState extends State<NoticiaEditModal> {
     _fuenteController = TextEditingController(text: widget.noticia.fuente);
     _imagenController = TextEditingController(text: widget.noticia.imagen);
     _urlController = TextEditingController(text: widget.noticia.url);
-    _cargarCategorias();
     _originalImagen = widget.noticia.imagen;
+    _selectedCategoryId = widget.noticia.categoryId; // Inicializar con la categoría actual
+    _cargarCategorias();
   }
-  void _cargarCategorias() async {
-  try {
-    final categorias = await _categoriaRepo.getCategorias();
-    setState(() {
-      _categorias = categorias;
-      _isLoading = false;
-    });
-  } catch (e) {
-    setState(() => _isLoading = false);
-    // Podés mostrar un snackbar o dialog con el error si querés
-    print('Error al cargar categorías: $e');
-  }
-}
-  Future<void> _submitForm() async {
-  if (!_formKey.currentState!.validate()) return;
-
-  setState(() => _isSubmitting = true);
   
-  try {
-    final imagenUrl = _imagenController.text.isNotEmpty 
-        ? _imagenController.text 
-        : _originalImagen;
-
-    final noticiaActualizada = Noticia(
-      id: widget.noticia.id,
-      titulo: _tituloController.text,
-      fuente: _fuenteController.text,
-      imagen: imagenUrl,
-      publicadaEl: widget.noticia.publicadaEl, 
-      descripcion: _descripcionController.text,
-      url: _urlController.text,
-    );
-
-    // 1. Hacer la llamada a la API
-    await widget.service.actualizarNoticia(noticiaActualizada);
-    
-    // 2. Si existe el callback, ejecutarlo para notificar a la pantalla principal
-    if (widget.onNoticiaUpdated != null) {
-      widget.onNoticiaUpdated!(); // <--- Esta es la línea clave que falta
+  Future<void> _cargarCategorias() async {
+    try {
+      final categorias = await _categoriaRepo.getCategorias();
+      if (mounted) {
+        setState(() {
+          _categorias = categorias;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error al cargar categorías: $e')),
+        );
+      }
     }
+  }
 
-    // 3. Cerrar el modal
-    Navigator.pop(context);
+  Future<void> _submitForm() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() => _isSubmitting = true);
     
-  } catch (e) {
+    try {
+      final imagenUrl = _imagenController.text.isNotEmpty 
+          ? _imagenController.text 
+          : _originalImagen;
+
+      final noticiaActualizada = Noticia(
+        id: widget.noticia.id,
+        categoryId: _selectedCategoryId, // Usar la categoría seleccionada
+        titulo: _tituloController.text,
+        fuente: _fuenteController.text,
+        imagen: imagenUrl,
+        publicadaEl: widget.noticia.publicadaEl, 
+        descripcion: _descripcionController.text,
+        url: _urlController.text,
+      );
+
+      await widget.service.actualizarNoticia(noticiaActualizada);
+      
+      if (widget.onNoticiaUpdated != null) {
+        widget.onNoticiaUpdated!();
+      }
+
+      Navigator.pop(context);
+      
+    } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error al actualizar: ${e.toString()}')),
       );
     } finally {
       if(mounted) setState(() => _isSubmitting = false);
     }
-}
-
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -140,6 +148,37 @@ class _NoticiaEditModalState extends State<NoticiaEditModal> {
                 decoration: const InputDecoration(labelText: 'URL Noticia'),
                 keyboardType: TextInputType.url,
               ),
+              
+              // Dropdown para seleccionar categoría (sin validación)
+              
+              DropdownButtonFormField<String>(
+                decoration: const InputDecoration(
+                  labelText: 'Categoría',
+                  hintText: 'Seleccionar categoría (opcional)',
+                ),
+                value: _categorias.any((c) => c.id == _selectedCategoryId) ? _selectedCategoryId : null,
+
+                items: _isLoading
+                    ? [const DropdownMenuItem<String>(
+                        value: '',
+                        child: Text('Cargando categorías...'),
+                      )]
+                    : _categorias.map((categoria) {
+                        return DropdownMenuItem<String>(
+                          value: categoria.id,
+                          child: Text(categoria.nombre),
+                        );
+                      }).toList(),
+                onChanged: (String? newValue) {
+                  setState(() {
+                    _selectedCategoryId = newValue ?? '';
+                  });
+                },
+
+                // Sin validador para que no sea obligatorio
+              ),
+              
+              const SizedBox(height: 16),
             ],
           ),
         ),
@@ -154,7 +193,10 @@ class _NoticiaEditModalState extends State<NoticiaEditModal> {
           child: _isSubmitting 
               ? const CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Colors.white))
               : const Text('Guardar Cambios'),
-          
+          style:ButtonStyle(
+            backgroundColor: WidgetStatePropertyAll(Theme.of(context).primaryColor),
+            foregroundColor: WidgetStatePropertyAll(Theme.of(context).secondaryHeaderColor)
+          ),
         ),
       ],
     );

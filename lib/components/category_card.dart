@@ -38,16 +38,14 @@ class CategoryCard extends StatelessWidget {
         contentPadding: const EdgeInsets.all(12),
         leading: ClipRRect(
           borderRadius: BorderRadius.circular(8),
-          child: category.imagenUrl != null
-              ? Image.network(
-                  category.imagenUrl!,
+          child: Image.network(
+                  category.imagenUrl,
                   width: 60,
                   height: 60,
                   fit: BoxFit.cover,
                   errorBuilder: (context, error, stackTrace) =>
                       const Icon(Icons.broken_image, size: 60),
-                )
-              : const Icon(Icons.image_not_supported, size: 60),
+                ),
         ),
         title: Text(
           category.nombre,

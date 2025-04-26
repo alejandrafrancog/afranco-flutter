@@ -150,12 +150,13 @@ Future<List<Noticia>> getNoticiasPaginadas(int pagina) async {
       throw Exception('Error de red: ${e.message}');
     }
   }
-    Future<void> updateNoticia(Noticia noticia, {String? titulo, String? descripcion,String? fuente}) async {
+    Future<void> updateNoticia(Noticia noticia, {String? titulo, String? categoriaId,String? descripcion,String? fuente}) async {
     try {
       final response = await _dio.put(
         '${ApiConstants.crudApiUrl}${ApiConstants.noticiasEndpoint}/${noticia.id}',
         data: {
           'titulo': titulo ?? noticia.titulo,
+          'categoriaId':categoriaId ?? noticia.categoryId,
           'descripcion': descripcion ?? noticia.descripcion,
           'fuente': fuente ?? noticia.fuente,
           'publicadaEl': noticia.publicadaEl.toIso8601String(),
@@ -178,7 +179,7 @@ Future<List<Noticia>> getTechNews({required int page}) async {
       '${ApiConstants.crudApiUrl}${ApiConstants.noticiasEndpoint}',
       options: Options(headers: {}),
     );
-
+    
     if (response.statusCode == 200) {
       final List<dynamic> data = response.data;
       return data.map((json) => Noticia.fromCrudApiJson(json)).toList();
@@ -190,15 +191,17 @@ Future<List<Noticia>> getTechNews({required int page}) async {
       );
     }
   } on DioException catch (e) {
-    _handle4xxError(e); // Llamamos a la función de manejo de errores para 4xx
-    // Si el error es una excepción de Dio, manejamos los errores específicos con ApiException y ErrorHelper
-    final errorMessage = ErrorHelper.getErrorMessageAndColor(e.response?.statusCode);
-    print('Error: ${errorMessage['message']}');
-    return [];
+    // No manejamos el error aquí, lo propagamos
+    throw ApiException(
+      message: 'Error de conexión: ${e.message}',
+      statusCode: e.response?.statusCode,
+    );
   } catch (e) {
-    // Manejo de errores generales
-    print('Error desconocido: ${e.toString()}');
-    return [];
+    // Para otros errores, también los propagamos
+    throw ApiException(
+      message: 'Error inesperado: ${e.toString()}',
+      statusCode: null,
+    );
   }
 }
 

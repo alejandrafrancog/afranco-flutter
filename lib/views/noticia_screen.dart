@@ -64,7 +64,7 @@ void _abrirModalEdicion(Noticia noticia) {
     ),
   );
 }
-
+/*
 Future<void> _loadMoreNoticias({bool resetear = false}) async {
   if (_isLoading || (!_hasMore && !resetear)) return;
 
@@ -129,6 +129,92 @@ Future<void> _loadMoreNoticias({bool resetear = false}) async {
       _errorMessage = errorMessage;
     });
 
+  } finally {
+    if (mounted) {
+      setState(() => _isLoading = false);
+    }
+  }
+}
+*/
+Future<void> _loadMoreNoticias({bool resetear = false}) async {
+  if (_isLoading || (!_hasMore && !resetear)) return;
+
+  setState(() {
+    _isLoading = true;
+    _errorMessage = null;
+    if (resetear) {
+      _currentPage = 1;
+      _noticias.clear();
+      _hasMore = true;
+      _ultimaActualizacion = null;
+    }
+  });
+
+  try {
+    final nuevasNoticias = await widget.service.obtenerNoticiasPaginadas(
+      numeroPagina: _currentPage,
+      ordenarPorFecha: _ordenarPorFecha,
+    ).timeout(const Duration(seconds: 15));
+
+    if (!mounted) return;
+
+    setState(() {
+      if (resetear) {
+        _noticias
+          ..clear()
+          ..addAll(nuevasNoticias);
+        _currentPage = 2;
+      } else {
+        _noticias.addAll(nuevasNoticias);
+        _currentPage++;
+      }
+      
+      _hasMore = nuevasNoticias.length >= NoticiaConstants.pageSize;
+      _ultimaActualizacion = DateTime.now();
+    });
+
+  } catch (e) {
+    // Definir valores predeterminados
+    String errorMessage = 'Error desconocido';
+    Color errorColor = Colors.grey;
+
+    // Determinar el mensaje y color según el tipo de error
+    if (e is ApiException) {
+      // Obtener mensaje y color del ErrorHelper
+      final errorData = ErrorHelper.getErrorMessageAndColor(e.statusCode);
+      errorMessage = errorData['message'] as String;
+      errorColor = errorData['color'] as Color;
+    } 
+    else if (e is TimeoutException) {
+      errorMessage = 'Tiempo de espera agotado';
+      errorColor = Colors.orange;
+    }
+    else {
+      errorMessage = 'Error inesperado: ${e.toString()}';
+      // Mantener el color predeterminado (gris)
+    }
+
+    // Mostrar SnackBar solo si el widget sigue montado
+    if (mounted) {
+      // Este es el SnackBar que mostrará los colores correctos
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(errorMessage),
+          backgroundColor: errorColor, // Usar el color determinado arriba
+          duration: const Duration(seconds: 4),
+          action: SnackBarAction(
+            label: 'Reintentar',
+            textColor: Colors.white,
+            onPressed: () => _loadMoreNoticias(resetear: true),
+          ),
+        ),
+      );
+    }
+
+    // Actualizar el estado para mostrar mensaje en la UI
+    setState(() {
+      _errorMessage = errorMessage;
+    });
   } finally {
     if (mounted) {
       setState(() => _isLoading = false);

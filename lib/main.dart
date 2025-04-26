@@ -20,7 +20,7 @@ class MyApp extends StatelessWidget {
         brightness: Brightness.light,
         colorScheme: ColorScheme.light(
           primary: Colors.teal,
-          secondary: const Color.fromARGB(255, 93, 129, 126),
+          secondary: Colors.white,
         ),
       ),
       darkTheme: ThemeData.dark().copyWith(

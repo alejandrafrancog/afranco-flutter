@@ -12,9 +12,9 @@ Future<void> showEditCategoryDialog({
   final TextEditingController nombreController =
       TextEditingController(text: categoria.nombre);
   final TextEditingController descriptionController  =
-      TextEditingController(text: categoria.descripcion ?? '');
+      TextEditingController(text: categoria.descripcion);
   final TextEditingController imagenUrlController =
-      TextEditingController(text: categoria.imagenUrl ?? '');
+      TextEditingController(text: categoria.imagenUrl);
 
   final formKey = GlobalKey<FormState>();
   final categoriaService = CategoriaRepository();

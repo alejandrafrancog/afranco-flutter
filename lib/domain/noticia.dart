@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:afranco/constants.dart';
+import 'package:afranco/domain/category.dart';
 
 class Noticia {
   final String id;
@@ -83,7 +84,26 @@ factory Noticia.fromCrudApiJson(Map<String, dynamic> json) {
   );
   
 }
-  
+
+  Future<String> obtenerNombreCategoria(Future<List<Categoria>> categorias) async {
+    List<Categoria> categoriasList = await categorias;
+    for (Categoria cat in categoriasList) {
+      if (cat.id == this.categoryId) { // Usa categoryId de la noticia, no el id de la noticia
+        return cat.nombre;
+      }
+    } 
+    return 'Sin categoría';
+  }
+  Future<Categoria?> obtenerCategoria(Future<List<Categoria>> categorias) async {
+    List<Categoria> categoriasList = await categorias;
+    for (Categoria cat in categoriasList) {
+      if (cat.id == this.categoryId) { // Usa categoryId de la noticia, no el id de la noticia
+        return Categoria(nombre:cat.nombre,descripcion:cat.descripcion,imagenUrl:cat.imagenUrl);
+      }
+    } 
+    return null;
+  }
+
   // Método para formato de fecha corta
   String fechaCorta() {
     return '${publicadaEl.day}/${publicadaEl.month}/${publicadaEl.year}';
