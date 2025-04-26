@@ -18,7 +18,7 @@ class MyApp extends StatelessWidget {
       title: 'Flutter Demo',
       theme: ThemeData(
         brightness: Brightness.light,
-        colorScheme: ColorScheme.light(
+        colorScheme: const ColorScheme.light(
           primary: Colors.teal,
           secondary: Colors.white,
         ),
@@ -29,7 +29,7 @@ class MyApp extends StatelessWidget {
           foregroundColor: Colors.white,
         ),
         textTheme: ThemeData.dark().textTheme.copyWith(
-          bodyLarge: TextStyle(color: Colors.white),
+          bodyLarge: const TextStyle(color: Colors.white),
           bodyMedium: TextStyle(color: Colors.grey[300]),
         ), // podés seguir personalizando lo que necesites
       ),

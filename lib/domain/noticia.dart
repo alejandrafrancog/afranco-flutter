@@ -88,7 +88,7 @@ factory Noticia.fromCrudApiJson(Map<String, dynamic> json) {
   Future<String> obtenerNombreCategoria(Future<List<Categoria>> categorias) async {
     List<Categoria> categoriasList = await categorias;
     for (Categoria cat in categoriasList) {
-      if (cat.id == this.categoryId) { // Usa categoryId de la noticia, no el id de la noticia
+      if (cat.id == categoryId) { // Usa categoryId de la noticia, no el id de la noticia
         return cat.nombre;
       }
     } 
@@ -97,7 +97,7 @@ factory Noticia.fromCrudApiJson(Map<String, dynamic> json) {
   Future<Categoria?> obtenerCategoria(Future<List<Categoria>> categorias) async {
     List<Categoria> categoriasList = await categorias;
     for (Categoria cat in categoriasList) {
-      if (cat.id == this.categoryId) { // Usa categoryId de la noticia, no el id de la noticia
+      if (cat.id == categoryId) { // Usa categoryId de la noticia, no el id de la noticia
         return Categoria(nombre:cat.nombre,descripcion:cat.descripcion,imagenUrl:cat.imagenUrl);
       }
     } 
