@@ -1,3 +1,4 @@
+import 'package:afranco/api/service/categoria_repository.dart';
 import 'package:afranco/components/delete_noticia_modal.dart';
 import 'package:flutter/material.dart';
 import 'package:afranco/domain/noticia.dart';
@@ -7,13 +8,15 @@ import 'package:afranco/noticias_estilos.dart';
 class NoticiaCard extends StatelessWidget {
   final Noticia noticia;
   final String imageUrl;
+  final CategoriaRepository repository = CategoriaRepository();
   final Function(Noticia) onEditPressed; // <-- Nuevo parámetro
-
-  const NoticiaCard({
+  final VoidCallback onDelete;      // <- nuevo parámetro
+  NoticiaCard({
     super.key,
     required this.noticia,
     required this.imageUrl,
-    required this.onEditPressed
+    required this.onEditPressed,
+    required this.onDelete,          // <- obligatorio en el constructor
   });
 
 @override
@@ -47,8 +50,8 @@ Widget build(BuildContext context) {
           
           Padding(padding: const EdgeInsets.only(left: 20),
             child:Text( '${noticia.publicadaEl.day}/${noticia.publicadaEl.month}/${noticia.publicadaEl.year}', style:NoticiaEstilos.fuenteNoticia),
-
           ),
+          
 
         ],
 
@@ -137,31 +140,29 @@ Padding(
             onPressed: () {},
           ),
           
-          PopupMenuButton<String>(
-            onSelected: (value){
-              switch(value){
-                case 'edit':
-                        onEditPressed(noticia); // <-- Usar el callback
-
-                
-                break;
-                case 'delete':
-                showDialog(
-                context: context,
-                builder: (context) => NoticiaDeleteModal(
-                  noticia: noticia,
-                  id: noticia.id,
-                ),
-                ).then((resultado) {
-                  if (resultado == true) {
-                    // Actualizar la lista de noticias aquí
-                    
-                  }
-                });
-                  break;
+      PopupMenuButton<String>(
+            
+        onSelected: (value) {
+        switch (value) {
+          case 'edit':
+            onEditPressed(noticia);
+            break;
+          case 'delete':
+            showDialog(
+              context: context,
+              builder: (c) => NoticiaDeleteModal(
+                noticia: noticia,
+                id: noticia.id,
+              ),
+            ).then((resultado) {
+              if (resultado == true) {
+                onDelete();            // <- disparás el callback
               }
-
-            },
+            });
+            break;
+        }
+      }
+            ,
             itemBuilder: (BuildContext context)=>[
               const PopupMenuItem<String> (
                 value:'edit',

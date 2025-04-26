@@ -9,21 +9,7 @@ class CategoriaService {
   static String _baseUrl = 
       '${ApiConstants.crudApiUrl}${ApiConstants.categoryEndpoint}';
 
-  /*Future<List<Category>> getCategorias() async {
-    try {
-      final response = await _dio.get(_baseUrl);
-      
-      if (response.statusCode == 200) {
-        final List<dynamic> data = response.data;
-        return data.map((json) => Category.fromJson(json)).toList();
-      }
-      throw Exception('Error al obtener categorías: ${response.statusCode}');
-    } on DioException catch (e) {
-      throw _handleDioError(e);
-    } catch (e) {
-      throw ApiException('Error inesperado: ${e.toString()}');
-    }
-  }*/
+ 
     Future<void> crearCategoria(Map<String, dynamic> categoria) async {
       var response;
     try {
@@ -121,7 +107,7 @@ class CategoriaService {
       statusCode: statusCode,
     );
   }
-
+  
   // CRUD adicional para completar el repositorio
   Future<Categoria> createCategoria(Categoria category) async {
     try {

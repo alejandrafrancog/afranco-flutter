@@ -19,7 +19,7 @@ class CategoriaRepository {
       }
     }
   }
-
+  
   /// Crea una nueva categoría
   Future<void> crearCategoria(Categoria categoria) async {
     try {

@@ -64,64 +64,7 @@ void _abrirModalEdicion(Noticia noticia) {
     ),
   );
 }
-/*Future<void> _loadMoreNoticias({bool resetear = false}) async {
-  if (_isLoading || (!_hasMore && !resetear)) return;
 
-  setState(() {
-    _isLoading = true;
-    _errorMessage = null;
-    if (resetear) {
-      _currentPage = 1;
-      _noticias.clear();
-      _hasMore = true;
-      _ultimaActualizacion = null;
-    }
-  });
-
-  try {
-    final nuevasNoticias = await widget.service.obtenerNoticiasPaginadas(
-      numeroPagina: _currentPage,
-      ordenarPorFecha: _ordenarPorFecha,
-    ).timeout(const Duration(seconds: 15));
-
-    if (!mounted) return;
-
-    setState(() {
-      _noticias.addAll(nuevasNoticias);
-      _currentPage++;
-      _hasMore = nuevasNoticias.isNotEmpty;
-
-      if (nuevasNoticias.isNotEmpty) {
-        _ultimaActualizacion = DateTime.now();
-      }
-    });
-
-  } catch (e) {
-    String errorMessage = 'Error desconocido';
-    Color errorColor = Colors.grey;
-
-    if (e is ApiException) {
-      final errorData = ErrorHelper.getErrorMessageAndColor(e.statusCode);
-      errorMessage = errorData['message'];
-      errorColor = errorData['color'];
-    } else {
-      errorMessage = 'Error inesperado: $e';
-    }
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(errorMessage), backgroundColor: errorColor),
-    );
-
-    setState(() {
-      _isLoading = false;
-      _errorMessage = errorMessage;
-    });
-  } finally {
-    if (mounted) {
-      setState(() => _isLoading = false);
-    }
-  }
-}*/
 Future<void> _loadMoreNoticias({bool resetear = false}) async {
   if (_isLoading || (!_hasMore && !resetear)) return;
 
@@ -209,7 +152,7 @@ Widget build(BuildContext context) {
     appBar: AppBar(
       title: const Text(NoticiaConstants.appTitle, 
       style: NoticiaEstilos.tituloAppBar),
-      backgroundColor: Colors.lightGreen,
+      backgroundColor: Theme.of(context).colorScheme.primary,
       actions: [
         IconButton(
           icon: Icon(Icons.category),
@@ -220,12 +163,7 @@ Widget build(BuildContext context) {
             );
           },
         ),
-        /*IconButton(
-          icon: Icon(Icons.sort, 
-          color: _ordenarPorFecha ? const Color.fromARGB(255, 255, 255, 255) : Colors.green),
-          tooltip: NoticiaConstants.tooltipOrden,
-          onPressed: _alternarOrden,
-        ),*/
+      
       ],
   ),
     body: Column(
@@ -253,7 +191,7 @@ Widget build(BuildContext context) {
       ],
     ),
     floatingActionButton: FloatingActionButton(
-      backgroundColor: Colors.lightGreen,
+      backgroundColor: Theme.of(context).primaryColor,
       onPressed: _mostrarModalCreacion,
       child: const Icon(Icons.add),
     ),
@@ -290,10 +228,11 @@ Widget build(BuildContext context) {
   }
 
   return NoticiaCard(
-    noticia: _noticias[index],
-    imageUrl: _noticias[index].imagen,
-    onEditPressed: _abrirModalEdicion,
-  );
+  noticia: _noticias[index],
+  imageUrl: _noticias[index].imagen,
+  onEditPressed: _abrirModalEdicion,
+  onDelete: () => _loadMoreNoticias(resetear: true),  // <- aquí
+);
 },
     );
   }

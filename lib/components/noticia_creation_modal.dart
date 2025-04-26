@@ -1,4 +1,6 @@
 // components/noticia_modals.dart
+import 'package:afranco/api/service/categoria_repository.dart';
+import 'package:afranco/domain/category.dart';
 import 'package:flutter/material.dart';
 import 'package:afranco/domain/noticia.dart';
 import 'package:afranco/api/service/noticia_repository.dart';
@@ -25,41 +27,68 @@ class _NoticiaCreationModalState extends State<NoticiaCreationModal> {
   final _imagenController = TextEditingController();
   final _urlController = TextEditingController();
   bool _isSubmitting = false;
-
-  Future<void> _submitForm() async {
-    if (!_formKey.currentState!.validate()) return;
-
-    setState(() => _isSubmitting = true);
-    
+  final CategoriaRepository _categoriaRepo = CategoriaRepository();
+  Categoria? _categoriaSeleccionada;
+  bool _isLoading = true;
+  List<Categoria> _categorias = [];
+  @override
+  void initState(){
+    super.initState();
+    _cargarCategorias();
+  }
+  Future<void> _cargarCategorias() async {
     try {
-      // Asignar URL de imagen por defecto si está vacío
-      final imagenUrl = _imagenController.text.isEmpty
-          ? 'https://picsum.photos/200/300?random=${DateTime.now().millisecondsSinceEpoch}'
-          : _imagenController.text;
-
-      final nuevaNoticia = Noticia(
-        id: '',
-        titulo: _tituloController.text,
-        fuente: _fuenteController.text,
-        imagen: imagenUrl,  // Usar URL generada o la ingresada
-        publicadaEl: DateTime.now(),
-        descripcion: _descripcionController.text,
-        url: _urlController.text,
-      );
-
-      await widget.service.crearNoticia(nuevaNoticia);
-      
-      widget.onNoticiaCreated(nuevaNoticia);
-      Navigator.pop(context);
-      
+      final categorias = await _categoriaRepo.getCategorias();
+      if (mounted) {
+        setState(() {
+          _categorias = categorias;
+          _isLoading = false;
+        });
+      }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error al crear: ${e.toString()}')),
-      );
-    } finally {
-      if(mounted) setState(() => _isSubmitting = false);
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error al cargar categorías: $e')),
+        );
+      }
     }
   }
+Future<void> _submitForm() async {
+  if (!_formKey.currentState!.validate()) return;
+
+  setState(() => _isSubmitting = true);
+
+  try {
+    final imagenUrl = _imagenController.text.isEmpty
+        ? 'https://picsum.photos/200/300?random=${DateTime.now().millisecondsSinceEpoch}'
+        : _imagenController.text;
+
+    final nuevaNoticia = Noticia(
+      id: '',
+      categoryId: _categoriaSeleccionada?.id ?? '',  // Aquí el valor es vacío si no se selecciona
+      titulo: _tituloController.text,
+      fuente: _fuenteController.text,
+      imagen: imagenUrl,
+      publicadaEl: DateTime.now(),
+      descripcion: _descripcionController.text,
+      url: _urlController.text,
+    );
+
+    await widget.service.crearNoticia(nuevaNoticia);
+
+    widget.onNoticiaCreated(nuevaNoticia);
+    Navigator.pop(context);
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Error al crear: ${e.toString()}')),
+    );
+  } finally {
+    if (mounted) setState(() => _isSubmitting = false);
+  }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -94,6 +123,22 @@ class _NoticiaCreationModalState extends State<NoticiaCreationModal> {
                 ),
                 keyboardType: TextInputType.url,
               ),
+              
+              DropdownButtonFormField<Categoria>(
+                  value: _categoriaSeleccionada,
+                  decoration: const InputDecoration(labelText: 'Categoría'),
+                  items: _categorias.map((categoria) {
+                  return DropdownMenuItem(
+                    value: categoria,
+                      child: Text(categoria.nombre),
+                    );
+                  }).toList(),
+                  onChanged: (nueva) {
+                    setState(() => _categoriaSeleccionada = nueva);
+                  },
+                  validator: (_) => null,
+              ),
+
               TextFormField(
                 controller: _urlController,
                 decoration: const InputDecoration(labelText: 'URL Noticia'),

@@ -55,7 +55,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
           children: [
             Text(
-              "Iniciar Sesión",
+              "🔐 Iniciar Sesión",
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 40,
