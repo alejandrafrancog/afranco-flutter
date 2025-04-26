@@ -47,15 +47,17 @@ class Noticia {
     );
   }
   Map<String, dynamic> toJson() {
-    return {
-      '_id': id, 
-      'titulo': titulo,
-      'descripcion': descripcion,
-      'fuente': fuente,
-      'publicadaEl': publicadaEl.toIso8601String(),
-      'url': url,
-    };
-  }
+  return {
+    '_id': id,
+    'categoriaId': categoryId, // Añadir categoriaId al JSON
+    'titulo': titulo,
+    'descripcion': descripcion,
+    'fuente': fuente,
+    'publicadaEl': publicadaEl.toIso8601String(),
+    'url': url,
+  };
+}
+
 
 factory Noticia.fromCrudApiJson(Map<String, dynamic> json) {
     // Verifica el formato de fecha y provee un valor por defecto si falla
@@ -71,6 +73,7 @@ factory Noticia.fromCrudApiJson(Map<String, dynamic> json) {
   Random random = Random(100);
   return Noticia(
     id: json['_id'] ?? '',
+    categoryId: json['categoriaId'] ?? '',
     titulo: json['titulo'] ?? '',
     fuente: json['fuente'] ?? 'Fuente desconocida',
     imagen: json['urlImagen'] ?? 'https://picsum.photos/200/300?random=${random.toString()}',

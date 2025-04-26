@@ -2,7 +2,8 @@
 import 'package:flutter/material.dart';
 import 'package:afranco/domain/noticia.dart';
 import 'package:afranco/api/service/noticia_repository.dart';
-
+import 'package:afranco/domain/category.dart';
+import 'package:afranco/api/service/categoria_repository.dart';
 class NoticiaEditModal extends StatefulWidget {
   final Noticia noticia;
   final String id;
@@ -29,6 +30,10 @@ class _NoticiaEditModalState extends State<NoticiaEditModal> {
   late TextEditingController _fuenteController;
   late TextEditingController _imagenController;
   late TextEditingController _urlController;
+  final CategoriaRepository _categoriaRepo = CategoriaRepository();
+
+  List<Categoria> _categorias = [];
+  bool _isLoading = true;
   bool _isSubmitting = false;
   late String _originalImagen;
 
@@ -40,8 +45,22 @@ class _NoticiaEditModalState extends State<NoticiaEditModal> {
     _fuenteController = TextEditingController(text: widget.noticia.fuente);
     _imagenController = TextEditingController(text: widget.noticia.imagen);
     _urlController = TextEditingController(text: widget.noticia.url);
+    _cargarCategorias();
     _originalImagen = widget.noticia.imagen;
   }
+  void _cargarCategorias() async {
+  try {
+    final categorias = await _categoriaRepo.getCategorias();
+    setState(() {
+      _categorias = categorias;
+      _isLoading = false;
+    });
+  } catch (e) {
+    setState(() => _isLoading = false);
+    // Podés mostrar un snackbar o dialog con el error si querés
+    print('Error al cargar categorías: $e');
+  }
+}
   Future<void> _submitForm() async {
   if (!_formKey.currentState!.validate()) return;
 
@@ -81,39 +100,7 @@ class _NoticiaEditModalState extends State<NoticiaEditModal> {
       if(mounted) setState(() => _isSubmitting = false);
     }
 }
-  /*Future<void> _submitForm() async {
-    if (!_formKey.currentState!.validate()) return;
 
-    setState(() => _isSubmitting = true);
-    
-    
-    try {
-      final imagenUrl = _imagenController.text.isNotEmpty 
-          ? _imagenController.text 
-          : _originalImagen;
-
-      final noticiaActualizada = Noticia(
-        id: widget.noticia.id,
-        titulo: _tituloController.text,
-        fuente: _fuenteController.text,
-        imagen: imagenUrl,
-        publicadaEl: widget.noticia.publicadaEl, 
-        descripcion: _descripcionController.text,
-        url: _urlController.text,
-      );
-
-      await widget.service.actualizarNoticia(noticiaActualizada);
-      
-      Navigator.pop(context);
-      
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error al actualizar: ${e.toString()}')),
-      );
-    } finally {
-      if(mounted) setState(() => _isSubmitting = false);
-    }
-  }*/
 
   @override
   Widget build(BuildContext context) {
@@ -167,6 +154,7 @@ class _NoticiaEditModalState extends State<NoticiaEditModal> {
           child: _isSubmitting 
               ? const CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Colors.white))
               : const Text('Guardar Cambios'),
+          
         ),
       ],
     );

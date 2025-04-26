@@ -156,7 +156,9 @@ return showDialog<Map<String, dynamic>>(
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Categorías')),
+      appBar: AppBar(title: const Text('Categorías'),
+      backgroundColor: Theme.of(context).primaryColor,
+      foregroundColor:Colors.white),
       body:
           isLoading
               ? const Center(child: CircularProgressIndicator())

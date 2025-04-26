@@ -131,12 +131,14 @@ Future<List<Noticia>> getNoticiasPaginadas(int pagina) async {
       final response = await _dio.post(
         '${ApiConstants.crudApiUrl}${ApiConstants.noticiasEndpoint}',
         data: {
+          'categoriaId':noticia.categoryId,
           'titulo': noticia.titulo,
           'descripcion': noticia.descripcion,
           'fuente': noticia.fuente,
           'publicadaEl': noticia.publicadaEl.toIso8601String(),
           'urlImagen': noticia.imagen,
           'url': noticia.url,
+          
         },
       );
       

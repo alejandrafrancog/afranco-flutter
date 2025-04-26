@@ -13,15 +13,28 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-        colorScheme: const ColorScheme.light(
-          primary:  Colors.teal,
-          secondary: Colors.tealAccent,
+        brightness: Brightness.light,
+        colorScheme: ColorScheme.light(
+          primary: Colors.teal,
+          secondary: const Color.fromARGB(255, 93, 129, 126),
         ),
-        useMaterial3: true,
       ),
+      darkTheme: ThemeData.dark().copyWith(
+        appBarTheme: AppBarTheme(
+          backgroundColor: Colors.grey[900],
+          foregroundColor: Colors.white,
+        ),
+        textTheme: ThemeData.dark().textTheme.copyWith(
+          bodyLarge: TextStyle(color: Colors.white),
+          bodyMedium: TextStyle(color: Colors.grey[300]),
+        ), // podés seguir personalizando lo que necesites
+      ),
+      
+      themeMode: ThemeMode.light,
       home: const LoginScreen(),
     );
   }

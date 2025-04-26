@@ -80,7 +80,7 @@ class _NoticiaDeleteModalState extends State<NoticiaDeleteModal> {
               ElevatedButton(
                 onPressed: _isDeleting ? null : _confirmDelete,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red.shade700,
+                  backgroundColor: Theme.of(context).primaryColor,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                 ),

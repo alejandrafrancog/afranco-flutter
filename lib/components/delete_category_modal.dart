@@ -12,7 +12,11 @@ Future<void> showDeleteConfirmationDialog(BuildContext context, VoidCallback onC
             onPressed: () => Navigator.of(context).pop(),
           ),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(context).primaryColor,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                ),
             child: const Text('Eliminar'),
             onPressed: () {
               onConfirm();
@@ -24,3 +28,4 @@ Future<void> showDeleteConfirmationDialog(BuildContext context, VoidCallback onC
     },
   );
 }
+
