@@ -34,7 +34,7 @@ class NoticiaScreenState extends State<NoticiaScreen> {
   int _currentPage = 1;
   bool _hasMore = true;
   String? _errorMessage;
-  bool _ordenarPorFecha = true; // Nuevo estado para controlar el orden
+  final bool _ordenarPorFecha = true; // Nuevo estado para controlar el orden
 
   @override
   void initState() {
@@ -174,7 +174,7 @@ Widget build(BuildContext context) {
           color: Colors.white,
           onPressed: () {
             Navigator.of(context).push(
-              MaterialPageRoute(builder: (context) => CategoriaScreen()),
+              MaterialPageRoute(builder: (context) => const CategoriaScreen()),
             );
           },
         ),

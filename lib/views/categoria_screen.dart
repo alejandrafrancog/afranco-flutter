@@ -8,10 +8,10 @@ class CategoriaScreen extends StatefulWidget {
   const CategoriaScreen({super.key});
 
   @override
-  _CategoriaScreenState createState() => _CategoriaScreenState();
+  CategoriaScreenState createState() => CategoriaScreenState();
 }
 
-class _CategoriaScreenState extends State<CategoriaScreen> {
+class CategoriaScreenState extends State<CategoriaScreen> {
   final CategoriaRepository _categoriaService = CategoriaRepository();
   List<Categoria> categorias = [];
   bool isLoading = false;
