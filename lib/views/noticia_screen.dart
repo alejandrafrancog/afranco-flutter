@@ -64,78 +64,7 @@ void _abrirModalEdicion(Noticia noticia) {
     ),
   );
 }
-/*
-Future<void> _loadMoreNoticias({bool resetear = false}) async {
-  if (_isLoading || (!_hasMore && !resetear)) return;
 
-  setState(() {
-    _isLoading = true;
-    _errorMessage = null;
-    if (resetear) {
-      _currentPage = 1;
-      _noticias.clear();
-      _hasMore = true;
-      _ultimaActualizacion = null;
-    }
-  });
-
-  try {
-    final nuevasNoticias = await widget.service.obtenerNoticiasPaginadas(
-      numeroPagina: _currentPage,
-      ordenarPorFecha: _ordenarPorFecha,
-    ).timeout(const Duration(seconds: 15));
-
-    if (!mounted) return;
-
-    setState(() {
-      if (resetear) {
-        _noticias
-          ..clear()
-          ..addAll(nuevasNoticias);
-        _currentPage = 2;
-      } else {
-        _noticias.addAll(nuevasNoticias);
-        _currentPage++;
-      }
-      
-      _hasMore = nuevasNoticias.length >= NoticiaConstants.pageSize;
-      _ultimaActualizacion = DateTime.now();
-    });
-
-  } catch (e) {
-    String errorMessage = 'Error desconocido';
-    Color errorColor = Colors.grey;
-
-    if (e is ApiException) {
-      final errorData = ErrorHelper.getErrorMessageAndColor(e.statusCode);
-      errorMessage = errorData['message'];
-      errorColor = errorData['color'];
-    } 
-    else if (e is TimeoutException) {
-      errorMessage = 'Tiempo de espera agotado';
-      errorColor = Colors.orange;
-    }
-    else {
-      errorMessage = 'Error inesperado: ${e.toString()}';
-    }
-
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(errorMessage), backgroundColor: errorColor),
-      );
-    }
-
-    setState(() {
-      _errorMessage = errorMessage;
-    });
-
-  } finally {
-    if (mounted) {
-      setState(() => _isLoading = false);
-    }
-  }
-}
-*/
 Future<void> _loadMoreNoticias({bool resetear = false}) async {
   if (_isLoading || (!_hasMore && !resetear)) return;
 

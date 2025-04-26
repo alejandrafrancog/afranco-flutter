@@ -68,7 +68,7 @@ Future<void> _submitForm() async {
 
     final nuevaNoticia = Noticia(
       id: '',
-      categoryId: _categoriaSeleccionada?.id ?? '',  // Aquí el valor es vacío si no se selecciona
+      categoryId: _categoriaSeleccionada?.id ?? '',  
       titulo: _tituloController.text,
       fuente: _fuenteController.text,
       imagen: imagenUrl,
