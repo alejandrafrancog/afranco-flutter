@@ -1,3 +1,4 @@
+import 'package:afranco/bloc/counter/counter_bloc.dart';
 import 'package:afranco/views/categoria_screen.dart';
 import 'package:afranco/views/noticia_screen.dart';
 import 'package:afranco/views/pantalla_interactiva.dart';
@@ -8,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:afranco/views/tasks.dart'; // Mantén esta línea
 import 'package:afranco/main.dart';
 import 'package:afranco/constants.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
 
@@ -44,12 +46,14 @@ drawer: Drawer(
         leading: const Icon(Icons.restart_alt),
         title: const Text('Contador'),
         onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const MyHomePage(title:'Contador')),
-            
-          );
+          Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => BlocProvider<CounterBloc>(
+              create: (context) => CounterBloc(),
+              child: const MyHomePage(title: 'Counter App'),
+            ),
+        ),
+    );
         },
       ),
       ListTile(
@@ -80,14 +84,18 @@ drawer: Drawer(
         leading: const Icon(Icons.newspaper),
         title: const Text('Noticias'),
         onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => NoticiaScreen()),
-            
-          );
+          Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => BlocProvider<CounterBloc>(
+              create: (context) => CounterBloc(),
+              child: NoticiaScreen(),
+            ),
+        ),
+    );
+          
         },
       ),
+  
       ListTile(
         leading: const Icon(Icons.palette_outlined),
         title: const Text('Colores'),
