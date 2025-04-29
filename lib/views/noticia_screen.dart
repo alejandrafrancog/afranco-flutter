@@ -21,7 +21,6 @@ import 'package:afranco/bloc/noticia_bloc/noticia_state.dart';
 
 class NoticiaScreen extends StatefulWidget {
   final NoticiaRepository repository = NoticiaRepository();
-
   NoticiaScreen({super.key});
 
   @override
@@ -35,7 +34,7 @@ class NoticiaScreenState extends State<NoticiaScreen> {
   @override
   void initState() {
     super.initState();
-    _noticiaBloc = NoticiaBloc(noticiaRepository: widget.repository);
+    _noticiaBloc = NoticiaBloc();
     _scrollController.addListener(_scrollListener);
     _noticiaBloc.add(NoticiaCargadaEvent());
   }

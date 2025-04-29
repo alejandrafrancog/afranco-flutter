@@ -101,49 +101,37 @@ class NoticiaBloc extends Bloc<NoticiaEvent, NoticiaState> {
 import 'dart:async';
 import 'package:afranco/bloc/noticia_bloc/noticia_event.dart';
 import 'package:afranco/bloc/noticia_bloc/noticia_state.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:afranco/api/service/noticia_repository.dart';
-import 'package:afranco/exceptions/api_exception.dart';
-import 'package:afranco/helpers/error_helper.dart';
 import 'package:afranco/constants.dart';
+import 'package:watch_it/watch_it.dart';
+
 class NoticiaBloc extends Bloc<NoticiaEvent, NoticiaState> {
-  final NoticiaRepository noticiaRepository;
+  final NoticiaRepository noticiaRepository = di<NoticiaRepository>();
   int _currentPage = 1;
   final bool _ordenarPorFecha = true;
 
-  NoticiaBloc({required this.noticiaRepository}) : super(NoticiaState()) {
+  NoticiaBloc() : super(NoticiaState()) {
     on<NoticiaCargadaEvent>(_onCargarNoticias);
     on<NoticiaCargarMasEvent>(_onCargarMasNoticias);
     on<NoticiaRecargarEvent>(_onRecargarNoticias);
   }
 
-  Future<void> _onCargarNoticias(
-    NoticiaCargadaEvent event,
-    Emitter<NoticiaState> emit,
-  ) async {
+  Future<void> _onCargarNoticias(NoticiaCargadaEvent event,Emitter<NoticiaState> emit,) async {
     await _cargarNoticias(emit, resetear: true);
   }
 
-  Future<void> _onCargarMasNoticias(
-    NoticiaCargarMasEvent event,
-    Emitter<NoticiaState> emit,
+  Future<void> _onCargarMasNoticias(NoticiaCargarMasEvent event,Emitter<NoticiaState> emit,
   ) async {
     if (state.isLoading || !state.tieneMas) return;
     await _cargarNoticias(emit);
   }
 
-  Future<void> _onRecargarNoticias(
-    NoticiaRecargarEvent event,
-    Emitter<NoticiaState> emit,
-  ) async {
+  Future<void> _onRecargarNoticias(NoticiaRecargarEvent event,Emitter<NoticiaState> emit,) async {
     await _cargarNoticias(emit, resetear: true);
   }
 
-  Future<void> _cargarNoticias(
-    Emitter<NoticiaState> emit, {
-    bool resetear = false,
-  }) async {
+  Future<void> _cargarNoticias(Emitter<NoticiaState> emit, {bool resetear = false, }) async {
     try {
       if (resetear) {
         _currentPage = 1;

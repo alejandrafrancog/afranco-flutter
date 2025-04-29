@@ -1,4 +1,3 @@
-
 import 'package:afranco/data/categoria_service.dart';
 import 'package:afranco/domain/category.dart';
 import 'package:afranco/exceptions/api_exception.dart';
@@ -19,7 +18,7 @@ class CategoriaRepository {
       }
     }
   }
-  
+
   /// Crea una nueva categoría
   Future<void> crearCategoria(Categoria categoria) async {
     try {
