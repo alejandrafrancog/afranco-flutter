@@ -51,16 +51,8 @@ class NoticiaLoadingState extends NoticiaState {
 }
 
 class NoticiaErrorState extends NoticiaState {
-  final Object error; // guardamos el error
+  final Object error; 
 
-  NoticiaErrorState({
-    required this.error,
-    required List<Noticia> noticias,
-    required bool tieneMas,
-    DateTime? ultimaActualizacion,
-  }) : super(
-    noticias: noticias,
-    tieneMas: tieneMas,
-    ultimaActualizacion: ultimaActualizacion,
-  );
+  NoticiaErrorState({required this.error, required List<Noticia> noticias, required bool tieneMas, DateTime? ultimaActualizacion,
+  }) : super(noticias: noticias, tieneMas: tieneMas, ultimaActualizacion: ultimaActualizacion,);
 }
