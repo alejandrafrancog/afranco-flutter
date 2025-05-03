@@ -1,6 +1,8 @@
-import 'dart:async';
+import 'package:afranco/exceptions/api_exception.dart';
+import 'package:afranco/helpers/error_helper.dart';
 import 'package:afranco/views/categoria_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:afranco/api/service/noticia_repository.dart';
 import 'package:afranco/domain/noticia.dart';
 import 'package:afranco/noticias_estilos.dart';
@@ -11,186 +13,127 @@ import 'package:afranco/components/noticia_empty_state.dart';
 import 'package:afranco/constants.dart';
 import 'package:afranco/components/noticia_creation_modal.dart';
 import 'package:intl/intl.dart';
-import 'package:afranco/helpers/error_helper.dart';
-import 'package:afranco/exceptions/api_exception.dart';
+
 import 'package:afranco/components/noticia_edit_modal.dart';
+import 'package:afranco/bloc/noticia_bloc/noticia_bloc.dart';
+import 'package:afranco/bloc/noticia_bloc/noticia_event.dart';
+import 'package:afranco/bloc/noticia_bloc/noticia_state.dart';
 
 class NoticiaScreen extends StatefulWidget {
-  final NoticiaRepository service = NoticiaRepository();
-
-  
-   NoticiaScreen({super.key});
+  final NoticiaRepository repository = NoticiaRepository();
+  NoticiaScreen({super.key});
 
   @override
   NoticiaScreenState createState() => NoticiaScreenState();
 }
 
 class NoticiaScreenState extends State<NoticiaScreen> {
-  final List<Noticia> _noticias = [];
   final ScrollController _scrollController = ScrollController();
-  DateTime? _ultimaActualizacion; // Nueva variable de estado
-
-  bool _isLoading = false;
-  int _currentPage = 1;
-  bool _hasMore = true;
-  String? _errorMessage;
-  final bool _ordenarPorFecha = true; // Nuevo estado para controlar el orden
+  late NoticiaBloc _noticiaBloc;
 
   @override
   void initState() {
     super.initState();
+    _noticiaBloc = NoticiaBloc();
     _scrollController.addListener(_scrollListener);
-    _loadMoreNoticias();
+    _noticiaBloc.add(NoticiaCargadaEvent());
   }
-  
+
   void _scrollListener() {
     if (_scrollController.position.pixels >= 
         _scrollController.position.maxScrollExtent * 0.8) {
-      _loadMoreNoticias();
+      _noticiaBloc.add(NoticiaCargarMasEvent());
     }
   }
-void _abrirModalEdicion(Noticia noticia) {
-  showDialog(
-    context: context,
-    builder: (context) => NoticiaEditModal(
-      noticia: noticia,
-      id: noticia.id,
-      onNoticiaUpdated: () {
-        // Ejecutar en el próximo frame para asegurar que el modal se cerró
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          _loadMoreNoticias(resetear: true);
-        });
-      },
-    ),
-  );
-}
 
-Future<void> _loadMoreNoticias({bool resetear = false}) async {
-  if (_isLoading || (!_hasMore && !resetear)) return;
-
-  setState(() {
-    _isLoading = true;
-    _errorMessage = null;
-    if (resetear) {
-      _currentPage = 1;
-      _noticias.clear();
-      _hasMore = true;
-      _ultimaActualizacion = null;
-    }
-  });
-
-  try {
-    final nuevasNoticias = await widget.service.obtenerNoticiasPaginadas(
-      numeroPagina: _currentPage,
-      ordenarPorFecha: _ordenarPorFecha,
-    ).timeout(const Duration(seconds: 15));
-
-    if (!mounted) return;
-
-    setState(() {
-      if (resetear) {
-        _noticias
-          ..clear()
-          ..addAll(nuevasNoticias);
-        _currentPage = 2;
-      } else {
-        _noticias.addAll(nuevasNoticias);
-        _currentPage++;
-      }
-      
-      _hasMore = nuevasNoticias.length >= NoticiaConstants.pageSize;
-      _ultimaActualizacion = DateTime.now();
-    });
-
-  } catch (e) {
-    // Definir valores predeterminados
-    String errorMessage = 'Error desconocido';
-    Color errorColor = Colors.grey;
-
-    // Determinar el mensaje y color según el tipo de error
-    if (e is ApiException) {
-      // Obtener mensaje y color del ErrorHelper
-      final errorData = ErrorHelper.getErrorMessageAndColor(e.statusCode);
-      errorMessage = errorData['message'] as String;
-      errorColor = errorData['color'] as Color;
-    } 
-    else if (e is TimeoutException) {
-      errorMessage = 'Tiempo de espera agotado';
-      errorColor = Colors.orange;
-    }
-    else {
-      errorMessage = 'Error inesperado: ${e.toString()}';
-      // Mantener el color predeterminado (gris)
-    }
-
-    // Mostrar SnackBar solo si el widget sigue montado
-    if (mounted) {
-      // Este es el SnackBar que mostrará los colores correctos
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(errorMessage),
-          backgroundColor: errorColor, // Usar el color determinado arriba
-          duration: const Duration(seconds: 4),
-          action: SnackBarAction(
-            label: 'Reintentar',
-            textColor: Colors.white,
-            onPressed: () => _loadMoreNoticias(resetear: true),
-          ),
-        ),
-      );
-    }
-
-    // Actualizar el estado para mostrar mensaje en la UI
-    setState(() {
-      _errorMessage = errorMessage;
-    });
-  } finally {
-    if (mounted) {
-      setState(() => _isLoading = false);
-    }
-  }
-}
-  void _mostrarModalCreacion() {
+  void _abrirModalEdicion(Noticia noticia) {
     showDialog(
       context: context,
-      builder: (context) => NoticiaCreationModal(
-        service: widget.service,
-        onNoticiaCreated: (nuevaNoticia) => _loadMoreNoticias(resetear: true),
+      builder: (context) => NoticiaEditModal(
+        noticia: noticia,
+        id: noticia.id,
+        onNoticiaUpdated: () {
+          _noticiaBloc.add(NoticiaRecargarEvent());
+        },
       ),
     );
   }
 
-@override
-Widget build(BuildContext context) {
-  return Scaffold(
-    backgroundColor: Colors.grey[200],
-    appBar: AppBar(
-      title: const Text(NoticiaConstants.appTitle, 
-      style: NoticiaEstilos.tituloAppBar),
-      backgroundColor: Theme.of(context).colorScheme.primary,
-      actions: [
-        IconButton(
-          icon: Icon(Icons.category),
-          color: Colors.white,
-          onPressed: () {
-            Navigator.of(context).push(
-              MaterialPageRoute(builder: (context) => const CategoriaScreen()),
-            );
-          },
+  void _mostrarModalCreacion() {
+    showDialog(
+      context: context,
+      builder: (context) => NoticiaCreationModal(
+        service: widget.repository,
+        onNoticiaCreated: (_) {
+          _noticiaBloc.add(NoticiaRecargarEvent());
+        },
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) => _noticiaBloc,
+      child: Scaffold(
+        backgroundColor: Colors.grey[200],
+        appBar: AppBar(
+          title: const Text(NoticiaConstants.appTitle, 
+            style: NoticiaEstilos.tituloAppBar),
+          backgroundColor: Theme.of(context).colorScheme.primary,
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.category),
+              color: Colors.white,
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (context) => const CategoriaScreen()),
+                );
+              },
+            ),
+          ],
         ),
-      
-      ],
-  ),
-    body: Column(
+body: BlocConsumer<NoticiaBloc, NoticiaState>(
+    listener: (context, state) {
+    if (state is NoticiaErrorState) {
+      final error = state.error;
+      print('Error: $error\n\n\n');
+      if (error is ApiException) {
+        print("\nES API EXCEPTION\n");
+        final errorData = ErrorHelper.getErrorMessageAndColor(error.statusCode);
+        final message = errorData['message'] ?? 'Error desconocido.';
+        final color = errorData['color'] ?? Colors.grey;
+        print(errorData);
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(message),
+            backgroundColor: color,
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Ocurrió un error inesperado.'),
+            backgroundColor: Colors.grey,
+          ),
+        );
+      }
+    }
+  },
+
+
+  builder: (context, state) {
+    return Column(
       children: [
         // Sección de última actualización
         Container(
           width: double.infinity,
           padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
           color: Colors.grey[300],
-          child: _ultimaActualizacion != null
+          child: state.ultimaActualizacion != null
               ? Text(
-                  'Última actualización: ${DateFormat('dd/MM/yyyy HH:mm').format(_ultimaActualizacion!)}',
+                  'Última actualización: ${DateFormat('dd/MM/yyyy HH:mm').format(state.ultimaActualizacion!)}',
                   style: TextStyle(
                     fontSize: 14,
                     color: Colors.grey[700],
@@ -201,60 +144,64 @@ Widget build(BuildContext context) {
         ),
         // Lista de noticias
         Expanded(
-          child: _buildBodyContent(),
+          child: _buildBodyContent(state),
         ),
       ],
-    ),
-    floatingActionButton: FloatingActionButton(
-      backgroundColor: Theme.of(context).primaryColor,
-      onPressed: _mostrarModalCreacion,
-      child: const Icon(Icons.add),
-    ),
-  );
-}
-  Widget _buildBodyContent() {
-    if (_errorMessage != null) {
+    );
+  },
+),
+        floatingActionButton: FloatingActionButton(
+          backgroundColor: Theme.of(context).primaryColor,
+          onPressed: _mostrarModalCreacion,
+          child: const Icon(Icons.add),
+        ),
+      ),
+    );
+  
+  }
+
+  Widget _buildBodyContent(NoticiaState state) {
+    if (state is NoticiaErrorState) {
       return ErrorMessage(
-        message: _errorMessage!,
-        onRetry: _loadMoreNoticias,
+        message: state.errorMessage ?? 'Ocurrió un error inesperado.',
+        onRetry: () => _noticiaBloc.add(NoticiaRecargarEvent()),
       );
     }
     
-    if (_noticias.isEmpty && _isLoading) {
+    if (state is NoticiaLoadingState && state.noticias.isEmpty) {
       return const FullScreenLoading();
     }
     
-    if (_noticias.isEmpty) {
+    if (state.noticias.isEmpty) {
       return const EmptyState();
     }
     
     return ListView.separated(
       controller: _scrollController,
-      itemCount: _noticias.length + (_hasMore ? 1 : 0),
+      itemCount: state.noticias.length + (state.tieneMas ? 1 : 0),
       separatorBuilder: (_, __) => const SizedBox(height: NoticiaEstilos.espaciadoAlto),
-     itemBuilder: (context, index) {
-  if (index >= _noticias.length) {
-    return _buildLoadingIndicator();
-  }
-  
-  // Añadir protección contra índices inválidos
-  if (index < 0 || index >= _noticias.length) {
-    return const SizedBox.shrink();
-  }
+      itemBuilder: (context, index) {
+        if (index >= state.noticias.length) {
+          return _buildLoadingIndicator(state is NoticiaLoadingState);
+        }
+        
+        if (index < 0 || index >= state.noticias.length) {
+          return const SizedBox.shrink();
+        }
 
-  return NoticiaCard(
-  noticia: _noticias[index],
-  imageUrl: _noticias[index].imagen,
-  onEditPressed: _abrirModalEdicion,
-  onDelete: () => _loadMoreNoticias(resetear: true),  // <- aquí
-);
-},
+        return NoticiaCard(
+          noticia: state.noticias[index],
+          imageUrl: state.noticias[index].imagen,
+          onEditPressed: _abrirModalEdicion,
+          onDelete: () => _noticiaBloc.add(NoticiaRecargarEvent()),
+        );
+      },
     );
   }
 
-  Widget _buildLoadingIndicator() {
+  Widget _buildLoadingIndicator(bool isLoading) {
     return Visibility(
-      visible: _isLoading,
+      visible: isLoading,
       child: const Padding(
         padding: EdgeInsets.symmetric(vertical: 20),
         child: Center(child: CircularProgressIndicator()),
@@ -265,6 +212,7 @@ Widget build(BuildContext context) {
   @override
   void dispose() {
     _scrollController.dispose();
+    _noticiaBloc.close();
     super.dispose();
   }
 }
