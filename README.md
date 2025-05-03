@@ -16,8 +16,4 @@ Debes crear un archivo llamado `.env` en la raíz del proyecto.
 Ejemplo de `.env`:
 
 ```env
-CURL_API_URL=https://crudcrud.com/api/<your_crudcrud_apiKey>/
-NEWS_PAGE_SIZE=10
-NEWS_LANGUAGE=es
-NEWS_CATEGORY=tecnología
-
+BASE_URL=https://crudcrud.com/api/<your_crudcrud_apiKey>
