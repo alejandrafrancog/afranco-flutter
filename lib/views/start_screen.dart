@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:afranco/views/game_screen.dart';
 import 'package:afranco/api/service/question_service.dart';
 import 'package:afranco/data/question_repository.dart'; // Añadir import del repositorio
-import 'package:afranco/constants.dart';
+import 'package:afranco/constants/constants.dart';
 class StartScreen extends StatelessWidget {
   const StartScreen({super.key});
 

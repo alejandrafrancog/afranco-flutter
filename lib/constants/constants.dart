@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:afranco/env_constants.dart';
+import 'package:afranco/constants/env_constants.dart';
 class AppConstants {
   static const String titleAppBarT = 'Lista de Tareas';
   static const String emptyList = 'No hay tareas';

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:afranco/domain/task.dart';
-import 'package:afranco/constants.dart';
+import 'package:afranco/constants/constants.dart';
 import 'package:afranco/components/task_modals.dart';
 import 'package:afranco/data/task_repository.dart'; // Importa TaskRepository
 import 'package:afranco/api/service/task_service.dart'; // Importa TaskService

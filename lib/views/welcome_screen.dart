@@ -10,7 +10,7 @@ import 'package:afranco/views/start_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:afranco/views/tasks.dart'; // Mantén esta línea
 import 'package:afranco/main.dart';
-import 'package:afranco/constants.dart';
+import 'package:afranco/constants/constants.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class WelcomeScreen extends StatelessWidget {

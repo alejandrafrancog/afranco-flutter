@@ -1,5 +1,5 @@
 
-import 'package:afranco/constants.dart';
+import 'package:afranco/constants/constants.dart';
 import 'package:afranco/domain/noticia.dart';
 import 'package:dio/dio.dart';
 import 'dart:math';

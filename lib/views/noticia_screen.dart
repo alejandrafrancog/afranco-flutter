@@ -10,7 +10,7 @@ import 'package:afranco/components/noticia_error.dart';
 import 'package:afranco/components/noticia_card.dart';
 import 'package:afranco/components/noticia_loading.dart';
 import 'package:afranco/components/noticia_empty_state.dart';
-import 'package:afranco/constants.dart';
+import 'package:afranco/constants/constants.dart';
 import 'package:afranco/components/noticia_creation_modal.dart';
 import 'package:intl/intl.dart';
 

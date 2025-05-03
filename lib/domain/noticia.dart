@@ -1,5 +1,5 @@
 import 'dart:math';
-import 'package:afranco/constants.dart';
+import 'package:afranco/constants/constants.dart';
 import 'package:afranco/domain/category.dart';
 
 class Noticia {

@@ -1,7 +1,7 @@
 // category_repository.dart
 
 import 'package:dio/dio.dart';
-import 'package:afranco/constants.dart';
+import 'package:afranco/constants/constants.dart';
 import 'package:afranco/domain/category.dart';
 import 'package:afranco/exceptions/api_exception.dart';
 class CategoriaService {
