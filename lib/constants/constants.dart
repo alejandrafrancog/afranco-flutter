@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:afranco/env_constants.dart';
+import 'package:afranco/constants/env_constants.dart';
 class AppConstants {
   static const String titleAppBarT = 'Lista de Tareas';
   static const String emptyList = 'No hay tareas';
@@ -32,12 +32,11 @@ class SuccessMessages {
 
 }
 class ApiConstants {
-  static String get crudApiUrl => EnvConstants.curlApiUrl;
+  static String get baseUrl => EnvConstants.baseUrl;
   static String noticiasEndpoint = 'noticias';
-  static String get newsApiKey => EnvConstants.newsApiKey;
-  static String get newsAPIUrl => EnvConstants.newsApiUrl;
   static String categoryEndpoint = 'categorias';
-  static String urlCategorias = '${EnvConstants.curlApiUrl}categorias';
+  static String urlCategorias = '${EnvConstants.baseUrl}/$categoryEndpoint';
+  static String urlNoticias = '${EnvConstants.baseUrl}/$noticiasEndpoint';
 }
 class CategoriaConstants{
   static String errorTimeout = 'Tiempo de espera agotado';
@@ -46,9 +45,9 @@ class CategoriaConstants{
   static const int timeOutSeconds = 10;
 }
 class NoticiaConstants {
-  static int get pageSize => EnvConstants.newsPageSize;
-  static String get language => EnvConstants.language;
-  static String get category => EnvConstants.category;
+  static int pageSize = 10;
+  static String language = 'es';
+  static String category = 'tecnología';
   static int timeOutSeconds = 10;
   static String sinCategoria = "Sin categoría";
 

@@ -1,5 +1,5 @@
 
-import 'package:afranco/constants.dart';
+import 'package:afranco/constants/constants.dart';
 import 'package:afranco/domain/noticia.dart';
 import 'package:dio/dio.dart';
 import 'dart:math';
@@ -12,7 +12,7 @@ class NoticiaService {
       receiveTimeout: const Duration(seconds:CategoriaConstants.timeOutSeconds),
     ),
   );
-  final String _baseUrl = '${ApiConstants.crudApiUrl}${ApiConstants.noticiasEndpoint}';
+  final String _baseUrl = ApiConstants.urlNoticias;
 
   final _titulosPosibles = [
     "Se reeligió al presidente en una ajustada votación",
@@ -78,7 +78,7 @@ Future<List<Noticia>> getNoticiasPaginadas(int pagina) async {
   Future<List<Noticia>> getTechnologyNews({required int page}) async {
     try {
       final response = await _dio.get(
-        '${ApiConstants.crudApiUrl}${ApiConstants.noticiasEndpoint}',
+        _baseUrl,
         queryParameters: {
           'q': NoticiaConstants.category,
           'language': NoticiaConstants.language,
@@ -86,11 +86,11 @@ Future<List<Noticia>> getNoticiasPaginadas(int pagina) async {
           'page': page,
           'sortBy': 'publishedAt',
         },
-        options: Options(
+        /*options: Options(
           headers: {
             'X-Api-Key': ApiConstants.newsApiKey,
           },
-        ),
+        ),*/
       ).timeout(const Duration(seconds: 10));
 
       switch (response.statusCode) {
@@ -128,7 +128,7 @@ Future<List<Noticia>> getNoticiasPaginadas(int pagina) async {
   Future<void> createNoticia(Noticia noticia) async {
     try {
       final response = await _dio.post(
-        '${ApiConstants.crudApiUrl}${ApiConstants.noticiasEndpoint}',
+        _baseUrl,
         data: {
           'categoriaId':noticia.categoryId,
           'titulo': noticia.titulo,
@@ -152,7 +152,7 @@ Future<List<Noticia>> getNoticiasPaginadas(int pagina) async {
     Future<void> updateNoticia(Noticia noticia, {String? titulo, String? categoriaId,String? descripcion,String? fuente}) async {
     try {
       final response = await _dio.put(
-        '${ApiConstants.crudApiUrl}${ApiConstants.noticiasEndpoint}/${noticia.id}',
+        '$_baseUrl/${noticia.id}',
         data: {
           'titulo': titulo ?? noticia.titulo,
           'categoriaId':categoriaId ?? noticia.categoryId,
@@ -175,7 +175,7 @@ Future<List<Noticia>> getNoticiasPaginadas(int pagina) async {
 Future<List<Noticia>> getTechNews({required int page}) async {
   try {
     final response = await _dio.get(
-      '${ApiConstants.crudApiUrl}${ApiConstants.noticiasEndpoint}',
+      _baseUrl,
       options: Options(headers: {}),
     );
     
@@ -245,7 +245,7 @@ Future<List<Noticia>> getTechNews({required int page}) async {
   Future<Response> deleteNoticia(String id) async {
     try {
       final response = await _dio.delete(
-        '${ApiConstants.crudApiUrl}/$id',
+        '$_baseUrl/$id',
       );
       return response;
     } on DioException catch (e) {

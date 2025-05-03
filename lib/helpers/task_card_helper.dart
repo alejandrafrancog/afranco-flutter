@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:afranco/domain/task.dart';
-import 'package:afranco/constants.dart';
+import 'package:afranco/constants/constants.dart';
 import 'package:afranco/views/task_detail_screen.dart';  
 Widget buildTaskCard(Task task) {
   return Card(
