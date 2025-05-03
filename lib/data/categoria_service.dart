@@ -6,8 +6,7 @@ import 'package:afranco/domain/category.dart';
 import 'package:afranco/exceptions/api_exception.dart';
 class CategoriaService {
   final Dio _dio = Dio();
-  static final String _baseUrl = 
-      '${ApiConstants.crudApiUrl}${ApiConstants.categoryEndpoint}';
+  static final String _baseUrl = ApiConstants.urlCategorias;
 
  
     Future<void> crearCategoria(Map<String, dynamic> categoria) async {
@@ -36,7 +35,7 @@ class CategoriaService {
   ) async {
     var response;
     try {
-      final url = '${ApiConstants.urlCategorias}/$id';
+      final url = '$_baseUrl/$id';
       response = await _dio.put(url, data: categoria);
 
       if (response.statusCode != 200) {
@@ -54,7 +53,7 @@ class CategoriaService {
   Future<void> eliminarCategoria(String id) async {
     late var response;
     try {
-      final url = '${ApiConstants.urlCategorias}/$id';
+      final url = '$_baseUrl/$id';
       response = await _dio.delete(url);
 
       if (response.statusCode != 200 && response.statusCode != 204) {
@@ -69,9 +68,9 @@ class CategoriaService {
   }
 
   Future<List<Categoria>> getCategorias() async {
-      late var response;
+    late var response;
     try {
-       response = await _dio.get("${ApiConstants.crudApiUrl}${ApiConstants.categoryEndpoint}");
+       response = await _dio.get(_baseUrl);
 
       if (response.statusCode == 200) {
         final List<dynamic> categoriasJson = response.data;
@@ -144,7 +143,7 @@ class CategoriaService {
 
   Future<void> deleteCategoria(String id) async {
     try {
-      final response = await _dio.delete('${_baseUrl}${ApiConstants.categoryEndpoint}$id');
+      final response = await _dio.delete('$_baseUrl/$id');
       
       if (response.statusCode != 200) {
         throw Exception('Error eliminando categoría: ${response.statusCode}');
