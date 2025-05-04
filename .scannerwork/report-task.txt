@@ -1,7 +1,0 @@
-organization=alejandrafrancog
-projectKey=afranco-flutter
-serverUrl=https://sonarcloud.io
-serverVersion=8.0.0.62212
-dashboardUrl=https://sonarcloud.io/dashboard?id=afranco-flutter
-ceTaskId=AZZQuxZMFaN_dTYliysr
-ceTaskUrl=https://sonarcloud.io/api/ce/task?id=AZZQuxZMFaN_dTYliysr
