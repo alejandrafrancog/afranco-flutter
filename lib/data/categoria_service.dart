@@ -10,7 +10,7 @@ class CategoriaService {
 
  
     Future<void> crearCategoria(Map<String, dynamic> categoria) async {
-      var response;
+    late Response<dynamic> response;
     try {
        response = await _dio.post(
         ApiConstants.urlCategorias,
@@ -33,7 +33,7 @@ class CategoriaService {
     String id,
     Map<String, dynamic> categoria,
   ) async {
-    var response;
+    late Response<dynamic> response;
     try {
       final url = '$_baseUrl/$id';
       response = await _dio.put(url, data: categoria);
@@ -51,7 +51,7 @@ class CategoriaService {
 
   /// Elimina una categoría de la API
   Future<void> eliminarCategoria(String id) async {
-    late var response;
+    late Response<dynamic> response;
     try {
       final url = '$_baseUrl/$id';
       response = await _dio.delete(url);
@@ -68,7 +68,7 @@ class CategoriaService {
   }
 
   Future<List<Categoria>> getCategorias() async {
-    late var response;
+    late Response<dynamic> response;
     try {
        response = await _dio.get(_baseUrl);
 
@@ -88,7 +88,7 @@ class CategoriaService {
       );
     } catch (e) {
     
-      throw ApiException(message:"Ayuda", statusCode:  response.statusCodef);
+      throw ApiException(message:"Ayuda", statusCode:  response.statusCode);
     }
   }
 

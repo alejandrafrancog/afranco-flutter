@@ -190,13 +190,13 @@ class _NoticiaEditModalState extends State<NoticiaEditModal> {
         ),
         ElevatedButton(
           onPressed: _isSubmitting ? null : _submitForm,
-          child: _isSubmitting 
-              ? const CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Colors.white))
-              : const Text('Guardar Cambios'),
           style:ButtonStyle(
             backgroundColor: WidgetStatePropertyAll(Theme.of(context).primaryColor),
             foregroundColor: WidgetStatePropertyAll(Theme.of(context).secondaryHeaderColor)
           ),
+          child: _isSubmitting 
+              ? const CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Colors.white))
+              : const Text('Guardar Cambios'),
         ),
       ],
     );

@@ -59,7 +59,7 @@ class NoticiaCard extends StatelessWidget {
                 future: noticia.obtenerNombreCategoria(repository.getCategorias()),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Text("Cargando...", style: NoticiaEstilos.fuenteNoticia);
+                    return const Text("Cargando...", style: NoticiaEstilos.fuenteNoticia);
                   }
                   if (snapshot.hasError) {
                     return Text("Error: ${snapshot.error}", style: NoticiaEstilos.fuenteNoticia);
