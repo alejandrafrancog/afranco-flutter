@@ -42,13 +42,13 @@ class _NoticiaCreationModalState extends State<NoticiaCreationModal> {
       if (mounted) {
         setState(() {
           _categorias = categorias;
-          _isLoading = false;
+          //_isLoading = false;
         });
       }
     } catch (e) {
       if (mounted) {
         setState(() {
-          _isLoading = false;
+          //_isLoading = false;
         });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error al cargar categorías: $e')),

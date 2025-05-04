@@ -129,9 +129,10 @@ class WelcomeScreen extends StatelessWidget {
               leading: const Icon(Icons.exit_to_app),
               title: const Text('Salir'),
               onTap: () {
-                Navigator.push(
+                Navigator.pushAndRemoveUntil(
                   context,
                   MaterialPageRoute(builder: (context) => const LoginScreen()),
+                  (Route<dynamic> route) => false,
                 );
               },
             ),

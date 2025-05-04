@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:afranco/domain/category.dart';
 import 'package:afranco/api/service/categoria_repository.dart';

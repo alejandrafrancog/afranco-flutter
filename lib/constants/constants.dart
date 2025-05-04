@@ -27,8 +27,8 @@ class QuoteConstants{
 }
 class SuccessMessages {
   static String successCreated = 'Noticia/Categoria creada';
-  static String successUpdated = 'Noticia/Categoria creada';
-  static String successDeleted = 'Noticia/Categoria creada';
+  static String successUpdated = 'Noticia/Categoria actualizada';
+  static String successDeleted = 'Noticia/Categoria eliminada';
 
 }
 class ApiConstants {

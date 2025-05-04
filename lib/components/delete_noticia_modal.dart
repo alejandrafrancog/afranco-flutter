@@ -55,7 +55,7 @@ class _NoticiaDeleteModalState extends State<NoticiaDeleteModal> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
+          const Text(
             'Confirmar eliminación',
             style: TextStyle(
               color:Colors.black,
