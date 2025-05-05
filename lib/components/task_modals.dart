@@ -3,11 +3,8 @@ import 'package:afranco/domain/task.dart';
 import 'package:afranco/components/task_form.dart';
 import 'package:afranco/data/task_repository.dart';
 
-Future<void> showEditTaskModal(
-  BuildContext context,
-  Task task,
-  Function(Task) onEditTask,
-  Function() onDeleteTask,
+Future<void> showEditTaskModal(BuildContext context,Task task, Function(Task) onEditTask,
+Function() onDeleteTask,
 ) async {
   await showDialog(
     context: context,
@@ -19,12 +16,12 @@ Future<void> showEditTaskModal(
             task: task,
             onSave: (updatedTask) {
               final newTask = Task(
-                id: task.id, 
+                id: task.id,
                 title: updatedTask.title,
                 description: updatedTask.description,
                 type: updatedTask.type,
                 fechaLimite: updatedTask.fechaLimite,
-                pasos: updatedTask.pasos, 
+                pasos: updatedTask.pasos,
               );
               onEditTask(newTask);
               Navigator.pop(context);
@@ -43,7 +40,9 @@ Future<void> showEditTaskModal(
       );
     },
   );
-}Future<void> showAddTaskModal(BuildContext context, Function(Task) onAddTask) async {
+}
+
+Future<void> showAddTaskModal(BuildContext context, Function(Task) onAddTask) async {
   await showDialog(
     context: context,
     builder: (context) {
@@ -53,12 +52,15 @@ Future<void> showEditTaskModal(
           child: TaskForm(
             onSave: (newTask) {
               final updatedTask = Task(
-                id: newTask.id, 
+                id: newTask.id,
                 title: newTask.title,
                 description: newTask.description,
                 type: newTask.type,
                 fechaLimite: newTask.fechaLimite,
-                pasos: TaskRepository.generateSteps(newTask.title, newTask.fechaLimite),
+                pasos: TaskRepository.generateSteps(
+                  newTask.title,
+                  newTask.fechaLimite,
+                ),
               );
               onAddTask(updatedTask);
               Navigator.pop(context);

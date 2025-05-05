@@ -13,7 +13,6 @@ import 'package:afranco/components/noticia_empty_state.dart';
 import 'package:afranco/constants/constants.dart';
 import 'package:afranco/components/noticia_creation_modal.dart';
 import 'package:intl/intl.dart';
-
 import 'package:afranco/components/noticia_edit_modal.dart';
 import 'package:afranco/bloc/noticia_bloc/noticia_bloc.dart';
 import 'package:afranco/bloc/noticia_bloc/noticia_event.dart';
@@ -40,7 +39,7 @@ class NoticiaScreenState extends State<NoticiaScreen> {
   }
 
   void _scrollListener() {
-    if (_scrollController.position.pixels >= 
+    if (_scrollController.position.pixels >=
         _scrollController.position.maxScrollExtent * 0.8) {
       _noticiaBloc.add(NoticiaCargarMasEvent());
     }
@@ -49,25 +48,27 @@ class NoticiaScreenState extends State<NoticiaScreen> {
   void _abrirModalEdicion(Noticia noticia) {
     showDialog(
       context: context,
-      builder: (context) => NoticiaEditModal(
-        noticia: noticia,
-        id: noticia.id,
-        onNoticiaUpdated: () {
-          _noticiaBloc.add(NoticiaRecargarEvent());
-        },
-      ),
+      builder:
+          (context) => NoticiaEditModal(
+            noticia: noticia,
+            id: noticia.id,
+            onNoticiaUpdated: () {
+              _noticiaBloc.add(NoticiaRecargarEvent());
+            },
+          ),
     );
   }
 
   void _mostrarModalCreacion() {
     showDialog(
       context: context,
-      builder: (context) => NoticiaCreationModal(
-        service: widget.repository,
-        onNoticiaCreated: (_) {
-          _noticiaBloc.add(NoticiaRecargarEvent());
-        },
-      ),
+      builder:
+          (context) => NoticiaCreationModal(
+            service: widget.repository,
+            onNoticiaCreated: (_) {
+              _noticiaBloc.add(NoticiaRecargarEvent());
+            },
+          ),
     );
   }
 
@@ -78,8 +79,10 @@ class NoticiaScreenState extends State<NoticiaScreen> {
       child: Scaffold(
         backgroundColor: Colors.grey[200],
         appBar: AppBar(
-          title: const Text(NoticiaConstants.appTitle, 
-            style: NoticiaEstilos.tituloAppBar),
+          title: const Text(
+            NoticiaConstants.appTitle,
+            style: NoticiaEstilos.tituloAppBar,
+          ),
           backgroundColor: Theme.of(context).colorScheme.primary,
           actions: [
             IconButton(
@@ -87,67 +90,69 @@ class NoticiaScreenState extends State<NoticiaScreen> {
               color: Colors.white,
               onPressed: () {
                 Navigator.of(context).push(
-                  MaterialPageRoute(builder: (context) => const CategoriaScreen()),
+                  MaterialPageRoute(
+                    builder: (context) => const CategoriaScreen(),
+                  ),
                 );
               },
             ),
           ],
         ),
-body: BlocConsumer<NoticiaBloc, NoticiaState>(
-    listener: (context, state) {
-    if (state is NoticiaErrorState) {
-      final error = state.error;
+        body: BlocConsumer<NoticiaBloc, NoticiaState>(
+          listener: (context, state) {
+            if (state is NoticiaErrorState) {
+              final error = state.error;
 
-      if (error is ApiException) {
-        final errorData = ErrorHelper.getErrorMessageAndColor(error.statusCode);
-        final message = errorData['message'] ?? 'Error desconocido.';
-        final color = errorData['color'] ?? Colors.grey;
+              if (error is ApiException) {
+                final errorData = ErrorHelper.getErrorMessageAndColor(
+                  error.statusCode,
+                );
+                final message = errorData['message'] ?? 'Error desconocido.';
+                final color = errorData['color'] ?? Colors.grey;
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(message),
-            backgroundColor: color,
-          ),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Ocurrió un error inesperado.'),
-            backgroundColor: Colors.grey,
-          ),
-        );
-      }
-    }
-  },
-
-
-  builder: (context, state) {
-    return Column(
-      children: [
-        // Sección de última actualización
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-          color: Colors.grey[300],
-          child: state.ultimaActualizacion != null
-              ? Text(
-                  'Última actualización: ${DateFormat('dd/MM/yyyy HH:mm').format(state.ultimaActualizacion!)}',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey[700],
-                    fontStyle: FontStyle.italic,
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(message), backgroundColor: color),
+                );
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Ocurrió un error inesperado.'),
+                    backgroundColor: Colors.grey,
                   ),
-                )
-              : const SizedBox.shrink(),
+                );
+              }
+            }
+          },
+
+          builder: (context, state) {
+            return Column(
+              children: [
+                // Sección de última actualización
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 8,
+                    horizontal: 16,
+                  ),
+                  color: Colors.grey[300],
+                  child:
+                      state.ultimaActualizacion != null
+                          ? Text(
+                            'Última actualización: ${DateFormat('dd/MM/yyyy HH:mm').format(state.ultimaActualizacion!)}',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey[700],
+                              fontStyle: FontStyle.italic,
+                            ),
+                          )
+                          : const SizedBox.shrink(),
+                ),
+                // Lista de noticias
+                Expanded(child: _buildBodyContent(state)),
+              ],
+            );
+          },
         ),
-        // Lista de noticias
-        Expanded(
-          child: _buildBodyContent(state),
-        ),
-      ],
-    );
-  },
-),
         floatingActionButton: FloatingActionButton(
           backgroundColor: Theme.of(context).primaryColor,
           onPressed: _mostrarModalCreacion,
@@ -155,7 +160,6 @@ body: BlocConsumer<NoticiaBloc, NoticiaState>(
         ),
       ),
     );
-  
   }
 
   Widget _buildBodyContent(NoticiaState state) {
@@ -165,24 +169,25 @@ body: BlocConsumer<NoticiaBloc, NoticiaState>(
         onRetry: () => _noticiaBloc.add(NoticiaRecargarEvent()),
       );
     }
-    
+
     if (state is NoticiaLoadingState && state.noticias.isEmpty) {
       return const FullScreenLoading();
     }
-    
+
     if (state.noticias.isEmpty) {
       return const EmptyState();
     }
-    
+
     return ListView.separated(
       controller: _scrollController,
       itemCount: state.noticias.length + (state.tieneMas ? 1 : 0),
-      separatorBuilder: (_, __) => const SizedBox(height: NoticiaEstilos.espaciadoAlto),
+      separatorBuilder:
+          (_, __) => const SizedBox(height: NoticiaEstilos.espaciadoAlto),
       itemBuilder: (context, index) {
         if (index >= state.noticias.length) {
           return _buildLoadingIndicator(state is NoticiaLoadingState);
         }
-        
+
         if (index < 0 || index >= state.noticias.length) {
           return const SizedBox.shrink();
         }

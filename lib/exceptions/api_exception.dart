@@ -10,5 +10,5 @@ class ApiException implements Exception {
   }) : timestamp = timestamp ?? DateTime.now();
 
   @override
-  String toString() => 'ApiException: (Código: ${statusCode})';
+  String toString() => '$message: (Código: $statusCode)';
 }

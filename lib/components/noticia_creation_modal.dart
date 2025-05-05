@@ -1,6 +1,7 @@
 // components/noticia_modals.dart
 import 'package:afranco/api/service/categoria_repository.dart';
 import 'package:afranco/domain/category.dart';
+import 'package:afranco/noticias_estilos.dart';
 import 'package:flutter/material.dart';
 import 'package:afranco/domain/noticia.dart';
 import 'package:afranco/api/service/noticia_repository.dart';
@@ -31,10 +32,11 @@ class _NoticiaCreationModalState extends State<NoticiaCreationModal> {
   Categoria? _categoriaSeleccionada;
   List<Categoria> _categorias = [];
   @override
-  void initState(){
+  void initState() {
     super.initState();
     _cargarCategorias();
   }
+
   Future<void> _cargarCategorias() async {
     try {
       final categorias = await _categoriaRepo.getCategorias();
@@ -45,52 +47,53 @@ class _NoticiaCreationModalState extends State<NoticiaCreationModal> {
       }
     } catch (e) {
       if (mounted) {
-        setState(() {
-        });
+        setState(() {});
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error al cargar categorías: $e')),
         );
       }
     }
   }
-Future<void> _submitForm() async {
-  if (!_formKey.currentState!.validate()) return;
 
-  setState(() => _isSubmitting = true);
+  Future<void> _submitForm() async {
+    if (!_formKey.currentState!.validate()) return;
 
-  try {
-    final imagenUrl = _imagenController.text.isEmpty
-        ? 'https://picsum.photos/200/300?random=${DateTime.now().millisecondsSinceEpoch}'
-        : _imagenController.text;
+    setState(() => _isSubmitting = true);
 
-    final nuevaNoticia = Noticia(
-      id: '',
-      categoryId: _categoriaSeleccionada?.id ?? '',  
-      titulo: _tituloController.text,
-      fuente: _fuenteController.text,
-      imagen: imagenUrl,
-      publicadaEl: DateTime.now(),
-      descripcion: _descripcionController.text,
-      url: _urlController.text,
-    );
+    try {
+      final imagenUrl =
+          _imagenController.text.isEmpty
+              ? 'https://picsum.photos/200/300?random=${DateTime.now().millisecondsSinceEpoch}'
+              : _imagenController.text;
 
-    await widget.service.crearNoticia(nuevaNoticia);
+      final nuevaNoticia = Noticia(
+        id: '',
+        categoryId: _categoriaSeleccionada?.id ?? '',
+        titulo: _tituloController.text,
+        fuente: _fuenteController.text,
+        imagen: imagenUrl,
+        publicadaEl: DateTime.now(),
+        descripcion: _descripcionController.text,
+        url: _urlController.text,
+      );
 
-    widget.onNoticiaCreated(nuevaNoticia);
-    Navigator.pop(context);
-  } catch (e) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Error al crear: ${e.toString()}')),
-    );
-  } finally {
-    if (mounted) setState(() => _isSubmitting = false);
+      await widget.service.crearNoticia(nuevaNoticia);
+
+      widget.onNoticiaCreated(nuevaNoticia);
+      Navigator.pop(context);
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error al crear: ${e.toString()}')),
+      );
+    } finally {
+      if (mounted) setState(() => _isSubmitting = false);
+    }
   }
-}
 
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Nueva Noticia'),
+      title: const Text('Nueva Noticia', style: NoticiaEstilos.tituloModal),
       content: SingleChildScrollView(
         child: Form(
           key: _formKey,
@@ -117,33 +120,38 @@ Future<void> _submitForm() async {
                 decoration: const InputDecoration(
                   labelText: 'URL Imagen',
                   hintText: 'Dejar vacío para imagen aleatoria',
+                ),
+                keyboardType: TextInputType.url,
+                validator: (value) {
+                  if (value == null || value.isEmpty){
+                    return null; // Permitir vacío
+                  }
+                  final urlPattern = r'^(https?:\/\/)[^\s$.?#].[^\s]*$';
+                  final result = RegExp(
+                    urlPattern,
+                    caseSensitive: false,
+                  ).hasMatch(value);
+
+                  if (!result) {
+                    return 'Ingrese una URL válida';
+                  }
+                  return null;
+                },
               ),
-              keyboardType: TextInputType.url,
-              validator: (value) {
-              if (value == null || value.isEmpty) return null; // Permitir vacío
-
-              final urlPattern = r'^(https?:\/\/)[^\s$.?#].[^\s]*$';
-              final result = RegExp(urlPattern, caseSensitive: false).hasMatch(value);
-
-              if (!result) {
-                return 'Ingrese una URL válida';
-              }
-              return null;
-  },
-),
               DropdownButtonFormField<Categoria>(
-                  value: _categoriaSeleccionada,
-                  decoration: const InputDecoration(labelText: 'Categoría'),
-                  items: _categorias.map((categoria) {
-                  return DropdownMenuItem(
-                    value: categoria,
-                      child: Text(categoria.nombre),
-                    );
-                  }).toList(),
-                  onChanged: (nueva) {
-                    setState(() => _categoriaSeleccionada = nueva);
-                  },
-                  validator: (_) => null,
+                value: _categoriaSeleccionada,
+                decoration: const InputDecoration(labelText: 'Categoría'),
+                items:
+                    _categorias.map((categoria) {
+                      return DropdownMenuItem(
+                        value: categoria,
+                        child: Text(categoria.nombre),
+                      );
+                    }).toList(),
+                onChanged: (nueva) {
+                  setState(() => _categoriaSeleccionada = nueva);
+                },
+                validator: (_) => null,
               ),
 
               TextFormField(
@@ -157,16 +165,18 @@ Future<void> _submitForm() async {
       ),
       actions: [
         TextButton(
-          onPressed: _isSubmitting 
-              ? null 
-              : () => Navigator.pop(context),
+          onPressed: _isSubmitting ? null : () => Navigator.pop(context),
           child: const Text('Cancelar'),
         ),
         ElevatedButton(
           onPressed: _isSubmitting ? null : _submitForm,
-          child: _isSubmitting 
-              ? const CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Colors.white))
-              : const Text('Crear Noticia'),
+          style: NoticiaEstilos.estiloBotonPrimario(context),
+          child:
+              _isSubmitting
+                  ? const CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  )
+                  : const Text('Crear Noticia'),
         ),
       ],
     );

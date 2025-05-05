@@ -4,6 +4,7 @@ import 'package:afranco/domain/noticia.dart';
 import 'package:afranco/api/service/noticia_repository.dart';
 import 'package:afranco/domain/category.dart';
 import 'package:afranco/api/service/categoria_repository.dart';
+import 'package:afranco/noticias_estilos.dart';
 
 class NoticiaEditModal extends StatefulWidget {
   final Noticia noticia;
@@ -16,7 +17,7 @@ class NoticiaEditModal extends StatefulWidget {
     super.key,
     required this.noticia,
     required this.id,
-    this.onNoticiaUpdated
+    this.onNoticiaUpdated,
   });
 
   @override
@@ -31,7 +32,7 @@ class _NoticiaEditModalState extends State<NoticiaEditModal> {
   late TextEditingController _imagenController;
   late TextEditingController _urlController;
   final CategoriaRepository _categoriaRepo = CategoriaRepository();
-  
+
   late String _selectedCategoryId;
   List<Categoria> _categorias = [];
   bool _isLoading = true;
@@ -42,15 +43,18 @@ class _NoticiaEditModalState extends State<NoticiaEditModal> {
   void initState() {
     super.initState();
     _tituloController = TextEditingController(text: widget.noticia.titulo);
-    _descripcionController = TextEditingController(text: widget.noticia.descripcion);
+    _descripcionController = TextEditingController(
+      text: widget.noticia.descripcion,
+    );
     _fuenteController = TextEditingController(text: widget.noticia.fuente);
     _imagenController = TextEditingController(text: widget.noticia.imagen);
     _urlController = TextEditingController(text: widget.noticia.url);
     _originalImagen = widget.noticia.imagen;
-    _selectedCategoryId = widget.noticia.categoryId; // Inicializar con la categoría actual
+    _selectedCategoryId =
+        widget.noticia.categoryId; // Inicializar con la categoría actual
     _cargarCategorias();
   }
-  
+
   Future<void> _cargarCategorias() async {
     try {
       final categorias = await _categoriaRepo.getCategorias();
@@ -76,11 +80,12 @@ class _NoticiaEditModalState extends State<NoticiaEditModal> {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _isSubmitting = true);
-    
+
     try {
-      final imagenUrl = _imagenController.text.isNotEmpty 
-          ? _imagenController.text 
-          : _originalImagen;
+      final imagenUrl =
+          _imagenController.text.isNotEmpty
+              ? _imagenController.text
+              : _originalImagen;
 
       final noticiaActualizada = Noticia(
         id: widget.noticia.id,
@@ -88,32 +93,31 @@ class _NoticiaEditModalState extends State<NoticiaEditModal> {
         titulo: _tituloController.text,
         fuente: _fuenteController.text,
         imagen: imagenUrl,
-        publicadaEl: widget.noticia.publicadaEl, 
+        publicadaEl: widget.noticia.publicadaEl,
         descripcion: _descripcionController.text,
         url: _urlController.text,
       );
 
       await widget.service.actualizarNoticia(noticiaActualizada);
-      
+
       if (widget.onNoticiaUpdated != null) {
         widget.onNoticiaUpdated!();
       }
 
       Navigator.pop(context);
-      
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error al actualizar: ${e.toString()}')),
       );
     } finally {
-      if(mounted) setState(() => _isSubmitting = false);
+      if (mounted) setState(() => _isSubmitting = false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Editar Noticia'),
+      title: const Text('Editar Noticia', style: NoticiaEstilos.tituloModal),
       content: SingleChildScrollView(
         child: Form(
           key: _formKey,
@@ -148,27 +152,32 @@ class _NoticiaEditModalState extends State<NoticiaEditModal> {
                 decoration: const InputDecoration(labelText: 'URL Noticia'),
                 keyboardType: TextInputType.url,
               ),
-              
+
               // Dropdown para seleccionar categoría (sin validación)
-              
               DropdownButtonFormField<String>(
                 decoration: const InputDecoration(
                   labelText: 'Categoría',
                   hintText: 'Seleccionar categoría (opcional)',
                 ),
-                value: _categorias.any((c) => c.id == _selectedCategoryId) ? _selectedCategoryId : null,
+                value:
+                    _categorias.any((c) => c.id == _selectedCategoryId)
+                        ? _selectedCategoryId
+                        : null,
 
-                items: _isLoading
-                    ? [const DropdownMenuItem<String>(
-                        value: '',
-                        child: Text('Cargando categorías...'),
-                      )]
-                    : _categorias.map((categoria) {
-                        return DropdownMenuItem<String>(
-                          value: categoria.id,
-                          child: Text(categoria.nombre),
-                        );
-                      }).toList(),
+                items:
+                    _isLoading
+                        ? [
+                          const DropdownMenuItem<String>(
+                            value: '',
+                            child: Text('Cargando categorías...'),
+                          ),
+                        ]
+                        : _categorias.map((categoria) {
+                          return DropdownMenuItem<String>(
+                            value: categoria.id,
+                            child: Text(categoria.nombre),
+                          );
+                        }).toList(),
                 onChanged: (String? newValue) {
                   setState(() {
                     _selectedCategoryId = newValue ?? '';
@@ -177,7 +186,7 @@ class _NoticiaEditModalState extends State<NoticiaEditModal> {
 
                 // Sin validador para que no sea obligatorio
               ),
-              
+
               const SizedBox(height: 16),
             ],
           ),
@@ -190,13 +199,13 @@ class _NoticiaEditModalState extends State<NoticiaEditModal> {
         ),
         ElevatedButton(
           onPressed: _isSubmitting ? null : _submitForm,
-          style:ButtonStyle(
-            backgroundColor: WidgetStatePropertyAll(Theme.of(context).primaryColor),
-            foregroundColor: WidgetStatePropertyAll(Theme.of(context).secondaryHeaderColor)
-          ),
-          child: _isSubmitting 
-              ? const CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Colors.white))
-              : const Text('Guardar Cambios'),
+          style: NoticiaEstilos.estiloBotonPrimario(context),
+          child:
+              _isSubmitting
+                  ? const CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  )
+                  : const Text('Guardar Cambios'),
         ),
       ],
     );

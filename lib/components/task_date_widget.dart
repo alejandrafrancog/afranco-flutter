@@ -4,7 +4,7 @@ import 'package:afranco/domain/task.dart';
 class TaskDateWidget extends StatelessWidget {
   final Task task;
 
-  const TaskDateWidget({Key? key, required this.task}) : super(key: key);
+  const TaskDateWidget({super.key, required this.task});
 
   @override
   Widget build(BuildContext context) {

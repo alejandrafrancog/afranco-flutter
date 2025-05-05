@@ -1,3 +1,4 @@
+import 'package:afranco/noticias_estilos.dart';
 import 'package:flutter/material.dart';
 import 'package:afranco/domain/noticia.dart';
 import 'package:afranco/api/service/noticia_repository.dart';
@@ -57,11 +58,7 @@ class _NoticiaDeleteModalState extends State<NoticiaDeleteModal> {
         children: [
           const Text(
             'Confirmar eliminación',
-            style: TextStyle(
-              color:Colors.black,
-              fontWeight: FontWeight.bold,
-              fontSize: 20,
-            ),
+            style: NoticiaEstilos.tituloModal
           ),
           const SizedBox(height: 15),
           Text(
@@ -79,11 +76,7 @@ class _NoticiaDeleteModalState extends State<NoticiaDeleteModal> {
               const SizedBox(width: 10),
               ElevatedButton(
                 onPressed: _isDeleting ? null : _confirmDelete,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Theme.of(context).primaryColor,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                ),
+                style:NoticiaEstilos.estiloBotonPrimario(context),
                 child: _isDeleting
                     ? const SizedBox(
                         width: 20,
