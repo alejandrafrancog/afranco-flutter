@@ -15,6 +15,8 @@ class NoticiaBloc extends Bloc<NoticiaEvent, NoticiaState> {
     on<NoticiaCargadaEvent>(_onCargarNoticias);
     on<NoticiaCargarMasEvent>(_onCargarMasNoticias);
     on<NoticiaRecargarEvent>(_onRecargarNoticias);
+    on<FilterNoticiasByPreferencias>(_onFilterNoticiasByPreferencias);
+
   }
 
   Future<void> _onCargarNoticias(
@@ -98,6 +100,26 @@ class NoticiaBloc extends Bloc<NoticiaEvent, NoticiaState> {
           ultimaActualizacion: state.ultimaActualizacion,
         ),
       );
+    }
+  }
+  Future<void> _onFilterNoticiasByPreferencias(
+    FilterNoticiasByPreferencias event,
+    Emitter<NoticiaState> emit,
+  ) async {
+    emit(NoticiaLoadingState(noticias: state.noticias, tieneMas: state.tieneMas));
+    try {
+      final allNoticias = await noticiaRepository.obtenerNoticias();
+
+      final filteredNoticias =
+          allNoticias
+              .where(
+                (noticia) => event.categoriasIds.contains(noticia.categoryId),
+              )
+              .toList();
+
+      emit(NoticiasLoaded(filteredNoticias, DateTime.now()));
+    } catch (e) {
+      emit(NoticiasError('Error al filtrar noticias: ${e.toString()}'));
     }
   }
 }

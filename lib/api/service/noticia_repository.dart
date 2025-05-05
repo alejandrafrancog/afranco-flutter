@@ -17,6 +17,10 @@ Future<List<Noticia>> obtenerNoticiasPaginadas({
     ? _ordenarPorFechaDescendente(noticias)
     : _ordenarPorFuenteAscendente(noticias);
 }
+Future<List<Noticia>> obtenerNoticias() async {
+  final noticias = await _service.getTechNews(page: 1);
+  return noticias;
+}
 
 List<Noticia> _ordenarPorFechaDescendente(List<Noticia> noticias) {
   noticias.sort((a, b) => b.publicadaEl.compareTo(a.publicadaEl));

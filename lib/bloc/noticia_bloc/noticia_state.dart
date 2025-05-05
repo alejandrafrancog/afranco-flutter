@@ -35,7 +35,21 @@ class NoticiaState {
     );
   }
 }
+class NoticiasLoaded extends NoticiaState {
+  final List<Noticia> noticiasList;
+  final DateTime lastUpdated;
 
+  NoticiasLoaded(this.noticiasList, this.lastUpdated);
+
+}
+class NoticiasError extends NoticiaState {
+  
+  final String errorMessage;
+  final int? statusCode;
+
+  NoticiasError(this.errorMessage, {this.statusCode});
+
+}
 class NoticiaLoadingState extends NoticiaState {
   NoticiaLoadingState({
     required super.noticias,

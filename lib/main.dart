@@ -1,9 +1,10 @@
 import 'package:afranco/bloc/categoria_bloc/categoria_bloc.dart';
 import 'package:afranco/bloc/counter/counter_bloc.dart';
 import 'package:afranco/bloc/noticia_bloc/noticia_bloc.dart';
+import 'package:afranco/bloc/preferencia_bloc/preferencia_bloc.dart';
 import 'package:afranco/di/locator.dart';
 import 'package:flutter/material.dart';
-import 'package:afranco/views/login_screen.dart'; 
+import 'package:afranco/views/login_screen.dart';
 import 'package:afranco/constants/constants.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -16,20 +17,14 @@ Future<void> main() async {
   runApp(
     MultiBlocProvider(
       providers: [
-        BlocProvider<CounterBloc>(
-          create: (context) => CounterBloc(),
-        ),
-        BlocProvider<NoticiaBloc>(
-          create: (context) => NoticiaBloc(),
-        ),
-        BlocProvider<CategoriaBloc>(
-          create: (context) => CategoriaBloc(),
-        ),
+        BlocProvider<CounterBloc>(create: (context) => CounterBloc()),
+        BlocProvider<NoticiaBloc>(create: (context) => NoticiaBloc()),
+        BlocProvider<CategoriaBloc>(create: (context) => CategoriaBloc()),
+        BlocProvider<PreferenciaBloc>(create: (context) => PreferenciaBloc()),
       ],
       child: const MyApp(),
     ),
   );
-  
 }
 
 class MyApp extends StatelessWidget {
@@ -37,7 +32,6 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
@@ -57,9 +51,9 @@ class MyApp extends StatelessWidget {
           bodyMedium: TextStyle(color: Colors.grey[300]),
         ), // podés seguir personalizando lo que necesites
       ),
-      
+
       themeMode: ThemeMode.light,
-      home: const LoginScreen(), 
+      home: const LoginScreen(),
     );
   }
 }
@@ -131,14 +125,16 @@ class MyHomePage extends StatelessWidget {
         children: [
           FloatingActionButton(
             heroTag: 'incrementButton',
-            onPressed: () => context.read<CounterBloc>().add(IncrementCounter()),
+            onPressed:
+                () => context.read<CounterBloc>().add(IncrementCounter()),
             tooltip: 'Increment',
             child: const Icon(Icons.add),
           ),
           const SizedBox(width: 16),
           FloatingActionButton(
             heroTag: 'decrementButton',
-            onPressed: () => context.read<CounterBloc>().add(DecrementCounter()),
+            onPressed:
+                () => context.read<CounterBloc>().add(DecrementCounter()),
             tooltip: 'Decrement',
             child: const Icon(Icons.remove),
           ),
