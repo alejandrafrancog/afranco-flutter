@@ -4,7 +4,6 @@ class MockAuthService {
   Future<bool> login(String username, String password) async {
 
     if (username.isEmpty || password.isEmpty) {
-      print('Error: Usuario o contraseña no pueden estar vacíos.');
       return false;
     }
 
