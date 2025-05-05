@@ -3,7 +3,7 @@ class ApiException implements Exception {
   final int? statusCode;
   final DateTime timestamp;
 
-  ApiException({
+  ApiException( {
     required this.message,
     required this.statusCode,
     DateTime? timestamp,

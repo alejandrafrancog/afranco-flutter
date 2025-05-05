@@ -1,4 +1,5 @@
 import 'package:afranco/api/service/categoria_repository.dart';
+import 'package:afranco/data/preferencia_repository.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:afranco/api/service/noticia_repository.dart';
 
@@ -10,5 +11,6 @@ Future<void> initLocator() async {
   di.registerSingleton<SharedPreferences>(sharedPreferences);
   di.registerSingleton<CategoriaRepository>(CategoriaRepository());
   di.registerSingleton<NoticiaRepository>(NoticiaRepository());
+  di.registerLazySingleton<PreferenciaRepository>(() => PreferenciaRepository());
 
 }

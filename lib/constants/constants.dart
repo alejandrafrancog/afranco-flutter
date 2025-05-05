@@ -34,9 +34,12 @@ class SuccessMessages {
 class ApiConstants {
   static String get baseUrl => EnvConstants.baseUrl;
   static String noticiasEndpoint = 'noticias';
+  static String preferenciasEndpoint = 'preferencias';
   static String categoryEndpoint = 'categorias';
   static String urlCategorias = '${EnvConstants.baseUrl}/$categoryEndpoint';
   static String urlNoticias = '${EnvConstants.baseUrl}/$noticiasEndpoint';
+  static String urlPreferencias = '${EnvConstants.baseUrl}/$preferenciasEndpoint';
+
 }
 class CategoriaConstants{
   static String errorTimeout = 'Tiempo de espera agotado';

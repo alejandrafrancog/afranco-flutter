@@ -1,6 +1,8 @@
+import 'package:afranco/bloc/preferencia_bloc/preferencia_bloc.dart';
 import 'package:afranco/exceptions/api_exception.dart';
 import 'package:afranco/helpers/error_helper.dart';
 import 'package:afranco/views/categoria_screen.dart';
+import 'package:afranco/views/preferencia_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:afranco/api/service/noticia_repository.dart';
@@ -33,15 +35,17 @@ class NoticiaScreenState extends State<NoticiaScreen> {
   @override
   void initState() {
     super.initState();
-    _noticiaBloc = NoticiaBloc();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<NoticiaBloc>().add(NoticiaCargadaEvent());
+    });
     _scrollController.addListener(_scrollListener);
-    _noticiaBloc.add(NoticiaCargadaEvent());
   }
 
   void _scrollListener() {
     if (_scrollController.position.pixels >=
         _scrollController.position.maxScrollExtent * 0.8) {
-      _noticiaBloc.add(NoticiaCargarMasEvent());
+          context.read<NoticiaBloc>().add(NoticiaCargarMasEvent());
+      //_noticiaBloc.add(NoticiaCargarMasEvent());
     }
   }
 
@@ -53,7 +57,9 @@ class NoticiaScreenState extends State<NoticiaScreen> {
             noticia: noticia,
             id: noticia.id,
             onNoticiaUpdated: () {
-              _noticiaBloc.add(NoticiaRecargarEvent());
+              context.read<NoticiaBloc>().add(NoticiaRecargarEvent());
+
+              //_noticiaBloc.add(NoticiaRecargarEvent());
             },
           ),
     );
@@ -66,7 +72,9 @@ class NoticiaScreenState extends State<NoticiaScreen> {
           (context) => NoticiaCreationModal(
             service: widget.repository,
             onNoticiaCreated: (_) {
-              _noticiaBloc.add(NoticiaRecargarEvent());
+              context.read<NoticiaBloc>().add(NoticiaRecargarEvent());
+
+             // _noticiaBloc.add(NoticiaRecargarEvent());
             },
           ),
     );
@@ -74,8 +82,11 @@ class NoticiaScreenState extends State<NoticiaScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final preferenciaState = context.watch<PreferenciaBloc>().state;
+    final filtrosActivos = preferenciaState.categoriasSeleccionadas.isNotEmpty;
+
     return BlocProvider(
-      create: (context) => _noticiaBloc,
+      create: (_) => NoticiaBloc()..add(NoticiaCargadaEvent()),
       child: Scaffold(
         backgroundColor: Colors.grey[200],
         appBar: AppBar(
@@ -94,6 +105,33 @@ class NoticiaScreenState extends State<NoticiaScreen> {
                     builder: (context) => const CategoriaScreen(),
                   ),
                 );
+              },
+            ),
+            IconButton(
+              icon: Icon(
+                Icons.filter_list,
+                color: filtrosActivos ? Colors.amber : null,
+              ),
+              tooltip: 'Preferencias',
+              onPressed: () {
+                Navigator.push<List<String>>(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const PreferenciasScreen(),
+                  ),
+                ).then((categoriasSeleccionadas) {
+                  if (!context.mounted) return;
+                  if (categoriasSeleccionadas != null) {
+                    if (categoriasSeleccionadas.isNotEmpty) {
+                      // Si hay categorías seleccionadas, aplicar filtro
+                      context.read<NoticiaBloc>().add(
+                        FilterNoticiasByPreferencias(categoriasSeleccionadas),
+                      );
+                    } else {
+                      context.read<NoticiaBloc>().add(NoticiaCargadaEvent());
+                    }
+                  }
+                });
               },
             ),
           ],
@@ -166,7 +204,8 @@ class NoticiaScreenState extends State<NoticiaScreen> {
     if (state is NoticiaErrorState) {
       return ErrorMessage(
         message: state.errorMessage ?? 'Ocurrió un error inesperado.',
-        onRetry: () => _noticiaBloc.add(NoticiaRecargarEvent()),
+        onRetry: () => context.read<NoticiaBloc>().add(NoticiaRecargarEvent())
+,
       );
     }
 
@@ -196,7 +235,7 @@ class NoticiaScreenState extends State<NoticiaScreen> {
           noticia: state.noticias[index],
           imageUrl: state.noticias[index].imagen,
           onEditPressed: _abrirModalEdicion,
-          onDelete: () => _noticiaBloc.add(NoticiaRecargarEvent()),
+          onDelete: () => context.read<NoticiaBloc>().add(NoticiaRecargarEvent())
         );
       },
     );
