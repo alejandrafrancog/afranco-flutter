@@ -25,7 +25,7 @@ class QuoteRepository {
 }
   Quote _generateRandomQuote(){
     return Quote(
-      companyName: _companyNames[_random.nextInt(_companyNames.length)]+" # ${_random.nextInt(20)}",
+      companyName:" ${_companyNames[_random.nextInt(_companyNames.length)]} # ${_random.nextInt(20)}}",
       stockPrice: 100 + _random.nextDouble() * 1000,
       changePercentage: (_random.nextDouble() * 200 - 100),
       lastUpdated: DateTime.now().subtract(Duration(minutes: _random.nextInt(60))),

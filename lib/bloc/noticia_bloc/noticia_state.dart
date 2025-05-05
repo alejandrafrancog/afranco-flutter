@@ -1,6 +1,5 @@
-import 'dart:ui';
 import 'package:afranco/domain/noticia.dart';
-
+import 'package:flutter/material.dart';
 class NoticiaState {
   final List<Noticia> noticias;
   final bool tieneMas;
@@ -39,13 +38,10 @@ class NoticiaState {
 
 class NoticiaLoadingState extends NoticiaState {
   NoticiaLoadingState({
-    required List<Noticia> noticias,
-    required bool tieneMas,
-    DateTime? ultimaActualizacion,
+    required super.noticias,
+    required super.tieneMas,
+    super.ultimaActualizacion,
   }) : super(
-          noticias: noticias,
-          tieneMas: tieneMas,
-          ultimaActualizacion: ultimaActualizacion,
           isLoading: true,
         );
 }
@@ -53,6 +49,6 @@ class NoticiaLoadingState extends NoticiaState {
 class NoticiaErrorState extends NoticiaState {
   final Object error; 
 
-  NoticiaErrorState({required this.error, required List<Noticia> noticias, required bool tieneMas, DateTime? ultimaActualizacion,
-  }) : super(noticias: noticias, tieneMas: tieneMas, ultimaActualizacion: ultimaActualizacion,);
+  NoticiaErrorState({required this.error, required super.noticias, required super.tieneMas, super.ultimaActualizacion,
+  });
 }

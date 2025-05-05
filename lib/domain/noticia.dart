@@ -66,7 +66,6 @@ factory Noticia.fromCrudApiJson(Map<String, dynamic> json) {
     try {
       return DateTime.parse(fechaStr);
     } catch (e) {
-      print('Error al parsear fecha: $fechaStr. Usando fecha actual.');
       return DateTime.now();
     }
   }
