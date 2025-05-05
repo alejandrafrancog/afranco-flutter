@@ -97,13 +97,11 @@ body: BlocConsumer<NoticiaBloc, NoticiaState>(
     listener: (context, state) {
     if (state is NoticiaErrorState) {
       final error = state.error;
-      print('Error: $error\n\n\n');
+
       if (error is ApiException) {
-        print("\nES API EXCEPTION\n");
         final errorData = ErrorHelper.getErrorMessageAndColor(error.statusCode);
         final message = errorData['message'] ?? 'Error desconocido.';
         final color = errorData['color'] ?? Colors.grey;
-        print(errorData);
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -113,8 +111,8 @@ body: BlocConsumer<NoticiaBloc, NoticiaState>(
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Ocurrió un error inesperado.'),
+          const SnackBar(
+            content: Text('Ocurrió un error inesperado.'),
             backgroundColor: Colors.grey,
           ),
         );

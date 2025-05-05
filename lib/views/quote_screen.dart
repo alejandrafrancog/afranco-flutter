@@ -26,7 +26,7 @@ class QuoteScreenState extends State<QuoteScreen> {
   }
 
   void _scrollListener() {
-    if (_scrollController.position.pixels >= 
+    if (_scrollController.position.pixels >=
         _scrollController.position.maxScrollExtent * 0.8) {
       _loadMoreQuotes();
     }
@@ -34,23 +34,31 @@ class QuoteScreenState extends State<QuoteScreen> {
 
   Future<void> _loadMoreQuotes() async {
     if (_isLoading || !_hasMore) return;
-    
+
     setState(() => _isLoading = true);
-    
+
     try {
       final newQuotes = await _service.getPaginatedQuotes(_currentPage);
-      
+
+      if (!mounted) return; // Verificar si el widget está montado
+
       setState(() {
         _quotes.addAll(newQuotes);
         _currentPage++;
         _hasMore = newQuotes.isNotEmpty;
       });
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: ${e.toString()}')),
-      );
+      if (mounted) {
+        // Solo usar el contexto si el widget está montado
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error: ${e.toString()}')));
+      }
     } finally {
-      setState(() => _isLoading = false);
+      if (mounted) {
+        // Verificar antes de actualizar el estado
+        setState(() => _isLoading = false);
+      }
     }
   }
 
@@ -62,7 +70,9 @@ class QuoteScreenState extends State<QuoteScreen> {
       body: ListView.separated(
         controller: _scrollController,
         itemCount: _quotes.length + (_isLoading ? 1 : 0),
-        separatorBuilder: (context, index) => SizedBox(height: spacingHeight), // Espacio entre Cards
+        separatorBuilder:
+            (context, index) =>
+                SizedBox(height: spacingHeight), // Espacio entre Cards
         itemBuilder: (context, index) {
           if (index >= _quotes.length) {
             return _buildLoader();
@@ -82,7 +92,7 @@ class QuoteScreenState extends State<QuoteScreen> {
 
   Widget _buildQuoteCard(Quote quote) {
     final isPositive = quote.changePercentage >= 0;
-    
+
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 8), // Ajuste de márgenes
       child: Padding(
@@ -97,11 +107,14 @@ class QuoteScreenState extends State<QuoteScreen> {
                   quote.companyName,
                   style: const TextStyle(
                     fontSize: 18,
-                    fontWeight: FontWeight.bold
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
                   decoration: BoxDecoration(
                     color: isPositive ? Colors.green : Colors.red,
                     borderRadius: BorderRadius.circular(20),
@@ -110,7 +123,7 @@ class QuoteScreenState extends State<QuoteScreen> {
                     '${isPositive ? '+' : ''}${quote.changePercentage.toStringAsFixed(2)}%',
                     style: const TextStyle(
                       color: Colors.white,
-                      fontWeight: FontWeight.bold
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
@@ -119,10 +132,7 @@ class QuoteScreenState extends State<QuoteScreen> {
             const SizedBox(height: 8),
             Text(
               'Precio: \$${quote.stockPrice.toStringAsFixed(2)}',
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.grey[600],
-              ),
+              style: TextStyle(fontSize: 16, color: Colors.grey[600]),
             ),
             const SizedBox(height: 4),
             Row(
@@ -131,10 +141,7 @@ class QuoteScreenState extends State<QuoteScreen> {
                 const SizedBox(width: 4),
                 Text(
                   'Actualizado: ${_formatDate(quote.lastUpdated)}',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey[600],
-                  ),
+                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                 ),
               ],
             ),
