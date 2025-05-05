@@ -1,10 +1,13 @@
+import 'package:afranco/noticias_estilos.dart';
 import 'package:flutter/material.dart';
 Future<void> showDeleteConfirmationDialog(BuildContext context, VoidCallback onConfirm) async {
   await showDialog(
     context: context,
     builder: (context) {
       return AlertDialog(
-        title: const Text('Eliminar Categoría'),
+        title: const Text(
+          'Eliminar Categoría',
+           style:NoticiaEstilos.tituloModal),
         content: const Text('¿Estás segura de que querés eliminar esta categoría? Esta acción no se puede deshacer.'),
         actions: [
           TextButton(

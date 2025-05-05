@@ -1,4 +1,4 @@
-
+import 'package:afranco/components/agregar_categoria_modal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:afranco/bloc/categoria_bloc/categoria_bloc.dart';
@@ -16,35 +16,36 @@ class CategoriaScreen extends StatefulWidget {
 
 class CategoriaScreenState extends State<CategoriaScreen> {
   @override
-void initState() {
-  super.initState();
-  // Usar addPostFrameCallback para asegurar que el contexto está disponible
-  WidgetsBinding.instance.addPostFrameCallback((_) {
-    context.read<CategoriaBloc>().add(CategoriaInitEvent());
-  });
-}
+  void initState() {
+    super.initState();
+    // Usar addPostFrameCallback para asegurar que el contexto está disponible
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<CategoriaBloc>().add(CategoriaInitEvent());
+    });
+  }
 
   String generarImagenUrl() {
     final seed = DateTime.now().millisecondsSinceEpoch;
     return 'https://picsum.photos/seed/$seed/600/400';
   }
 
-Future<void> _agregarCategoria() async {
-  final nuevaCategoriaData = await _mostrarDialogCategoria(context);
-  
-  if (nuevaCategoriaData != null) {
-    final nuevaCategoria = Categoria(
-      id: '', 
-      nombre: nuevaCategoriaData['nombre'],
-      descripcion: nuevaCategoriaData['descripcion'] ?? 'Descripción categoría',
-      imagenUrl: generarImagenUrl(),
-    );
+  Future<void> _agregarCategoria() async {
+    final nuevaCategoriaData = await mostrarDialogCategoria(context);
 
-    // Envía el evento correctamente tipado
-    context.read<CategoriaBloc>().add(CreateCategoriaEvent(nuevaCategoria));
-    _showSuccessSnackbar(context);
+    if (nuevaCategoriaData != null) {
+      final nuevaCategoria = Categoria(
+        id: '',
+        nombre: nuevaCategoriaData['nombre'],
+        descripcion:
+            nuevaCategoriaData['descripcion'] ?? 'Descripción categoría',
+        imagenUrl: generarImagenUrl(),
+      );
+
+      // Envía el evento correctamente tipado
+      context.read<CategoriaBloc>().add(CreateCategoriaEvent(nuevaCategoria));
+      _showSuccessSnackbar(context);
+    }
   }
-}
 
   void _showSuccessSnackbar(BuildContext context) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -54,70 +55,7 @@ Future<void> _agregarCategoria() async {
       ),
     );
   }
-Future<Map<String, dynamic>?> _mostrarDialogCategoria(
-    BuildContext context, {
-    Categoria? categoria,
-  }) async {
-    final TextEditingController nombreController = TextEditingController(
-  text: categoria?.nombre ?? '',
-);
-final TextEditingController descripcionController = TextEditingController(
-  text: categoria?.descripcion ?? '',
-);
 
-return showDialog<Map<String, dynamic>>(
-  context: context,
-  builder: (context) {
-    return AlertDialog(
-      title: Text(
-        categoria == null ? 'Agregar Categoría' : 'Editar Categoría',
-      ),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          TextField(
-            controller: nombreController,
-            decoration: const InputDecoration(
-              labelText: 'Nombre de la Categoría',
-            ),
-          ),
-          TextField(
-            controller: descripcionController,
-            decoration: const InputDecoration(
-              labelText: 'Descripción de la Categoría',
-              labelStyle: TextStyle(color: Colors.grey)
-            ),
-          ),
-        ],
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Cancelar'),
-        ),
-        ElevatedButton(
-          onPressed: () {
-            if (nombreController.text.isNotEmpty) {
-              Navigator.pop(context, {
-                'nombre': nombreController.text,
-                'descripcion': descripcionController.text,
-              });
-            } else {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('El nombre no puede estar vacío'),
-                ),
-              );
-            }
-          },
-          child: const Text('Guardar'),
-        ),
-      ],
-    );
-  },
-);
-}
-  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -150,23 +88,24 @@ return showDialog<Map<String, dynamic>>(
           } else if (state is CategoriaLoaded) {
             return state.categorias.isEmpty
                 ? const Center(
-                    child: Text(
-                      'No hay categorías disponibles.',
-                      style: TextStyle(fontSize: 16),
-                    ),
-                  )
+                  child: Text(
+                    'No hay categorías disponibles.',
+                    style: TextStyle(fontSize: 16),
+                  ),
+                )
                 : ListView.builder(
-                    itemCount: state.categorias.length,
-                    itemBuilder: (context, index) {
-                      final categoria = state.categorias[index];
-                      return CategoryCard(
-                        category: categoria,
-                        onCategoriaEliminada: () => context
-                            .read<CategoriaBloc>()
-                            .add(CategoriaInitEvent()),
-                      );
-                    },
-                  );
+                  itemCount: state.categorias.length,
+                  itemBuilder: (context, index) {
+                    final categoria = state.categorias[index];
+                    return CategoryCard(
+                      category: categoria,
+                      onCategoriaEliminada:
+                          () => context.read<CategoriaBloc>().add(
+                            CategoriaInitEvent(),
+                          ),
+                    );
+                  },
+                );
           }
           return const Center(child: CircularProgressIndicator());
         },
