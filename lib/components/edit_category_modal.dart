@@ -66,6 +66,7 @@ Future<void> showEditCategoryDialog({
                     );
                     updated = true;
                     Navigator.of(dialogContext).pop();
+                    
                   }
                 },
                 child: const Text('Guardar'),

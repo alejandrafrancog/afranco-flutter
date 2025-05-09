@@ -30,7 +30,7 @@ class NoticiaScreen extends StatefulWidget {
 
 class NoticiaScreenState extends State<NoticiaScreen> {
   final ScrollController _scrollController = ScrollController();
-
+  late final NoticiaBloc _noticiaBloc = context.read<NoticiaBloc>();
   @override
   void initState() {
     super.initState();
@@ -58,7 +58,7 @@ class NoticiaScreenState extends State<NoticiaScreen> {
             onNoticiaUpdated: () {
               // Force refresh after edit
               if (mounted) {
-                context.read<NoticiaBloc>().add(NoticiaRecargarEvent());
+                _noticiaBloc.add(NoticiaRecargarEvent());
               }
             },
           ),
@@ -73,9 +73,9 @@ class NoticiaScreenState extends State<NoticiaScreen> {
             service: widget.repository,
             onNoticiaCreated: (_) {
               // Force refresh after creation
-              if (mounted) {
-                context.read<NoticiaBloc>().add(NoticiaRecargarEvent());
-              }
+              if (!mounted) {return;}
+                _noticiaBloc.add(NoticiaRecargarEvent());
+              
             },
           ),
     );
@@ -86,8 +86,9 @@ class NoticiaScreenState extends State<NoticiaScreen> {
     final preferenciaState = context.watch<PreferenciaBloc>().state;
     final filtrosActivos = preferenciaState.categoriasSeleccionadas.isNotEmpty;
 
-    return BlocProvider(
-      create: (context) => NoticiaBloc()..add(NoticiaCargadaEvent()),
+    return BlocProvider.value(
+      value:_noticiaBloc,
+      //create: (context) => NoticiaBloc()..add(NoticiaCargadaEvent()),
       child: Builder(
         builder: (context) {
           return Scaffold(
@@ -268,6 +269,7 @@ Widget _buildBodyContent(NoticiaState state) {
   @override
   void dispose() {
     _scrollController.dispose();
+    _noticiaBloc.close();
     super.dispose();
   }
 }
