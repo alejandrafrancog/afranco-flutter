@@ -1,7 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:afranco/bloc/categoria_bloc/categoria_event.dart';
 import 'package:afranco/bloc/categoria_bloc/categoria_state.dart';
-import 'package:afranco/api/service/categoria_repository.dart';
+import 'package:afranco/data/categoria_repository.dart';
 import 'package:watch_it/watch_it.dart';
 
 

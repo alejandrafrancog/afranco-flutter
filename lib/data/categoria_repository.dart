@@ -1,4 +1,4 @@
-import 'package:afranco/data/categoria_service.dart';
+import 'package:afranco/api/service/categoria_service.dart';
 import 'package:afranco/domain/category.dart';
 import 'package:afranco/exceptions/api_exception.dart';
 

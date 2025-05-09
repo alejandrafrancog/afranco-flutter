@@ -28,6 +28,8 @@ void _navigateToAdjacentTask(BuildContext context, int offset) async {
 
   if (newIndex >= 0 && newIndex < tasks.length) {
     // Navegar a la nueva tarea
+    if(!context.mounted){return;}
+
     Navigator.pushReplacement(
       context,
       PageRouteBuilder(

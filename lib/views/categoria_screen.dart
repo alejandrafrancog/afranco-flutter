@@ -40,7 +40,7 @@ class CategoriaScreenState extends State<CategoriaScreen> {
             nuevaCategoriaData['descripcion'] ?? 'Descripción categoría',
         imagenUrl: generarImagenUrl(),
       );
-
+      if(!mounted){return;}
       // Envía el evento correctamente tipado
       context.read<CategoriaBloc>().add(CreateCategoriaEvent(nuevaCategoria));
       _showSuccessSnackbar(context);
