@@ -43,11 +43,10 @@ class NoticiasLoaded extends NoticiaState {
 
 }
 class NoticiasError extends NoticiaState {
-  
-  final String errorMessage;
+
   final int? statusCode;
 
-  NoticiasError(this.errorMessage, {this.statusCode});
+  NoticiasError(errorMessage, {this.statusCode});
 
 }
 class NoticiaLoadingState extends NoticiaState {

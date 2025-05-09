@@ -1,4 +1,4 @@
-import 'package:afranco/data/noticia_service.dart';
+import 'package:afranco/api/service/noticia_service.dart';
 import 'package:afranco/domain/noticia.dart';
 class NoticiaRepository {
   static const int tamanoPaginaConst = 10;
@@ -12,7 +12,7 @@ Future<List<Noticia>> obtenerNoticiasPaginadas({
 }) async {
   final noticias = await _service.getTechNews(page: numeroPagina);
   
-  // Ordenamiento definitivo (considera mayúsculas y tildes)
+  // Ordenamiento definitivo 
   return ordenarPorFecha 
     ? _ordenarPorFechaDescendente(noticias)
     : _ordenarPorFuenteAscendente(noticias);

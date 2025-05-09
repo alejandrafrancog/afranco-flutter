@@ -1,4 +1,4 @@
-import 'package:afranco/bloc/counter/counter_bloc.dart';
+import 'package:afranco/bloc/counter_bloc/counter_bloc.dart';
 import 'package:afranco/bloc/noticia_bloc/noticia_bloc.dart';
 import 'package:afranco/bloc/categoria_bloc/categoria_bloc.dart';
 import 'package:afranco/views/categoria_screen.dart';
@@ -8,7 +8,7 @@ import 'package:afranco/views/quote_screen.dart';
 import 'package:afranco/views/login_screen.dart';
 import 'package:afranco/views/start_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:afranco/views/tasks.dart'; // Mantén esta línea
+import 'package:afranco/views/task_screen.dart'; // Mantén esta línea
 import 'package:afranco/main.dart';
 import 'package:afranco/constants/constants.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

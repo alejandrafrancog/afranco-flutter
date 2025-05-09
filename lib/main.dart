@@ -1,5 +1,5 @@
 import 'package:afranco/bloc/categoria_bloc/categoria_bloc.dart';
-import 'package:afranco/bloc/counter/counter_bloc.dart';
+import 'package:afranco/bloc/counter_bloc/counter_bloc.dart';
 import 'package:afranco/bloc/noticia_bloc/noticia_bloc.dart';
 import 'package:afranco/bloc/preferencia_bloc/preferencia_bloc.dart';
 import 'package:afranco/di/locator.dart';

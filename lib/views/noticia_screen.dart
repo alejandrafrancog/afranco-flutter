@@ -5,7 +5,7 @@ import 'package:afranco/views/categoria_screen.dart';
 import 'package:afranco/views/preferencia_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:afranco/api/service/noticia_repository.dart';
+import 'package:afranco/data/noticia_repository.dart';
 import 'package:afranco/domain/noticia.dart';
 import 'package:afranco/noticias_estilos.dart';
 import 'package:afranco/components/noticia_error.dart';

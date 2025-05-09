@@ -25,6 +25,9 @@ class _LoginScreenState extends State<LoginScreen> {
     ).showSnackBar(const SnackBar(content: Text('Iniciando sesión...')));
 
     final success = await _authService.login(username, password);
+    if (!mounted) {
+      return;
+    }
 
     if (success) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -60,7 +63,6 @@ class _LoginScreenState extends State<LoginScreen> {
                 fontWeight: FontWeight.bold,
                 fontSize: 40,
                 color: Theme.of(context).colorScheme.primary,
-                
               ),
             ),
             const SizedBox(height: 26),

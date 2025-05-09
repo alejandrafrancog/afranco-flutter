@@ -1,10 +1,10 @@
 // components/noticia_modals.dart
-import 'package:afranco/api/service/categoria_repository.dart';
+import 'package:afranco/data/categoria_repository.dart';
 import 'package:afranco/domain/category.dart';
 import 'package:afranco/noticias_estilos.dart';
 import 'package:flutter/material.dart';
 import 'package:afranco/domain/noticia.dart';
-import 'package:afranco/api/service/noticia_repository.dart';
+import 'package:afranco/data/noticia_repository.dart';
 
 class NoticiaCreationModal extends StatefulWidget {
   final Function(Noticia) onNoticiaCreated;
@@ -80,11 +80,16 @@ class _NoticiaCreationModalState extends State<NoticiaCreationModal> {
       await widget.service.crearNoticia(nuevaNoticia);
 
       widget.onNoticiaCreated(nuevaNoticia);
-      Navigator.pop(context);
+      if (mounted) {
+        Navigator.pop(context);
+      }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
+      if(mounted){
+        ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error al crear: ${e.toString()}')),
       );
+      }
+      
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
     }
@@ -123,7 +128,7 @@ class _NoticiaCreationModalState extends State<NoticiaCreationModal> {
                 ),
                 keyboardType: TextInputType.url,
                 validator: (value) {
-                  if (value == null || value.isEmpty){
+                  if (value == null || value.isEmpty) {
                     return null; // Permitir vacío
                   }
                   final urlPattern = r'^(https?:\/\/)[^\s$.?#].[^\s]*$';

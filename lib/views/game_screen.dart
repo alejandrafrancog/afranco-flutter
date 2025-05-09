@@ -136,6 +136,7 @@ class GameScreenState extends State<GameScreen> {
         showFeedback = false;
       });
     } else {
+      if(!mounted){return;}
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(

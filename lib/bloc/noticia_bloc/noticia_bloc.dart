@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:afranco/bloc/noticia_bloc/noticia_event.dart';
 import 'package:afranco/bloc/noticia_bloc/noticia_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:afranco/api/service/noticia_repository.dart';
+import 'package:afranco/data/noticia_repository.dart';
 import 'package:afranco/constants/constants.dart';
 import 'package:watch_it/watch_it.dart';
 

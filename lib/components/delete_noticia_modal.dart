@@ -1,7 +1,7 @@
 import 'package:afranco/noticias_estilos.dart';
 import 'package:flutter/material.dart';
 import 'package:afranco/domain/noticia.dart';
-import 'package:afranco/api/service/noticia_repository.dart';
+import 'package:afranco/data/noticia_repository.dart';
 
 class NoticiaDeleteModal extends StatefulWidget {
   final Noticia noticia;

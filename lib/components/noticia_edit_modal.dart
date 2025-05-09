@@ -1,9 +1,9 @@
 // components/noticia_edit_modal.dart
 import 'package:flutter/material.dart';
 import 'package:afranco/domain/noticia.dart';
-import 'package:afranco/api/service/noticia_repository.dart';
+import 'package:afranco/data/noticia_repository.dart';
 import 'package:afranco/domain/category.dart';
-import 'package:afranco/api/service/categoria_repository.dart';
+import 'package:afranco/data/categoria_repository.dart';
 import 'package:afranco/noticias_estilos.dart';
 
 class NoticiaEditModal extends StatefulWidget {
@@ -103,7 +103,7 @@ class _NoticiaEditModalState extends State<NoticiaEditModal> {
       if (widget.onNoticiaUpdated != null) {
         widget.onNoticiaUpdated!();
       }
-
+      if(!mounted){return;}
       Navigator.pop(context);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(

@@ -1,8 +1,9 @@
 import 'package:afranco/domain/category.dart';
-import 'package:afranco/api/service/categoria_repository.dart';
+import 'package:afranco/data/categoria_repository.dart';
 import 'package:afranco/components/delete_category_modal.dart';
 import 'package:flutter/material.dart';
-import 'package:afranco/components/edit_category_modal.dart'; 
+import 'package:afranco/components/edit_category_modal.dart';
+
 class CategoryCard extends StatelessWidget {
   final Categoria category;
   final VoidCallback onCategoriaEliminada;
@@ -14,17 +15,23 @@ class CategoryCard extends StatelessWidget {
   });
 
   void _eliminarCategoria(BuildContext context) async {
-    final categoriaService = CategoriaRepository(); // Usamos el nombre correcto
+    final categoriaService = CategoriaRepository();
     try {
-      await categoriaService.eliminarCategoria(category.id!); // Método actualizado
+      await categoriaService.eliminarCategoria(category.id!);
       onCategoriaEliminada(); // Refrescar la lista
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Categoría eliminada')),
-      );
+
+      // Verificamos si el widget aún está montado antes de usar el contexto
+      if (!context.mounted) return;
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Categoría eliminada')));
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error al eliminar: $e')),
-      );
+      if (!context.mounted) return;
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error al eliminar: $e')));
     }
   }
 
@@ -39,13 +46,14 @@ class CategoryCard extends StatelessWidget {
         leading: ClipRRect(
           borderRadius: BorderRadius.circular(8),
           child: Image.network(
-                  category.imagenUrl,
-                  width: 60,
-                  height: 60,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) =>
-                      const Icon(Icons.broken_image, size: 60),
-                ),
+            category.imagenUrl,
+            width: 60,
+            height: 60,
+            fit: BoxFit.cover,
+            errorBuilder:
+                (context, error, stackTrace) =>
+                    const Icon(Icons.broken_image, size: 60),
+          ),
         ),
         title: Text(
           category.nombre,
@@ -56,15 +64,15 @@ class CategoryCard extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             IconButton(
-            icon: const Icon(Icons.edit),
-            onPressed: () {
-              showEditCategoryDialog(
-                context: context,
-                categoria: category,
-                onCategoriaActualizada: onCategoriaEliminada,
-              );
-            },
-          ),
+              icon: const Icon(Icons.edit),
+              onPressed: () {
+                showEditCategoryDialog(
+                  context: context,
+                  categoria: category,
+                  onCategoriaActualizada: onCategoriaEliminada,
+                );
+              },
+            ),
             IconButton(
               icon: const Icon(Icons.delete, color: Colors.red),
               onPressed: () {
