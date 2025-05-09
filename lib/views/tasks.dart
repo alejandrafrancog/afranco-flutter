@@ -231,16 +231,4 @@ Future<void> _loadMoreTasks() async {
   });
 }
 
-  /*Future<void> _showEditTaskModal(Task task, int index) async {
-    await showEditTaskModal(
-      context,
-      task,
-      (updatedTask) {
-        setState(() {
-          tasks[index] = updatedTask;
-        });
-      },
-      () => _deleteTask(index),
-    );
-  }*/
 }

@@ -16,7 +16,6 @@ class NoticiaBloc extends Bloc<NoticiaEvent, NoticiaState> {
     on<NoticiaCargarMasEvent>(_onCargarMasNoticias);
     on<NoticiaRecargarEvent>(_onRecargarNoticias);
     on<FilterNoticiasByPreferencias>(_onFilterNoticiasByPreferencias);
-
   }
 
   Future<void> _onCargarNoticias(
@@ -102,14 +101,21 @@ class NoticiaBloc extends Bloc<NoticiaEvent, NoticiaState> {
       );
     }
   }
+
   Future<void> _onFilterNoticiasByPreferencias(
     FilterNoticiasByPreferencias event,
     Emitter<NoticiaState> emit,
   ) async {
-    emit(NoticiaLoadingState(noticias: state.noticias, tieneMas: state.tieneMas));
     try {
-      final allNoticias = await noticiaRepository.obtenerNoticias();
+      emit(
+        NoticiaLoadingState(
+          noticias: [],
+          tieneMas: true,
+          ultimaActualizacion: null,
+        ),
+      );
 
+      final allNoticias = await noticiaRepository.obtenerNoticias();
       final filteredNoticias =
           allNoticias
               .where(
@@ -117,9 +123,24 @@ class NoticiaBloc extends Bloc<NoticiaEvent, NoticiaState> {
               )
               .toList();
 
-      emit(NoticiasLoaded(filteredNoticias, DateTime.now()));
+      // Use state.copyWith instead of creating a new state type
+      emit(
+        state.copyWith(
+          noticias: filteredNoticias,
+          tieneMas: false, // Since we're showing all filtered results at once
+          ultimaActualizacion: DateTime.now(),
+          isLoading: false,
+        ),
+      );
     } catch (e) {
-      emit(NoticiasError('Error al filtrar noticias: ${e.toString()}'));
+      emit(
+        NoticiaErrorState(
+          error: e,
+          noticias: [],
+          tieneMas: false,
+          ultimaActualizacion: DateTime.now(),
+        ),
+      );
     }
   }
 }
