@@ -2,7 +2,7 @@
 
 import 'package:dio/dio.dart';
 import 'package:afranco/constants/constants.dart';
-import 'package:afranco/domain/category.dart';
+import 'package:afranco/domain/categoria.dart';
 import 'package:afranco/exceptions/api_exception.dart';
 class CategoriaService {
   final Dio _dio = Dio();
@@ -74,7 +74,11 @@ class CategoriaService {
 
       if (response.statusCode == 200) {
         final List<dynamic> categoriasJson = response.data;
-        return categoriasJson.map((json) => Categoria.fromJson(json)).toList();
+        List<Categoria> lista = categoriasJson.map((json) => CategoriaMapper.fromMap(json)).toList();
+        for (var l in lista) {
+          print(l.toString());
+        }
+        return lista;
       } else {
         throw ApiException(
           message: "Error ",
@@ -117,7 +121,7 @@ class CategoriaService {
       );
       
       if (response.statusCode == 201) {
-        return Categoria.fromJson(response.data);
+        return CategoriaMapper.fromMap(response.data);
       }
       throw Exception('Error creando categoría: ${response.statusCode}');
     } on DioException catch (e) {
@@ -133,7 +137,7 @@ class CategoriaService {
       );
       
       if (response.statusCode == 200) {
-        return Categoria.fromJson(response.data);
+        return CategoriaMapper.fromMap(response.data);
       }
       throw Exception('Error actualizando categoría: ${response.statusCode}');
     } on DioException catch (e) {

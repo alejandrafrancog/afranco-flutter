@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:afranco/bloc/categoria_bloc/categoria_bloc.dart';
 import 'package:afranco/bloc/categoria_bloc/categoria_event.dart';
 import 'package:afranco/bloc/categoria_bloc/categoria_state.dart';
-import 'package:afranco/domain/category.dart';
+import 'package:afranco/domain/categoria.dart';
 import 'package:afranco/components/category_card.dart';
 
 class CategoriaScreen extends StatefulWidget {

@@ -33,12 +33,19 @@ class SuccessMessages {
 }
 class ApiConstants {
   static String get baseUrl => EnvConstants.baseUrl;
+  static String errorNotFound = 'No se encontró el recurso';
   static String noticiasEndpoint = 'noticias';
   static String preferenciasEndpoint = 'preferencias';
   static String categoryEndpoint = 'categorias';
-  static String urlCategorias = '${EnvConstants.baseUrl}/$categoryEndpoint';
-  static String urlNoticias = '${EnvConstants.baseUrl}/$noticiasEndpoint';
-  static String urlPreferencias = '${EnvConstants.baseUrl}/$preferenciasEndpoint';
+  static String comentarioEndpoint = 'categorias';
+  static String urlCategorias = '$baseUrl/$categoryEndpoint';
+  static String urlNoticias = '$baseUrl/$noticiasEndpoint';
+  static String urlPreferencias = '$baseUrl/$preferenciasEndpoint';
+  static String comentariosUrl = '$baseUrl/$comentarioEndpoint';
+  static var serverError= 'Error del servidor!';
+
+  static var errorTimeout = 'Tiempo de espera agotado';
+
 
 }
 class CategoriaConstants{

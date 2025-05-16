@@ -246,7 +246,7 @@ Widget _buildBodyContent(NoticiaState state) {
 
       return NoticiaCard(
         noticia: state.noticias[index],
-        imageUrl: state.noticias[index].imagen,
+        imageUrl: state.noticias[index].urlImagen,
         onEditPressed: _abrirModalEdicion,
         onDelete: () {
           // Make sure to reload news after deletion

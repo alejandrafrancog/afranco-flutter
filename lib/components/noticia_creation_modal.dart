@@ -1,6 +1,6 @@
 // components/noticia_modals.dart
 import 'package:afranco/data/categoria_repository.dart';
-import 'package:afranco/domain/category.dart';
+import 'package:afranco/domain/categoria.dart';
 import 'package:afranco/noticias_estilos.dart';
 import 'package:flutter/material.dart';
 import 'package:afranco/domain/noticia.dart';
@@ -71,7 +71,7 @@ class _NoticiaCreationModalState extends State<NoticiaCreationModal> {
         categoryId: _categoriaSeleccionada?.id ?? '',
         titulo: _tituloController.text,
         fuente: _fuenteController.text,
-        imagen: imagenUrl,
+        urlImagen: imagenUrl,
         publicadaEl: DateTime.now(),
         descripcion: _descripcionController.text,
         url: _urlController.text,

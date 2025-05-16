@@ -1,5 +1,5 @@
 import 'package:afranco/api/service/categoria_service.dart';
-import 'package:afranco/domain/category.dart';
+import 'package:afranco/domain/categoria.dart';
 import 'package:afranco/exceptions/api_exception.dart';
 
 class CategoriaRepository {
@@ -8,7 +8,9 @@ class CategoriaRepository {
   /// Obtiene todas las categorías desde el repositorio
   Future<List<Categoria>> getCategorias() async {
     try {
-      return await _service.getCategorias();
+      List<Categoria> categorias = await _service.getCategorias();
+     
+      return categorias;
     } catch (e) {
       if (e is ApiException) {
         // Propaga el mensaje contextual de ApiException
@@ -36,7 +38,7 @@ class CategoriaRepository {
   /// Edita una categoría existente
   Future<void> editarCategoria(String id, Categoria categoria) async {
     try {
-      await _service.editarCategoria(id, categoria.toJson());
+      await _service.editarCategoria(id, categoria.toMap());
     } catch (e) {
       if (e is ApiException) {
         // Propaga el mensaje contextual de ApiException

@@ -1,6 +1,6 @@
 import 'package:afranco/noticias_estilos.dart';
 import 'package:flutter/material.dart';
-import 'package:afranco/domain/category.dart';
+import 'package:afranco/domain/categoria.dart';
 Future<Map<String, dynamic>?> mostrarDialogCategoria(
     BuildContext context, {
     Categoria? categoria,

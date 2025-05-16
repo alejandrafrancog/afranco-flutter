@@ -1,24 +1,6 @@
-/*import 'package:equatable/equatable.dart';
-import 'package:afranco/domain/category.dart'; // Asegúrate de importar Categoria
 
-abstract class CategoriaEvent extends Equatable {
-  @override
-  List<Object?> get props => [];
-}
-
-class CategoriaInitEvent extends CategoriaEvent {}
-
-// Nuevo evento para creación de categorías
-class CreateCategoriaEvent extends CategoriaEvent {
-  final Categoria categoria;
-  
-  CreateCategoriaEvent(this.categoria);
-
-  @override
-  List<Object?> get props => [categoria];
-}*/
 import 'package:equatable/equatable.dart';
-import 'package:afranco/domain/category.dart';
+import 'package:afranco/domain/categoria.dart';
 
 abstract class CategoriaEvent extends Equatable {
   @override
