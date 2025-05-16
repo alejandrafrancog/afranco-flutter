@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:afranco/domain/noticia.dart';
 import 'package:afranco/data/noticia_repository.dart';
-import 'package:afranco/domain/category.dart';
+import 'package:afranco/domain/categoria.dart';
 import 'package:afranco/data/categoria_repository.dart';
 import 'package:afranco/noticias_estilos.dart';
 
@@ -47,9 +47,9 @@ class _NoticiaEditModalState extends State<NoticiaEditModal> {
       text: widget.noticia.descripcion,
     );
     _fuenteController = TextEditingController(text: widget.noticia.fuente);
-    _imagenController = TextEditingController(text: widget.noticia.imagen);
+    _imagenController = TextEditingController(text: widget.noticia.urlImagen);
     _urlController = TextEditingController(text: widget.noticia.url);
-    _originalImagen = widget.noticia.imagen;
+    _originalImagen = widget.noticia.urlImagen;
     _selectedCategoryId =
         widget.noticia.categoryId; // Inicializar con la categoría actual
     _cargarCategorias();
@@ -92,7 +92,7 @@ class _NoticiaEditModalState extends State<NoticiaEditModal> {
         categoryId: _selectedCategoryId, // Usar la categoría seleccionada
         titulo: _tituloController.text,
         fuente: _fuenteController.text,
-        imagen: imagenUrl,
+        urlImagen: imagenUrl,
         publicadaEl: widget.noticia.publicadaEl,
         descripcion: _descripcionController.text,
         url: _urlController.text,

@@ -60,7 +60,7 @@ Future<List<Noticia>> getNoticiasPaginadas(int pagina) async {
       id: id,
       titulo: titulo,
       fuente: fuente,
-      imagen: '',
+      urlImagen: '',
       publicadaEl: DateTime.now().subtract(Duration(days: diasAleatorios)),
       descripcion: _generarContenidoAleatorio(),
       url: '',
@@ -86,11 +86,7 @@ Future<List<Noticia>> getNoticiasPaginadas(int pagina) async {
           'page': page,
           'sortBy': 'publishedAt',
         },
-        /*options: Options(
-          headers: {
-            'X-Api-Key': ApiConstants.newsApiKey,
-          },
-        ),*/
+        
       ).timeout(const Duration(seconds: 10));
 
       switch (response.statusCode) {
@@ -98,7 +94,7 @@ Future<List<Noticia>> getNoticiasPaginadas(int pagina) async {
           final Map<String, dynamic> data = response.data;
           if (data['status'] == 'ok' && data['articles'] != null) {
             return (data['articles'] as List)
-                .map((json) => Noticia.fromJson(json))
+                .map((json) => NoticiaMapper.fromJson(json))
                 .toList();
           }
           return [];
@@ -135,7 +131,7 @@ Future<List<Noticia>> getNoticiasPaginadas(int pagina) async {
           'descripcion': noticia.descripcion,
           'fuente': noticia.fuente,
           'publicadaEl': noticia.publicadaEl.toIso8601String(),
-          'urlImagen': noticia.imagen,
+          'urlImagen': noticia.urlImagen,
           'url': noticia.url,
           
         },
@@ -159,7 +155,7 @@ Future<List<Noticia>> getNoticiasPaginadas(int pagina) async {
           'descripcion': descripcion ?? noticia.descripcion,
           'fuente': fuente ?? noticia.fuente,
           'publicadaEl': noticia.publicadaEl.toIso8601String(),
-          'urlImagen': noticia.imagen,
+          'urlImagen': noticia.urlImagen,
         },
       );
       
@@ -181,7 +177,7 @@ Future<List<Noticia>> getTechNews({required int page}) async {
     
     if (response.statusCode == 200) {
       final List<dynamic> data = response.data;
-      return data.map((json) => Noticia.fromCrudApiJson(json)).toList();
+      return data.map((json) => NoticiaMapper.fromMap(json)).toList();
     } else {
       // En caso de que el código de estado no sea 200
       throw ApiException(
@@ -233,7 +229,7 @@ Future<List<Noticia>> getTechNews({required int page}) async {
       );
       
       if (response.statusCode == 200) {
-        return Noticia.fromJson(response.data);
+        return NoticiaMapper.fromJson(response.data);
       } else {
         throw Exception('Error al actualizar la noticia');
       }

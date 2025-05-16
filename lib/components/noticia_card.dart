@@ -56,7 +56,7 @@ class NoticiaCard extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(left: 20),
               child: FutureBuilder<String>(
-                future: noticia.obtenerNombreCategoria(repository.getCategorias()),
+                future: noticia.obtenerNombreCategoria(repository.getCategorias(),noticia.categoryId),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Text("Cargando...", style: NoticiaEstilos.fuenteNoticia);
@@ -65,7 +65,7 @@ class NoticiaCard extends StatelessWidget {
                     return Text("Error: ${snapshot.error}", style: NoticiaEstilos.fuenteNoticia);
                   }
                   return Text(
-                    snapshot.data ?? "Sin categoría",
+                    snapshot.data ?? "Sin Categoría",
                     style: NoticiaEstilos.fuenteNoticia,
                   );
                 },

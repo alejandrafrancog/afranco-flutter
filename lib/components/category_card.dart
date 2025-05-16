@@ -1,4 +1,4 @@
-import 'package:afranco/domain/category.dart';
+import 'package:afranco/domain/categoria.dart';
 import 'package:afranco/data/categoria_repository.dart';
 import 'package:afranco/components/delete_category_modal.dart';
 import 'package:flutter/material.dart';

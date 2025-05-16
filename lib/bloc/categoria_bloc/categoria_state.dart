@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:afranco/domain/category.dart';
+import 'package:afranco/domain/categoria.dart';
 
 abstract class CategoriaState extends Equatable {
   @override

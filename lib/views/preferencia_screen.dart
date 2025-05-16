@@ -7,7 +7,7 @@ import 'package:afranco/bloc/categoria_bloc/categoria_state.dart';
 import 'package:afranco/bloc/preferencia_bloc/preferencia_bloc.dart';
 import 'package:afranco/bloc/preferencia_bloc/preferencia_event.dart';
 import 'package:afranco/bloc/preferencia_bloc/preferencia_state.dart';
-import 'package:afranco/domain/category.dart';
+import 'package:afranco/domain/categoria.dart';
 import 'package:afranco/helpers/snackbar_helper.dart';
 
 class PreferenciasScreen extends StatelessWidget {
