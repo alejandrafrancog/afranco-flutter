@@ -1,5 +1,6 @@
 import 'package:afranco/bloc/comentario_bloc/comentario_bloc.dart';
 import 'package:afranco/bloc/comentario_bloc/comentario_event.dart';
+import 'package:afranco/noticias_estilos.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -49,9 +50,7 @@ class CommentSearchBar extends StatelessWidget {
         const SizedBox(width: 8),
         ElevatedButton(
           onPressed: onSearch,
-          style: ElevatedButton.styleFrom(
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          ),
+          style: NoticiaEstilos.estiloBotonPrimario(context),
           child: const Text('Buscar'),
         ),
       ],

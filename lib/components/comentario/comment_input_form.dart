@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:afranco/bloc/comentario_bloc/comentario_bloc.dart';
 import 'package:afranco/bloc/comentario_bloc/comentario_event.dart';
 import 'package:afranco/helpers/snackbar_helper.dart';
+import 'package:afranco/noticias_estilos.dart';
 
 class CommentInputForm extends StatelessWidget {
   final String noticiaId;
@@ -44,9 +45,7 @@ class CommentInputForm extends StatelessWidget {
           label: Text(respondingToId == null 
               ? 'Publicar comentario' 
               : 'Enviar respuesta'),
-          style: ElevatedButton.styleFrom(
-            padding: const EdgeInsets.only(left: 15,right: 15,top: 10, bottom: 10),
-          ),
+          style: NoticiaEstilos.estiloBotonPrimario(context),
         ),
       ],
     );

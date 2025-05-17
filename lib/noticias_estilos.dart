@@ -29,6 +29,12 @@ class NoticiaEstilos {
     fontSize: 12,
     color: Colors.grey,
   );
+  static const TextStyle fechaComentario = TextStyle(
+    fontSize: 12,
+    color: Colors.grey,
+    fontWeight: FontWeight.w500,
+    fontStyle: FontStyle.italic,
+  );
 
   static const espaciadoAlto = 10.0;
 

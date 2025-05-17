@@ -1,3 +1,4 @@
+import 'package:afranco/noticias_estilos.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -46,7 +47,7 @@ class CommentCard extends StatelessWidget {
                 const SizedBox(height: 8),
                 Text(
                   fecha,
-                  style: const TextStyle(fontSize: 12, color: Colors.grey),
+                  style: NoticiaEstilos.fechaComentario,
                 ),
                 const SizedBox(height: 4),
                 Row(
