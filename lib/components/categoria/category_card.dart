@@ -1,8 +1,8 @@
 import 'package:afranco/domain/categoria.dart';
 import 'package:afranco/data/categoria_repository.dart';
-import 'package:afranco/components/delete_category_modal.dart';
+import 'package:afranco/components/categoria/delete_category_modal.dart';
 import 'package:flutter/material.dart';
-import 'package:afranco/components/edit_category_modal.dart';
+import 'package:afranco/components/categoria/edit_category_modal.dart';
 
 class CategoryCard extends StatelessWidget {
   final Categoria category;
@@ -59,7 +59,7 @@ class CategoryCard extends StatelessWidget {
           category.nombre,
           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
         ),
-        subtitle: Text('ID: ${category.id ?? 'N/A'}'),
+        subtitle: Text('${category.descripcion}'),
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [

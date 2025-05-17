@@ -43,8 +43,12 @@ class ApiConstants {
   static String urlPreferencias = '$baseUrl/$preferenciasEndpoint';
   static String comentariosUrl = '$baseUrl/$comentarioEndpoint';
   static var serverError= 'Error del servidor!';
-
+  static int timeoutSeconds = 10;
   static var errorTimeout = 'Tiempo de espera agotado';
+
+  static String errorNoInternet = 'No hay conexión a Internet';
+
+  static var errorUnauthorized = "No autorizado";
 
 
 }

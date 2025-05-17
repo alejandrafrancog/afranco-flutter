@@ -1,4 +1,6 @@
+import 'package:afranco/bloc/auth_bloc/auth_bloc.dart';
 import 'package:afranco/bloc/categoria_bloc/categoria_bloc.dart';
+import 'package:afranco/bloc/comentario_bloc/comentario_bloc.dart';
 import 'package:afranco/bloc/counter_bloc/counter_bloc.dart';
 import 'package:afranco/bloc/noticia_bloc/noticia_bloc.dart';
 import 'package:afranco/bloc/preferencia_bloc/preferencia_bloc.dart';
@@ -21,6 +23,8 @@ Future<void> main() async {
         BlocProvider<NoticiaBloc>(create: (context) => NoticiaBloc()),
         BlocProvider<CategoriaBloc>(create: (context) => CategoriaBloc()),
         BlocProvider<PreferenciaBloc>(create: (context) => PreferenciaBloc()),
+        BlocProvider<ComentarioBloc>(create: (context) => ComentarioBloc()),
+        BlocProvider<AuthBloc>(create: (context) => AuthBloc()),
       ],
       child: const MyApp(),
     ),
