@@ -4,6 +4,7 @@ import 'package:afranco/bloc/comentario_bloc/comentario_bloc.dart';
 import 'package:afranco/bloc/counter_bloc/counter_bloc.dart';
 import 'package:afranco/bloc/noticia_bloc/noticia_bloc.dart';
 import 'package:afranco/bloc/preferencia_bloc/preferencia_bloc.dart';
+import 'package:afranco/bloc/reporte_bloc/reporte_bloc.dart';
 import 'package:afranco/di/locator.dart';
 import 'package:afranco/domain/comentario.dart';
 import 'package:flutter/material.dart';
@@ -27,6 +28,8 @@ Future<void> main() async {
         BlocProvider<PreferenciaBloc>(create: (context) => PreferenciaBloc()),
         BlocProvider<ComentarioBloc>(create: (context) => ComentarioBloc()),
         BlocProvider<AuthBloc>(create: (context) => AuthBloc()),
+        BlocProvider<ReporteBloc>(create: (context) => ReporteBloc()),
+
       ],
       child: const MyApp(),
     ),

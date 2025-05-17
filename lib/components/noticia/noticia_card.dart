@@ -182,7 +182,7 @@ class NoticiaCard extends StatelessWidget {
                         },
                       ),
                       IconButton(
-                        icon: const Icon(Icons.share, size: 24),
+                        icon: const Icon(Icons.flag, size: 24),
                         tooltip: 'Compartir',
                         onPressed: () {},
                       ),
