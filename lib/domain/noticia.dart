@@ -6,11 +6,15 @@ part 'noticia.mapper.dart';
 
 @MappableClass()
 class Noticia with NoticiaMappable {
-  @MappableField(key: 'urlImagen')
   final String id;
+  
+  // Fix: Map categoryId to categoriaId from JSON
+  @MappableField(key: 'categoriaId')
   final String categoryId;
+  
   final String titulo;
   final String fuente;
+  @MappableField(key: 'urlImagen')
   final String urlImagen;
   final DateTime publicadaEl;
   final String descripcion;
@@ -39,17 +43,16 @@ class Noticia with NoticiaMappable {
     return random.nextInt(10) + 1;
   }
 
-  // Métodos que no se serializan
   Future<String> obtenerNombreCategoria(Future<List<Categoria>> categorias, String catID) async {
+    if (catID.isEmpty || catID == "sin_categoria") return 'Sin categoría';
+    
     List<Categoria> categoriasList = await categorias;
     for (Categoria cat in categoriasList) {
-      print('$cat.id == $catID');
       if (cat.id == catID) return cat.nombre;
     }
     return 'Sin categoría';
   }
-
-
+  
   String fechaCorta() {
     return '${publicadaEl.day}/${publicadaEl.month}/${publicadaEl.year}';
   }
@@ -57,5 +60,4 @@ class Noticia with NoticiaMappable {
   String tiempoLecturaFormateado() {
     return '$tiempoLectura min${tiempoLectura > 1 ? 's' : ''}';
   }
-
 }

@@ -3,6 +3,12 @@ import 'package:afranco/components/noticia/delete_noticia_modal.dart';
 import 'package:flutter/material.dart';
 import 'package:afranco/domain/noticia.dart';
 import 'package:afranco/noticias_estilos.dart';
+// Importamos el archivo de la pantalla de comentarios
+import 'package:afranco/views/comentario_screen.dart';
+// Importamos el bloc de comentarios
+import 'package:afranco/bloc/comentario_bloc/comentario_bloc.dart';
+import 'package:afranco/bloc/comentario_bloc/comentario_event.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class NoticiaCard extends StatelessWidget {
   final Noticia noticia;
@@ -10,7 +16,7 @@ class NoticiaCard extends StatelessWidget {
   final CategoriaRepository repository = CategoriaRepository();
   final Function(Noticia) onEditPressed;
   final VoidCallback onDelete;
-  
+
   NoticiaCard({
     super.key,
     required this.noticia,
@@ -34,35 +40,44 @@ class NoticiaCard extends StatelessWidget {
           children: [
             // Título
             Padding(
-              padding: const EdgeInsets.only(left:20,right:20,top:20),
+              padding: const EdgeInsets.only(left: 20, right: 20, top: 20),
               child: Text(
                 noticia.titulo,
                 style: NoticiaEstilos.tituloNoticia,
                 overflow: TextOverflow.visible,
                 softWrap: true,
-              ),  
+              ),
             ),
-            
+
             // Fecha
             Padding(
               padding: const EdgeInsets.only(left: 20),
               child: Text(
-                '${noticia.publicadaEl.day}/${noticia.publicadaEl.month}/${noticia.publicadaEl.year}', 
-                style: NoticiaEstilos.fuenteNoticia
+                '${noticia.publicadaEl.day}/${noticia.publicadaEl.month}/${noticia.publicadaEl.year}',
+                style: NoticiaEstilos.fuenteNoticia,
               ),
             ),
-            
+
             // Categoría
             Padding(
               padding: const EdgeInsets.only(left: 20),
               child: FutureBuilder<String>(
-                future: noticia.obtenerNombreCategoria(repository.getCategorias(),noticia.categoryId),
+                future: noticia.obtenerNombreCategoria(
+                  repository.getCategorias(),
+                  noticia.categoryId,
+                ),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Text("Cargando...", style: NoticiaEstilos.fuenteNoticia);
+                    return const Text(
+                      "Cargando...",
+                      style: NoticiaEstilos.fuenteNoticia,
+                    );
                   }
                   if (snapshot.hasError) {
-                    return Text("Error: ${snapshot.error}", style: NoticiaEstilos.fuenteNoticia);
+                    return Text(
+                      "Error: ${snapshot.error}",
+                      style: NoticiaEstilos.fuenteNoticia,
+                    );
                   }
                   return Text(
                     snapshot.data ?? "Sin Categoría",
@@ -80,7 +95,7 @@ class NoticiaCard extends StatelessWidget {
                 children: [
                   // Texto
                   Expanded(
-                    flex: 2, 
+                    flex: 2,
                     child: Padding(
                       padding: const EdgeInsets.only(right: 12),
                       child: Text(
@@ -91,7 +106,7 @@ class NoticiaCard extends StatelessWidget {
                       ),
                     ),
                   ),
-                  
+
                   // Imagen
                   Expanded(
                     flex: 2,
@@ -112,7 +127,12 @@ class NoticiaCard extends StatelessWidget {
 
             // Footer con fuente, tiempo de lectura y acciones
             Padding(
-              padding: const EdgeInsets.only(left: 22, right: 5, top: 10, bottom: 10),
+              padding: const EdgeInsets.only(
+                left: 22,
+                right: 5,
+                top: 10,
+                bottom: 10,
+              ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -127,7 +147,7 @@ class NoticiaCard extends StatelessWidget {
                             maxLines: 1,
                           ),
                         ),
-                        
+
                         const SizedBox(width: 8),
                         Text(
                           "${noticia.tiempoLectura} min",
@@ -136,20 +156,37 @@ class NoticiaCard extends StatelessWidget {
                       ],
                     ),
                   ),
-                  
+
                   // Iconos
                   Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       IconButton(
-                        icon: const Icon(Icons.star_border, size: 24),
-                        onPressed: () {},
+                        icon: const Icon(Icons.comment, size: 24),
+                        tooltip: 'Comentarios',
+                        onPressed: () {
+                          // Disparamos el evento para cargar los comentarios de esta noticia
+                          context.read<ComentarioBloc>().add(
+                            LoadComentarios(noticiaId: noticia.id),
+                          );
+
+                          // Navegamos a la pantalla de comentarios
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder:
+                                  (context) =>
+                                      ComentarioScreen(noticiaId: noticia.id),
+                            ),
+                          );
+                        },
                       ),
                       IconButton(
                         icon: const Icon(Icons.share, size: 24),
+                        tooltip: 'Compartir',
                         onPressed: () {},
                       ),
-                      
+
                       PopupMenuButton<String>(
                         onSelected: (value) {
                           switch (value) {
@@ -159,10 +196,11 @@ class NoticiaCard extends StatelessWidget {
                             case 'delete':
                               showDialog(
                                 context: context,
-                                builder: (c) => NoticiaDeleteModal(
-                                  noticia: noticia,
-                                  id: noticia.id,
-                                ),
+                                builder:
+                                    (c) => NoticiaDeleteModal(
+                                      noticia: noticia,
+                                      id: noticia.id,
+                                    ),
                               ).then((resultado) {
                                 if (resultado == true) {
                                   onDelete();
@@ -171,17 +209,19 @@ class NoticiaCard extends StatelessWidget {
                               break;
                           }
                         },
-                        itemBuilder: (BuildContext context) => [
-                          const PopupMenuItem<String>(
-                            value: 'edit',
-                            child: Text('Editar'),
-                          ),
-                          const PopupMenuItem<String>(
-                            value: 'delete',
-                            child: Text('Eliminar')
-                          ),
-                        ],
+                        itemBuilder:
+                            (BuildContext context) => [
+                              const PopupMenuItem<String>(
+                                value: 'edit',
+                                child: Text('Editar'),
+                              ),
+                              const PopupMenuItem<String>(
+                                value: 'delete',
+                                child: Text('Eliminar'),
+                              ),
+                            ],
                         icon: const Icon(Icons.more_vert),
+                        tooltip: 'Más acciones',
                       ),
                     ],
                   ),

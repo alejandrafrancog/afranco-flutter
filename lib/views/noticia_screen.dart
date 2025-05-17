@@ -31,6 +31,8 @@ class NoticiaScreen extends StatefulWidget {
 class NoticiaScreenState extends State<NoticiaScreen> {
   final ScrollController _scrollController = ScrollController();
   late final NoticiaBloc _noticiaBloc = context.read<NoticiaBloc>();
+  bool _showFab = true; // Controla la visibilidad del FAB
+  double _lastScrollOffset = 0; // Almacena la última posición del scroll
   @override
   void initState() {
     super.initState();
@@ -41,10 +43,27 @@ class NoticiaScreenState extends State<NoticiaScreen> {
   }
 
   void _scrollListener() {
-    if (_scrollController.position.pixels >=
-        _scrollController.position.maxScrollExtent * 0.8) {
+    final currentOffset = _scrollController.position.pixels;
+
+    // Detectar dirección del scroll
+    if (currentOffset > _lastScrollOffset + 20) {
+      // Scroll hacia abajo
+      if (_showFab) {
+        setState(() => _showFab = false);
+      }
+    } else if (currentOffset < _lastScrollOffset - 20) {
+      // Scroll hacia arriba
+      if (!_showFab) {
+        setState(() => _showFab = true);
+      }
+    }
+
+    // Actualizar última posición
+    _lastScrollOffset = currentOffset;
+
+    // Cargar más noticias al llegar al final
+    if (currentOffset >= _scrollController.position.maxScrollExtent * 0.8) {
       context.read<NoticiaBloc>().add(NoticiaCargarMasEvent());
-      //_noticiaBloc.add(NoticiaCargarMasEvent());
     }
   }
 
@@ -73,9 +92,10 @@ class NoticiaScreenState extends State<NoticiaScreen> {
             service: widget.repository,
             onNoticiaCreated: (_) {
               // Force refresh after creation
-              if (!mounted) {return;}
-                _noticiaBloc.add(NoticiaRecargarEvent());
-              
+              if (!mounted) {
+                return;
+              }
+              _noticiaBloc.add(NoticiaRecargarEvent());
             },
           ),
     );
@@ -87,7 +107,7 @@ class NoticiaScreenState extends State<NoticiaScreen> {
     final filtrosActivos = preferenciaState.categoriasSeleccionadas.isNotEmpty;
 
     return BlocProvider.value(
-      value:_noticiaBloc,
+      value: _noticiaBloc,
       //create: (context) => NoticiaBloc()..add(NoticiaCargadaEvent()),
       child: Builder(
         builder: (context) {
@@ -204,10 +224,14 @@ class NoticiaScreenState extends State<NoticiaScreen> {
               },
             ),
 
-            floatingActionButton: FloatingActionButton(
-              backgroundColor: Theme.of(context).primaryColor,
-              onPressed: _mostrarModalCreacion,
-              child: const Icon(Icons.add),
+            floatingActionButton: AnimatedOpacity(
+              opacity: _showFab ? 1.0 : 0.0,
+              duration: const Duration(milliseconds: 300),
+              child: FloatingActionButton(
+                backgroundColor: Theme.of(context).primaryColor,
+                onPressed: _mostrarModalCreacion,
+                child: const Icon(Icons.add),
+              ),
             ),
           );
         },
@@ -215,47 +239,49 @@ class NoticiaScreenState extends State<NoticiaScreen> {
     );
   }
 
-Widget _buildBodyContent(NoticiaState state) {
-  if (state.isLoading && state.noticias.isEmpty) {
-    return const FullScreenLoading();
-  }
+  Widget _buildBodyContent(NoticiaState state) {
+    if (state.isLoading && state.noticias.isEmpty) {
+      return const FullScreenLoading();
+    }
 
-  if (state is NoticiaErrorState) {
-    return ErrorMessage(
-      message: state.error.toString(),
-      onRetry: () => context.read<NoticiaBloc>().add(NoticiaRecargarEvent()),
+    if (state is NoticiaErrorState) {
+      return ErrorMessage(
+        message: state.error.toString(),
+        onRetry: () => context.read<NoticiaBloc>().add(NoticiaRecargarEvent()),
+      );
+    }
+
+    if (state.noticias.isEmpty) {
+      return const EmptyState();
+    }
+
+    return ListView.separated(
+      controller: _scrollController,
+      itemCount: state.noticias.length + (state.tieneMas ? 1 : 0),
+      separatorBuilder:
+          (_, __) => const SizedBox(height: NoticiaEstilos.espaciadoAlto),
+      itemBuilder: (context, index) {
+        if (index >= state.noticias.length) {
+          return _buildLoadingIndicator(state.isLoading);
+        }
+
+        if (index < 0 || index >= state.noticias.length) {
+          return const SizedBox.shrink();
+        }
+
+        return NoticiaCard(
+          noticia: state.noticias[index],
+          imageUrl: state.noticias[index].urlImagen,
+          onEditPressed: _abrirModalEdicion,
+          onDelete: () {
+            // Make sure to reload news after deletion
+            context.read<NoticiaBloc>().add(NoticiaRecargarEvent());
+          },
+        );
+      },
     );
   }
 
-  if (state.noticias.isEmpty) {
-    return const EmptyState();
-  }
-
-  return ListView.separated(
-    controller: _scrollController,
-    itemCount: state.noticias.length + (state.tieneMas ? 1 : 0),
-    separatorBuilder: (_, __) => const SizedBox(height: NoticiaEstilos.espaciadoAlto),
-    itemBuilder: (context, index) {
-      if (index >= state.noticias.length) {
-        return _buildLoadingIndicator(state.isLoading);
-      }
-
-      if (index < 0 || index >= state.noticias.length) {
-        return const SizedBox.shrink();
-      }
-
-      return NoticiaCard(
-        noticia: state.noticias[index],
-        imageUrl: state.noticias[index].urlImagen,
-        onEditPressed: _abrirModalEdicion,
-        onDelete: () {
-          // Make sure to reload news after deletion
-          context.read<NoticiaBloc>().add(NoticiaRecargarEvent());
-        },
-      );
-    },
-  );
-}
   Widget _buildLoadingIndicator(bool isLoading) {
     return Visibility(
       visible: isLoading,

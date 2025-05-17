@@ -5,6 +5,7 @@ import 'package:afranco/bloc/counter_bloc/counter_bloc.dart';
 import 'package:afranco/bloc/noticia_bloc/noticia_bloc.dart';
 import 'package:afranco/bloc/preferencia_bloc/preferencia_bloc.dart';
 import 'package:afranco/di/locator.dart';
+import 'package:afranco/domain/comentario.dart';
 import 'package:flutter/material.dart';
 import 'package:afranco/views/login_screen.dart';
 import 'package:afranco/constants/constants.dart';
@@ -13,6 +14,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  ComentarioMapper.ensureInitialized();
   await dotenv.load(fileName: ".env");
   await initLocator();
 
@@ -38,6 +40,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         brightness: Brightness.light,
         colorScheme: const ColorScheme.light(
@@ -53,7 +56,7 @@ class MyApp extends StatelessWidget {
         textTheme: ThemeData.dark().textTheme.copyWith(
           bodyLarge: const TextStyle(color: Colors.white),
           bodyMedium: TextStyle(color: Colors.grey[300]),
-        ), // podés seguir personalizando lo que necesites
+        ), 
       ),
 
       themeMode: ThemeMode.light,

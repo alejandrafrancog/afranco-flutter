@@ -37,7 +37,7 @@ class ApiConstants {
   static String noticiasEndpoint = 'noticias';
   static String preferenciasEndpoint = 'preferencias';
   static String categoryEndpoint = 'categorias';
-  static String comentarioEndpoint = 'categorias';
+  static String comentarioEndpoint = 'comentarios';
   static String urlCategorias = '$baseUrl/$categoryEndpoint';
   static String urlNoticias = '$baseUrl/$noticiasEndpoint';
   static String urlPreferencias = '$baseUrl/$preferenciasEndpoint';

@@ -59,7 +59,7 @@ class CategoryCard extends StatelessWidget {
           category.nombre,
           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
         ),
-        subtitle: Text('${category.descripcion}'),
+        subtitle: Text(category.descripcion),
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [

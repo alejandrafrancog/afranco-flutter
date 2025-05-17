@@ -23,7 +23,6 @@ class AuthRepository {
       await _secureStorage.saveUserEmail(email);
       return true;
     } catch (e) {
-      print('Login error: $e');
       return false;
     }
   }

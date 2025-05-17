@@ -169,10 +169,7 @@ class ComentarioBloc extends Bloc<ComentarioEvent, ComentarioState> {
     }
   }
 
-  Future<void> _onAddReaccion(
-    AddReaccion event,
-    Emitter<ComentarioState> emit,
-  ) async {
+  Future<void> _onAddReaccion(AddReaccion event,Emitter<ComentarioState> emit,) async {
     try {
       // Guardamos el estado actual
       final currentState = state;
@@ -183,7 +180,6 @@ class ComentarioBloc extends Bloc<ComentarioEvent, ComentarioState> {
         final comentarioIndex = comentarios.indexWhere(
           (c) => c.id == event.comentarioId,
         );
-        print('\n\nComentario index: $comentarioIndex\n\n\n');
         // Si no encontramos el comentario, no hacemos nada
         // Si encontramos el comentario, actualizamos localmente antes de hacer la llamada API
         if (comentarioIndex != -1) {
@@ -229,7 +225,6 @@ class ComentarioBloc extends Bloc<ComentarioEvent, ComentarioState> {
 
       emit(ComentarioLoaded(comentariosList: comentariosActualizados));
     } catch (e) {
-      print('Error en _onAddReaccion: ${e.toString()}');
 
       // Si ocurre un error, intentamos recargar los comentarios para restaurar el estado
       try {
