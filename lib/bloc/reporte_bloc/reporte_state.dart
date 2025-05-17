@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+
 import 'package:afranco/domain/reporte.dart';
 
 abstract class ReporteState extends Equatable {
@@ -62,4 +63,26 @@ class ReportesPorNoticiaLoaded extends ReporteState {
 
   @override
   List<Object> get props => [reportes, noticiaId];
+}
+class ReporteSuccessWithData extends ReporteLoaded {
+  final String message;
+
+  ReporteSuccessWithData({
+    required List<Reporte> reportes,
+    required this.message,
+  }) : super(reportes, DateTime.now());
+
+  @override
+  List<Object> get props => [message, ...super.props];
+}
+class ReporteLoadedWithMessage extends ReporteLoaded {
+  final String message;
+
+  ReporteLoadedWithMessage({
+    required List<Reporte> reportes,
+    required this.message,
+  }) : super(reportes, DateTime.now());
+
+  @override
+  List<Object> get props => [message, ...super.props];
 }

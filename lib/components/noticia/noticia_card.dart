@@ -1,5 +1,8 @@
-import 'package:afranco/data/categoria_repository.dart';
+import 'package:afranco/bloc/reporte_bloc/reporte_bloc.dart';
+import 'package:afranco/bloc/reporte_bloc/reporte_event.dart';
+import 'package:afranco/components/reporte/reporte_modal.dart';
 import 'package:afranco/components/noticia/delete_noticia_modal.dart';
+import 'package:afranco/helpers/category_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:afranco/domain/noticia.dart';
 import 'package:afranco/noticias_estilos.dart';
@@ -13,11 +16,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 class NoticiaCard extends StatelessWidget {
   final Noticia noticia;
   final String imageUrl;
-  final CategoriaRepository repository = CategoriaRepository();
   final Function(Noticia) onEditPressed;
   final VoidCallback onDelete;
 
-  NoticiaCard({
+  const NoticiaCard({
     super.key,
     required this.noticia,
     required this.imageUrl,
@@ -62,11 +64,9 @@ class NoticiaCard extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(left: 20),
               child: FutureBuilder<String>(
-                future: noticia.obtenerNombreCategoria(
-                  repository.getCategorias(),
-                  noticia.categoryId,
-                ),
+                future: CategoryHelper.getCategoryName(noticia.categoryId),
                 builder: (context, snapshot) {
+                  // Mantener misma lógica pero ahora usando el cache
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Text(
                       "Cargando...",
@@ -80,7 +80,7 @@ class NoticiaCard extends StatelessWidget {
                     );
                   }
                   return Text(
-                    snapshot.data ?? "Sin Categoría",
+                    snapshot.data ?? "General",
                     style: NoticiaEstilos.fuenteNoticia,
                   );
                 },
@@ -183,10 +183,24 @@ class NoticiaCard extends StatelessWidget {
                       ),
                       IconButton(
                         icon: const Icon(Icons.flag, size: 24),
-                        tooltip: 'Compartir',
-                        onPressed: () {},
+                        tooltip: 'Reportar noticia',
+                        onPressed:
+                            () => showDialog(
+                              context: context,
+                              builder:
+                                  (context) => ReporteModal(
+                                    noticiaId: noticia.id,
+                                    onSubmit: (motivo) {
+                                      context.read<ReporteBloc>().add(
+                                        ReporteCreateEvent(
+                                          noticiaId: noticia.id,
+                                          motivo: motivo,
+                                        ),
+                                      );
+                                    },
+                                  ),
+                            ),
                       ),
-
                       PopupMenuButton<String>(
                         onSelected: (value) {
                           switch (value) {

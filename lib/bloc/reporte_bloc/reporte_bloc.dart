@@ -40,18 +40,27 @@ class ReporteBloc extends Bloc<ReporteEvent, ReporteState> {
     Emitter<ReporteState> emit,
   ) async {
     emit(ReporteLoading());
-
-    try {
-      final reporte = await reporteRepository.crearReporte(
-        noticiaId: event.noticiaId,
-        motivo: event.motivo,
-      );
-      emit(ReporteCreated(reporte!));
-
-      // Recargar la lista después de crear
-      final reportes = await reporteRepository.obtenerReportes();
-      emit(ReporteLoaded(reportes, DateTime.now()));
-    } catch (e) {
+      try {
+    final reporte = await reporteRepository.crearReporte(
+      noticiaId: event.noticiaId,
+      motivo: event.motivo,
+    );
+    
+    // 1. Emitir estado de creación exitosa primero
+    emit(ReporteCreated(reporte!));
+    
+    // 2. Mostrar feedback y luego actualizar datos
+    await Future.delayed(const Duration(milliseconds: 100)); // Breve pausa
+    final reportesActualizados = await reporteRepository.obtenerReportes();
+    
+    // 3. Emitir nuevo estado combinado
+    emit(ReporteLoadedWithMessage(
+      reportes: reportesActualizados,
+      message: 'Reporte creado exitosamente',
+    ));
+    
+  } catch (e) {
+      // Manejar error
       final int? statusCode = e is ApiException ? e.statusCode : null;
       emit(
         ReporteError(
@@ -61,6 +70,8 @@ class ReporteBloc extends Bloc<ReporteEvent, ReporteState> {
       );
     }
   }
+
+ 
 
   Future<void> _onDeleteReporte(
     ReporteDeleteEvent event,
