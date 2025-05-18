@@ -1,6 +1,7 @@
 import 'package:afranco/domain/categoria.dart';
 import 'package:afranco/core/category_cache_service.dart';
 import 'package:watch_it/watch_it.dart';
+import 'package:afranco/constants/constants.dart';
 
 /// Utilidad para trabajar con categorías en la aplicación
 class CategoryHelper {
@@ -12,16 +13,17 @@ class CategoryHelper {
       final List<Categoria> categorias = await categoryService.getCategories();
       return categorias.firstWhere(
         (categoria) => categoria.id == id,
-        orElse: () => throw Exception('Categoría no encontrada'),
+        orElse: () => throw Exception(CategoriaConstants.errorNoCategory),
       );
     } catch (e) {
       // Si ocurre un error o la categoría no existe, intentar refrescar la cache
       try {
         await categoryService.refreshCategories();
-        final List<Categoria> categorias = await categoryService.getCategories();
+        final List<Categoria> categorias =
+            await categoryService.getCategories();
         return categorias.firstWhere(
           (categoria) => categoria.id == id,
-          orElse: () => throw Exception('Categoría no encontrada'),
+          orElse: () => throw Exception(CategoriaConstants.errorNoCategory),
         );
       } catch (_) {
         return null; // No se encontró la categoría incluso después de refrescar
@@ -32,12 +34,12 @@ class CategoryHelper {
   /// Obtiene el nombre de una categoría por su ID
   /// Retorna "Sin categoría" si no se encuentra
   static Future<String> getCategoryName(String id) async {
-    if (id.isEmpty) return 'Sin categoría';
-    
+    if (id.isEmpty) return CategoriaConstants.sinCategoria;
+
     final categoria = await getCategoryById(id);
-    return categoria?.nombre ?? 'Sin categoría';
+    return categoria?.nombre ?? CategoriaConstants.sinCategoria;
   }
-  
+
   /// Verifica si hay categorías en caché
   static bool hasCachedCategories() {
     final categoryService = di<CategoryCacheService>();

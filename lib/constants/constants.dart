@@ -56,6 +56,7 @@ class CategoriaConstants{
   static String errorTimeout = 'Tiempo de espera agotado';
   static String errorNoCategory = 'Categoría no encontrada';
   static String defaultCategoryId = 'sin_categoria';
+  static String sinCategoria = 'Sin categoría';
   static const int timeOutSeconds = 10;
 }
 class NoticiaConstants {
