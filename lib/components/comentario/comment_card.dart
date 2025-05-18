@@ -5,7 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:afranco/bloc/comentario_bloc/comentario_bloc.dart';
 import 'package:afranco/bloc/comentario_bloc/comentario_event.dart';
 import 'package:afranco/domain/comentario.dart';
-import 'package:afranco/components/comentario/subcomment_card.dart'; 
+import 'package:afranco/components/comentario/subcomment_card.dart';
 
 class CommentCard extends StatelessWidget {
   final Comentario comentario;
@@ -21,8 +21,9 @@ class CommentCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fecha = DateFormat('dd/MM/yyyy HH:mm')
-        .format(DateTime.parse(comentario.fecha));
+    final fecha = DateFormat(
+      'dd/MM/yyyy HH:mm',
+    ).format(DateTime.parse(comentario.fecha));
 
     return Card(
       elevation: 2,
@@ -45,10 +46,7 @@ class CommentCard extends StatelessWidget {
                 const SizedBox(height: 8),
                 Text(comentario.texto),
                 const SizedBox(height: 8),
-                Text(
-                  fecha,
-                  style: NoticiaEstilos.fechaComentario,
-                ),
+                Text(fecha, style: NoticiaEstilos.fechaComentario),
                 const SizedBox(height: 4),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.start,
@@ -86,7 +84,11 @@ class CommentCard extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(horizontal: 8),
                         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       ),
-                      onPressed: () => onResponder(comentario.id ?? '', comentario.autor),
+                      onPressed:
+                          () => onResponder(
+                            comentario.id ?? '',
+                            comentario.autor,
+                          ),
                     ),
                   ],
                 ),
@@ -105,10 +107,12 @@ class CommentCard extends StatelessWidget {
               child: ListView.builder(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
-                itemCount: comentario.subcomentarios!.length,                itemBuilder: (context, index) => SubcommentCard(
-                  subcomentario: comentario.subcomentarios![index],
-                  noticiaId: noticiaId,
-                ),
+                itemCount: comentario.subcomentarios!.length,
+                itemBuilder:
+                    (context, index) => SubcommentCard(
+                      subcomentario: comentario.subcomentarios![index],
+                      noticiaId: noticiaId,
+                    ),
               ),
             ),
         ],

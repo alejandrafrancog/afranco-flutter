@@ -13,7 +13,7 @@ class Comentario with ComentarioMappable { // Añade el mixin generado
   final int dislikes;
   final List<Comentario>? subcomentarios;
   final bool isSubComentario;
-  final String? idSubComentario;
+  final String? idSubcomentario;
 
   Comentario({
     this.id,
@@ -25,6 +25,6 @@ class Comentario with ComentarioMappable { // Añade el mixin generado
     required this.dislikes,
     this.subcomentarios,
     this.isSubComentario = false,
-    this.idSubComentario,
+    this.idSubcomentario,
   });
 }

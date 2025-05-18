@@ -33,7 +33,11 @@ class ComentarioBloc extends Bloc<ComentarioEvent, ComentarioState> {
 
       emit(ComentarioLoaded(comentariosList: comentarios));
     } on ApiException catch (e) {
-      emit(ComentarioError(errorMessage: e.message ?? 'Error desconocido en ComentarioBloc'));
+      emit(
+        ComentarioError(
+          errorMessage: e.message ?? 'Error desconocido en ComentarioBloc',
+        ),
+      );
     } catch (e) {
       emit(
         ComentarioError(
@@ -169,7 +173,10 @@ class ComentarioBloc extends Bloc<ComentarioEvent, ComentarioState> {
     }
   }
 
-  Future<void> _onAddReaccion(AddReaccion event,Emitter<ComentarioState> emit,) async {
+  Future<void> _onAddReaccion(
+    AddReaccion event,
+    Emitter<ComentarioState> emit,
+  ) async {
     try {
       // Guardamos el estado actual
       final currentState = state;
@@ -225,7 +232,6 @@ class ComentarioBloc extends Bloc<ComentarioEvent, ComentarioState> {
 
       emit(ComentarioLoaded(comentariosList: comentariosActualizados));
     } catch (e) {
-
       // Si ocurre un error, intentamos recargar los comentarios para restaurar el estado
       try {
         final comentarios = await comentarioRepository

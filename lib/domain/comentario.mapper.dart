@@ -43,9 +43,9 @@ class ComentarioMapper extends ClassMapperBase<Comentario> {
   static bool _$isSubComentario(Comentario v) => v.isSubComentario;
   static const Field<Comentario, bool> _f$isSubComentario =
       Field('isSubComentario', _$isSubComentario, opt: true, def: false);
-  static String? _$idSubComentario(Comentario v) => v.idSubComentario;
-  static const Field<Comentario, String> _f$idSubComentario =
-      Field('idSubComentario', _$idSubComentario, opt: true);
+  static String? _$idSubcomentario(Comentario v) => v.idSubcomentario;
+  static const Field<Comentario, String> _f$idSubcomentario =
+      Field('idSubcomentario', _$idSubcomentario, opt: true);
 
   @override
   final MappableFields<Comentario> fields = const {
@@ -58,7 +58,7 @@ class ComentarioMapper extends ClassMapperBase<Comentario> {
     #dislikes: _f$dislikes,
     #subcomentarios: _f$subcomentarios,
     #isSubComentario: _f$isSubComentario,
-    #idSubComentario: _f$idSubComentario,
+    #idSubcomentario: _f$idSubcomentario,
   };
 
   static Comentario _instantiate(DecodingData data) {
@@ -72,7 +72,7 @@ class ComentarioMapper extends ClassMapperBase<Comentario> {
         dislikes: data.dec(_f$dislikes),
         subcomentarios: data.dec(_f$subcomentarios),
         isSubComentario: data.dec(_f$isSubComentario),
-        idSubComentario: data.dec(_f$idSubComentario));
+        idSubcomentario: data.dec(_f$idSubcomentario));
   }
 
   @override
@@ -139,7 +139,7 @@ abstract class ComentarioCopyWith<$R, $In extends Comentario, $Out>
       int? dislikes,
       List<Comentario>? subcomentarios,
       bool? isSubComentario,
-      String? idSubComentario});
+      String? idSubcomentario});
   ComentarioCopyWith<$R2, $In, $Out2> $chain<$R2, $Out2>(Then<$Out2, $R2> t);
 }
 
@@ -168,7 +168,7 @@ class _ComentarioCopyWithImpl<$R, $Out>
           int? dislikes,
           Object? subcomentarios = $none,
           bool? isSubComentario,
-          Object? idSubComentario = $none}) =>
+          Object? idSubcomentario = $none}) =>
       $apply(FieldCopyWithData({
         if (id != $none) #id: id,
         if (noticiaId != null) #noticiaId: noticiaId,
@@ -179,7 +179,7 @@ class _ComentarioCopyWithImpl<$R, $Out>
         if (dislikes != null) #dislikes: dislikes,
         if (subcomentarios != $none) #subcomentarios: subcomentarios,
         if (isSubComentario != null) #isSubComentario: isSubComentario,
-        if (idSubComentario != $none) #idSubComentario: idSubComentario
+        if (idSubcomentario != $none) #idSubcomentario: idSubcomentario
       }));
   @override
   Comentario $make(CopyWithData data) => Comentario(
@@ -192,7 +192,7 @@ class _ComentarioCopyWithImpl<$R, $Out>
       dislikes: data.get(#dislikes, or: $value.dislikes),
       subcomentarios: data.get(#subcomentarios, or: $value.subcomentarios),
       isSubComentario: data.get(#isSubComentario, or: $value.isSubComentario),
-      idSubComentario: data.get(#idSubComentario, or: $value.idSubComentario));
+      idSubcomentario: data.get(#idSubcomentario, or: $value.idSubcomentario));
 
   @override
   ComentarioCopyWith<$R2, Comentario, $Out2> $chain<$R2, $Out2>(

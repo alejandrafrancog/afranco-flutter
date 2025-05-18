@@ -4,13 +4,13 @@ import 'package:afranco/constants/constants.dart';
 import 'package:afranco/domain/comentario.dart';
 import 'package:dio/dio.dart';
 import 'package:afranco/exceptions/api_exception.dart';
+import 'package:flutter/material.dart';
 
 class ComentarioService {
   final Dio dio = Dio();
 
   Future<void> _verificarNoticiaExiste(String noticiaId) async {
     try {
-      //final response = await dio.get('$baseUrl$noticiasEndpoint/$noticiaId');
       final response = await dio.get('${ApiConstants.urlNoticias}/$noticiaId');
       if (response.statusCode != 200) {
         throw ApiException(
@@ -163,73 +163,61 @@ class ComentarioService {
 
       final List<dynamic> comentarios = response.data as List<dynamic>;
 
-      // Buscar si es un comentario principal
-      final comentarioIndex = comentarios.indexWhere(
-        (c) => c['id'] == comentarioId,
-      );
-      if (comentarioIndex != -1) {
-        Map<String, dynamic> comentarioActualizado = Map<String, dynamic>.from(
-          comentarios[comentarioIndex],
+      // Buscar tanto en comentarios principales como en subcomentarios
+      bool encontrado = false;
+
+      for (final comentario in comentarios) {
+        // Caso 1: Es un comentario principal
+        if (comentario['id'] == comentarioId) {
+          final comentarioActualizado = Map<String, dynamic>.from(comentario);
+
+          _aplicarReaccion(comentarioActualizado, tipoReaccion);
+
+          await dio.put(
+            '${ApiConstants.comentariosUrl}/$comentarioId',
+            data: comentarioActualizado,
+          );
+          encontrado = true;
+          break;
+        }
+
+        // Caso 2: Buscar en subcomentarios
+        final subcomentarios = _parsearSubcomentarios(
+          comentario['subcomentarios'],
         );
 
-        int currentLikes = comentarioActualizado['likes'] ?? 0;
-        int currentDislikes = comentarioActualizado['dislikes'] ?? 0;
+        for (final sub in subcomentarios) {
+          if (sub is Map && sub['id'] == comentarioId) {
+            final subcomentarioActualizado = Map<String, dynamic>.from(sub);
 
-        await dio.put(
-          '${ApiConstants.comentariosUrl}/$comentarioId',
-          data: {
-            'noticiaId': comentarioActualizado['noticiaId'],
-            'texto': comentarioActualizado['texto'],
-            'fecha': comentarioActualizado['fecha'],
-            'autor': comentarioActualizado['autor'],
-            'likes': tipoReaccion == 'like' ? currentLikes + 1 : currentLikes,
-            'dislikes':
-                tipoReaccion == 'dislike'
-                    ? currentDislikes + 1
-                    : currentDislikes,
-            'subcomentarios': comentarioActualizado['subcomentarios'] ?? [],
-            'isSubComentario':
-                comentarioActualizado['isSubComentario'] ?? false,
-          },
-        );
-        return;
-      }
+            _aplicarReaccion(subcomentarioActualizado, tipoReaccion);
 
-      // Buscar en subcomentarios
-      for (int i = 0; i < comentarios.length; i++) {
-        final comentarioPrincipal = Map<String, dynamic>.from(comentarios[i]);
-        final List<dynamic> subcomentarios = List<dynamic>.from(
-          comentarioPrincipal['subcomentarios'] ?? [],
-        );
-
-        for (int j = 0; j < subcomentarios.length; j++) {
-          final subcomentario = Map<String, dynamic>.from(subcomentarios[j]);
-
-          if (subcomentario['id'] == comentarioId) {
-            int currentLikes = subcomentario['likes'] ?? 0;
-            int currentDislikes = subcomentario['dislikes'] ?? 0;
-
-            subcomentario['likes'] =
-                tipoReaccion == 'like' ? currentLikes + 1 : currentLikes;
-            subcomentario['dislikes'] =
-                tipoReaccion == 'dislike'
-                    ? currentDislikes + 1
-                    : currentDislikes;
-
-            subcomentarios[j] = subcomentario;
-
-            comentarioPrincipal['subcomentarios'] = subcomentarios;
+            // Actualizar lista de subcomentarios del comentario principal
+            final comentarioActualizado = Map<String, dynamic>.from(comentario);
+            comentarioActualizado['subcomentarios'] =
+                subcomentarios
+                    .map((s) => s == sub ? subcomentarioActualizado : s)
+                    .toList();
 
             await dio.put(
-              '${ApiConstants.comentariosUrl}/${comentarioPrincipal['id']}',
-              data: comentarioPrincipal,
+              '${ApiConstants.comentariosUrl}/${comentario['id']}',
+              data: comentarioActualizado,
             );
-            return;
+
+            encontrado = true;
+            break;
           }
         }
+
+        if (encontrado) break;
       }
 
-      throw ApiException(message: ApiConstants.errorNotFound, statusCode: 404);
+      if (!encontrado) {
+        throw ApiException(
+          message: ApiConstants.errorNotFound,
+          statusCode: 404,
+        );
+      }
     } on DioException catch (e) {
       if (e.type == DioExceptionType.connectionTimeout ||
           e.type == DioExceptionType.receiveTimeout) {
@@ -243,14 +231,35 @@ class ComentarioService {
           statusCode: 404,
         );
       } else {
+        debugPrint('Error DioException: ${e.message}, ${e.response?.data}');
         throw ApiException(
           message: ApiConstants.serverError,
           statusCode: e.response?.statusCode,
         );
       }
     } catch (e) {
+      debugPrint('Error general al reaccionar al comentario: $e');
       throw ApiException(message: ApiConstants.serverError, statusCode: null);
     }
+  }
+
+  // Helper para parsear subcomentarios
+  List<dynamic> _parsearSubcomentarios(dynamic subcomentarios) {
+    if (subcomentarios is String) {
+      try {
+        return jsonDecode(subcomentarios) as List<dynamic>;
+      } catch (e) {
+        debugPrint('Error parseando subcomentarios: $e');
+        return [];
+      }
+    }
+    return List<dynamic>.from(subcomentarios ?? []);
+  }
+
+  // Helper para aplicar likes/dislikes
+  void _aplicarReaccion(Map<String, dynamic> comentario, String tipoReaccion) {
+    final clave = tipoReaccion == 'like' ? 'likes' : 'dislikes';
+    comentario[clave] = (comentario[clave] ?? 0) + 1;
   }
 
   Future<Map<String, dynamic>> agregarSubcomentario({
@@ -291,7 +300,7 @@ class ComentarioService {
         dislikes: 0,
         subcomentarios: [],
         isSubComentario: true,
-        idSubComentario: comentarioId,
+        idSubcomentario: comentarioData['idSubcomentario'],
       );
 
       // Obtener y validar subcomentarios existentes
