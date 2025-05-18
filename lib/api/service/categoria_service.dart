@@ -14,7 +14,6 @@ class CategoriaService extends BaseService {
   /// Obtiene todas las categorías de la API
   Future<List<Categoria>> getCategorias() async {
     try {
-      debugPrint('📋 Obteniendo lista de categorías');
       final data = await get(_baseUrl, requireAuthToken: false);
       
       if (data is List) {
@@ -34,7 +33,6 @@ class CategoriaService extends BaseService {
       if (e is ApiException) {
         rethrow;
       }
-      debugPrint('❌ Error inesperado en getCategorias: ${e.toString()}');
       throw ApiException(message: "Error al obtener categorías: $e", statusCode: 500);
     }
   }
@@ -42,19 +40,16 @@ class CategoriaService extends BaseService {
   /// Crea una nueva categoría en la API
   Future<void> crearCategoria(Map<String, dynamic> categoria) async {
     try {
-      debugPrint('➕ Creando nueva categoría');
       await post(
         _baseUrl,
         data: categoria,
         requireAuthToken: true,
       );
       
-      debugPrint('✅ Categoría creada con éxito');
     } catch (e) {
       if (e is ApiException) {
         rethrow;
       }
-      debugPrint('❌ Error inesperado en crearCategoria: ${e.toString()}');
       throw ApiException(message: 'Error al crear la categoría: $e', statusCode: 500);
     }
   }
@@ -67,7 +62,6 @@ class CategoriaService extends BaseService {
         throw ApiException(message: 'ID de categoría inválido', statusCode: 400);
       }
       
-      debugPrint('🔄 Editando categoría con ID: $id');
       final url = '$_baseUrl/$id';
       
       await put(
@@ -76,12 +70,10 @@ class CategoriaService extends BaseService {
         requireAuthToken: true,
       );
       
-      debugPrint('✅ Categoría editada correctamente');
     } catch (e) {
       if (e is ApiException) {
         rethrow;
       }
-      debugPrint('❌ Error inesperado en editarCategoria: ${e.toString()}');
       throw ApiException(message: 'Error al editar la categoría: $e', statusCode: 500);
     }
   }
@@ -94,17 +86,14 @@ class CategoriaService extends BaseService {
         throw ApiException(message: 'ID de categoría inválido', statusCode: 400);
       }
       
-      debugPrint('🗑️ Eliminando categoría con ID: $id');
       final url = '$_baseUrl/$id';
       
       await delete(url, requireAuthToken: true);
       
-      debugPrint('✅ Categoría eliminada correctamente');
     } catch (e) {
       if (e is ApiException) {
         rethrow;
       }
-      debugPrint('❌ Error inesperado en eliminarCategoria: ${e.toString()}');
       throw ApiException(message: 'Error al eliminar la categoría: $e', statusCode: 500);
     }
   }
@@ -112,20 +101,17 @@ class CategoriaService extends BaseService {
   /// Crea una categoría y retorna el objeto creado
   Future<Categoria> createCategoria(Categoria category) async {
     try {
-      debugPrint('➕ Creando categoría mediante modelo');
       final data = await post(
         _baseUrl,
         data: category.toJson(),
         requireAuthToken: true,
       );
       
-      debugPrint('✅ Categoría creada con éxito');
       return CategoriaMapper.fromMap(data);
     } catch (e) {
       if (e is ApiException) {
         rethrow;
       }
-      debugPrint('❌ Error inesperado en createCategoria: ${e.toString()}');
       throw ApiException(message: 'Error creando categoría: $e', statusCode: 500);
     }
   }
@@ -138,20 +124,17 @@ class CategoriaService extends BaseService {
         throw ApiException(message: 'ID de categoría inválido', statusCode: 400);
       }
       
-      debugPrint('🔄 Actualizando categoría con ID: ${category.id}');
       final data = await put(
         '$_baseUrl/${category.id}',
         data: category.toJson(),
         requireAuthToken: true,
       );
       
-      debugPrint('✅ Categoría actualizada con éxito');
       return CategoriaMapper.fromMap(data);
     } catch (e) {
       if (e is ApiException) {
         rethrow;
       }
-      debugPrint('❌ Error inesperado en updateCategoria: ${e.toString()}');
       throw ApiException(message: 'Error actualizando categoría: $e', statusCode: 500);
     }
   }
