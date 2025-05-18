@@ -1,84 +1,55 @@
 import 'dart:convert';
-
 import 'package:afranco/constants/constants.dart';
 import 'package:afranco/domain/comentario.dart';
-import 'package:dio/dio.dart';
 import 'package:afranco/exceptions/api_exception.dart';
-import 'package:flutter/material.dart';
+import 'package:afranco/api/service/base_service.dart';
+import 'package:flutter/foundation.dart';
 
-class ComentarioService {
-  final Dio dio = Dio();
+class ComentarioService extends BaseService {
+  ComentarioService() : super();
 
   Future<void> _verificarNoticiaExiste(String noticiaId) async {
     try {
-      final response = await dio.get('${ApiConstants.urlNoticias}/$noticiaId');
-      if (response.statusCode != 200) {
-        throw ApiException(
-          message: ApiConstants.errorNotFound,
-          statusCode: response.statusCode,
-        );
-      }
-    } on DioException catch (e) {
-      if (e.type == DioExceptionType.connectionTimeout ||
-          e.type == DioExceptionType.receiveTimeout) {
-        throw ApiException(
-          message: ApiConstants.errorTimeout,
-          statusCode: e.response?.statusCode,
-        );
-      } else if (e.response?.statusCode == 404) {
+      await get(
+        '${ApiConstants.urlNoticias}/$noticiaId',
+        requireAuthToken: false,
+      );
+    } on ApiException catch (e) {
+      if (e.statusCode == 404) {
         throw ApiException(
           message: ApiConstants.errorNotFound,
           statusCode: 404,
         );
-      } else {
-        throw ApiException(
-          message: ApiConstants.serverError,
-          statusCode: e.response?.statusCode,
-        );
       }
+      rethrow;
     }
   }
 
-  /// Obtener comentarios por ID de noticia
-  ///
-  Future<List<Comentario>> obtenerComentariosPorNoticia(
-    String noticiaId,
-  ) async {
+  Future<List<Comentario>> obtenerComentariosPorNoticia(String noticiaId) async {
     try {
-      final response = await dio.get(ApiConstants.comentariosUrl);
-      final data = response.data as List<dynamic>;
-
-      final comentarios =
-          data.where((json) => json['noticiaId'] == noticiaId).map((json) {
-            // Convertir subcomentarios de String a Map si es necesario
+      final data = await get(
+        ApiConstants.comentariosUrl,
+        requireAuthToken: false,
+      );
+      final comentarios = (data as List)
+          .where((json) => json['noticiaId'] == noticiaId)
+          .map((json) {
             if (json['subcomentarios'] != null) {
-              json['subcomentarios'] =
-                  (json['subcomentarios'] as List<dynamic>)
-                      .map((sub) => sub is String ? jsonDecode(sub) : sub)
-                      .toList();
+              json['subcomentarios'] = _parsearSubcomentarios(json['subcomentarios']);
             }
             return ComentarioMapper.fromMap(json);
-          }).toList();
+          })
+          .toList();
 
       return comentarios;
-    } on DioException catch (e) {
-      if (e.type == DioExceptionType.connectionTimeout ||
-          e.type == DioExceptionType.receiveTimeout) {
-        throw ApiException(
-          message: ApiConstants.errorTimeout,
-          statusCode: e.response?.statusCode,
-        );
-      } else {
-        throw ApiException(
-          message: ApiConstants.serverError,
-          statusCode: e.response?.statusCode,
-        );
-      }
-      // Manejo de errores
+    } on ApiException {
+      rethrow;
+    } catch (e) {
+      debugPrint('Error inesperado: $e');
+      throw ApiException(message: 'Error obteniendo comentarios', statusCode: 500);
     }
   }
 
-  /// Agrega un comentario nuevo a una noticia existente
   Future<void> agregarComentario(
     String noticiaId,
     String texto,
@@ -96,54 +67,34 @@ class ComentarioService {
       likes: 0,
       dislikes: 0,
       subcomentarios: [],
-      isSubComentario: false, // Inicializar como lista vacía
+      isSubComentario: false,
     );
 
     try {
-      await dio.post(
+      await post(
         ApiConstants.comentariosUrl,
         data: nuevoComentario.toMap(),
-        options: Options(headers: {'Content-Type': 'application/json'}),
+        requireAuthToken: true,
       );
-    } on DioException catch (e) {
-      if (e.type == DioExceptionType.connectionTimeout ||
-          e.type == DioExceptionType.receiveTimeout) {
-        throw ApiException(
-          message: ApiConstants.errorTimeout,
-          statusCode: e.response?.statusCode,
-        );
-      } else {
-        throw ApiException(
-          message: ApiConstants.serverError,
-          statusCode: e.response?.statusCode,
-        );
-      }
+    } on ApiException {
+      rethrow;
+    } catch (e) {
+      debugPrint('Error agregando comentario: $e');
+      throw ApiException(message: 'Error agregando comentario', statusCode: 500);
     }
   }
 
   Future<int> obtenerNumeroComentarios(String noticiaId) async {
     try {
-      final response = await dio.get(ApiConstants.comentariosUrl);
-      final data = response.data as List<dynamic>;
-
-      final comentariosCount =
-          data.where((json) => json['noticiaId'] == noticiaId).length;
-
-      return comentariosCount;
-    } on DioException catch (e) {
-      if (e.type == DioExceptionType.connectionTimeout ||
-          e.type == DioExceptionType.receiveTimeout) {
-        throw ApiException(
-          message: ApiConstants.errorTimeout,
-          statusCode: e.response?.statusCode,
-        );
-      } else {
-        throw ApiException(
-          message: ApiConstants.serverError,
-          statusCode: e.response?.statusCode,
-        );
-      }
+      final data = await get(
+        ApiConstants.comentariosUrl,
+        requireAuthToken: false,
+      );
+      return (data as List).where((json) => json['noticiaId'] == noticiaId).length;
+    } on ApiException {
+      rethrow;
     } catch (e) {
+      debugPrint('Error contando comentarios: $e');
       return 0;
     }
   }
@@ -153,113 +104,53 @@ class ComentarioService {
     required String tipoReaccion,
   }) async {
     try {
-      final response = await dio.get(ApiConstants.comentariosUrl);
-      if (response.statusCode != 200) {
-        throw ApiException(
-          message: ApiConstants.serverError,
-          statusCode: response.statusCode,
-        );
-      }
-
-      final List<dynamic> comentarios = response.data as List<dynamic>;
-
-      // Buscar tanto en comentarios principales como en subcomentarios
+      final data = await get(
+        ApiConstants.comentariosUrl,
+        requireAuthToken: false,
+      );
+      final comentarios = data as List;
       bool encontrado = false;
 
       for (final comentario in comentarios) {
-        // Caso 1: Es un comentario principal
         if (comentario['id'] == comentarioId) {
-          final comentarioActualizado = Map<String, dynamic>.from(comentario);
-
-          _aplicarReaccion(comentarioActualizado, tipoReaccion);
-
-          await dio.put(
+          final actualizado = _aplicarReaccion(comentario, tipoReaccion);
+          await put(
             '${ApiConstants.comentariosUrl}/$comentarioId',
-            data: comentarioActualizado,
+            data: actualizado,
+            requireAuthToken: true,
           );
           encontrado = true;
           break;
         }
 
-        // Caso 2: Buscar en subcomentarios
-        final subcomentarios = _parsearSubcomentarios(
-          comentario['subcomentarios'],
-        );
-
+        final subcomentarios = _parsearSubcomentarios(comentario['subcomentarios']);
         for (final sub in subcomentarios) {
-          if (sub is Map && sub['id'] == comentarioId) {
-            final subcomentarioActualizado = Map<String, dynamic>.from(sub);
-
-            _aplicarReaccion(subcomentarioActualizado, tipoReaccion);
-
-            // Actualizar lista de subcomentarios del comentario principal
-            final comentarioActualizado = Map<String, dynamic>.from(comentario);
-            comentarioActualizado['subcomentarios'] =
-                subcomentarios
-                    .map((s) => s == sub ? subcomentarioActualizado : s)
-                    .toList();
-
-            await dio.put(
+          if (sub['id'] == comentarioId) {
+            final subActualizado = _aplicarReaccion(sub, tipoReaccion);
+            final comentarioActualizado = {
+              ...comentario,
+              'subcomentarios': subcomentarios.map((s) => s == sub ? subActualizado : s).toList()
+            };
+            
+            await put(
               '${ApiConstants.comentariosUrl}/${comentario['id']}',
               data: comentarioActualizado,
+              requireAuthToken: true,
             );
-
             encontrado = true;
             break;
           }
         }
-
         if (encontrado) break;
       }
 
-      if (!encontrado) {
-        throw ApiException(
-          message: ApiConstants.errorNotFound,
-          statusCode: 404,
-        );
-      }
-    } on DioException catch (e) {
-      if (e.type == DioExceptionType.connectionTimeout ||
-          e.type == DioExceptionType.receiveTimeout) {
-        throw ApiException(
-          message: ApiConstants.errorTimeout,
-          statusCode: e.response?.statusCode,
-        );
-      } else if (e.response?.statusCode == 404) {
-        throw ApiException(
-          message: ApiConstants.errorNotFound,
-          statusCode: 404,
-        );
-      } else {
-        debugPrint('Error DioException: ${e.message}, ${e.response?.data}');
-        throw ApiException(
-          message: ApiConstants.serverError,
-          statusCode: e.response?.statusCode,
-        );
-      }
+      if (!encontrado) throw ApiException(message: 'Comentario no encontrado', statusCode: 404);
+    } on ApiException {
+      rethrow;
     } catch (e) {
-      debugPrint('Error general al reaccionar al comentario: $e');
-      throw ApiException(message: ApiConstants.serverError, statusCode: null);
+      debugPrint('Error en reacción: $e');
+      throw ApiException(message: 'Error procesando reacción', statusCode: 500);
     }
-  }
-
-  // Helper para parsear subcomentarios
-  List<dynamic> _parsearSubcomentarios(dynamic subcomentarios) {
-    if (subcomentarios is String) {
-      try {
-        return jsonDecode(subcomentarios) as List<dynamic>;
-      } catch (e) {
-        debugPrint('Error parseando subcomentarios: $e');
-        return [];
-      }
-    }
-    return List<dynamic>.from(subcomentarios ?? []);
-  }
-
-  // Helper para aplicar likes/dislikes
-  void _aplicarReaccion(Map<String, dynamic> comentario, String tipoReaccion) {
-    final clave = tipoReaccion == 'like' ? 'likes' : 'dislikes';
-    comentario[clave] = (comentario[clave] ?? 0) + 1;
   }
 
   Future<Map<String, dynamic>> agregarSubcomentario({
@@ -268,28 +159,18 @@ class ComentarioService {
     required String autor,
   }) async {
     try {
-      final response = await dio.get(
+      final data = await get(
         '${ApiConstants.comentariosUrl}/$comentarioId',
+        requireAuthToken: false,
       );
-      if (response.statusCode != 200) {
-        return {
-          'success': false,
-          'message': 'Comentario principal no encontrado',
-        };
-      }
+      final comentarioData = data as Map<String, dynamic>;
 
-      final comentarioData = response.data as Map<String, dynamic>;
-
-      // Verificar si el comentario principal es un subcomentario
       if (comentarioData['isSubComentario'] == true) {
         return {
           'success': false,
-          'message':
-              'No se pueden añadir subcomentarios a otros subcomentarios',
-        };
+          'message': 'No se pueden añadir subcomentarios a otros subcomentarios'};
       }
 
-      // Crear nuevo subcomentario
       final nuevoSubcomentario = Comentario(
         id: 'sub_${DateTime.now().millisecondsSinceEpoch}_${texto.hashCode}',
         noticiaId: comentarioData['noticiaId'],
@@ -303,51 +184,36 @@ class ComentarioService {
         idSubcomentario: comentarioData['idSubcomentario'],
       );
 
-      // Obtener y validar subcomentarios existentes
-      final subcomentariosActuales =
-          (comentarioData['subcomentarios'] as List<dynamic>?)
-              ?.map(
-                (sub) => sub is String ? jsonDecode(sub) : sub,
-              ) // 👈 Convertir Strings a Maps
-              .toList() ??
-          [];
-
-      // Añadir nuevo subcomentario como Map
+      final subcomentariosActuales = _parsearSubcomentarios(comentarioData['subcomentarios']);
       subcomentariosActuales.add(nuevoSubcomentario.toMap());
 
-      // Actualizar comentario principal
-      await dio.put(
+      await put(
         '${ApiConstants.comentariosUrl}/$comentarioId',
         data: {...comentarioData, 'subcomentarios': subcomentariosActuales},
-        options: Options(headers: {'Content-Type': 'application/json'}),
+        requireAuthToken: true,
       );
 
-      return {
-        'success': true,
-        'message': 'Subcomentario agregado correctamente',
-      };
-    } on DioException catch (e) {
-      _handleDioError(e);
+      return {'success': true, 'message': 'Subcomentario agregado correctamente'};
+    } on ApiException catch (e) {
+      return {'success': false, 'message': e.message};
     } catch (e) {
       return {'success': false, 'message': 'Error inesperado: ${e.toString()}'};
     }
-    return {'success': false, 'message': 'Error inesperado'};
   }
 
-  Map<String, dynamic> _handleDioError(DioException e) {
-    if (e.type == DioExceptionType.connectionTimeout ||
-        e.type == DioExceptionType.receiveTimeout) {
-      return {'success': false, 'message': ApiConstants.errorTimeout};
+  List<dynamic> _parsearSubcomentarios(dynamic subcomentarios) {
+    if (subcomentarios is String) {
+      try {
+        return jsonDecode(subcomentarios) as List<dynamic>;
+      } catch (e) {
+        return [];
+      }
     }
+    return List<dynamic>.from(subcomentarios ?? []);
+  }
 
-    if (e.response?.statusCode == 404) {
-      return {'success': false, 'message': ApiConstants.errorNotFound};
-    }
-
-    return {
-      'success': false,
-      'message': '${ApiConstants.serverError}: ${e.message}',
-      'statusCode': e.response?.statusCode,
-    };
+  Map<String, dynamic> _aplicarReaccion(Map<String, dynamic> comentario, String tipoReaccion) {
+    final clave = tipoReaccion == 'like' ? 'likes' : 'dislikes';
+    return {...comentario, clave: (comentario[clave] ?? 0) + 1};
   }
 }
