@@ -2,6 +2,7 @@ import 'package:afranco/bloc/reporte_bloc/reporte_bloc.dart';
 import 'package:afranco/bloc/reporte_bloc/reporte_event.dart';
 import 'package:afranco/components/reporte/reporte_modal.dart';
 import 'package:afranco/components/noticia/delete_noticia_modal.dart';
+import 'package:afranco/data/comentario_repository.dart';
 import 'package:afranco/helpers/category_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:afranco/domain/noticia.dart';
@@ -32,11 +33,18 @@ class NoticiaCard extends StatelessWidget {
     return Container(
       margin: NoticiaEstilos.margenCard,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(15),
+        borderRadius: BorderRadius.circular(25),
         color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withAlpha(128),
+            blurRadius: 20,
+            offset: const Offset(0, 5),
+          ),
+        ],
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(15),
+        borderRadius: BorderRadius.circular(25),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -51,39 +59,57 @@ class NoticiaCard extends StatelessWidget {
               ),
             ),
 
+            // Categoría
+            Padding(
+              padding: const EdgeInsets.only(left: 20),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: const Color(0xFFEDF6F9),
+                  border: Border.all(color: const Color(0xFFEDF6F9), width: 2),
+                  borderRadius: BorderRadius.circular(82),
+                  /*boxShadow: [
+                    BoxShadow(
+                      color: const Color.fromARGB(255, 161, 207, 228)
+                          .withAlpha(100),
+                      blurRadius: 2,
+                      offset: const Offset(0, 5),
+                    ),
+                  ],*/
+                ),
+                child: FutureBuilder<String>(
+                  future: CategoryHelper.getCategoryName(noticia.categoryId),
+                  builder: (context, snapshot) {
+                    // Mantener misma lógica pero ahora usando el cache
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Text(
+                        "Cargando...",
+                        style: NoticiaEstilos.fuenteNoticia,
+                      );
+                    }
+                    if (snapshot.hasError) {
+                      return Text(
+                        "Error: ${snapshot.error}",
+                        style: NoticiaEstilos.fuenteNoticia,
+                      );
+                    }
+                    return Text(
+                      snapshot.data ?? "General",
+                      style: const TextStyle(
+                        color: Color(0xFF006D77),
+                        fontWeight: FontWeight.bold,
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
+
             // Fecha
             Padding(
               padding: const EdgeInsets.only(left: 20),
               child: Text(
                 '${noticia.publicadaEl.day}/${noticia.publicadaEl.month}/${noticia.publicadaEl.year}',
                 style: NoticiaEstilos.fuenteNoticia,
-              ),
-            ),
-
-            // Categoría
-            Padding(
-              padding: const EdgeInsets.only(left: 20),
-              child: FutureBuilder<String>(
-                future: CategoryHelper.getCategoryName(noticia.categoryId),
-                builder: (context, snapshot) {
-                  // Mantener misma lógica pero ahora usando el cache
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Text(
-                      "Cargando...",
-                      style: NoticiaEstilos.fuenteNoticia,
-                    );
-                  }
-                  if (snapshot.hasError) {
-                    return Text(
-                      "Error: ${snapshot.error}",
-                      style: NoticiaEstilos.fuenteNoticia,
-                    );
-                  }
-                  return Text(
-                    snapshot.data ?? "General",
-                    style: NoticiaEstilos.fuenteNoticia,
-                  );
-                },
               ),
             ),
 
@@ -95,13 +121,13 @@ class NoticiaCard extends StatelessWidget {
                 children: [
                   // Texto
                   Expanded(
-                    flex: 2,
+                    flex: 1,
                     child: Padding(
                       padding: const EdgeInsets.only(right: 12),
                       child: Text(
                         noticia.descripcion,
                         style: NoticiaEstilos.descripcionNoticia,
-                        maxLines: 5,
+                        maxLines: 3,
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
@@ -109,7 +135,7 @@ class NoticiaCard extends StatelessWidget {
 
                   // Imagen
                   Expanded(
-                    flex: 2,
+                    flex: 1,
                     child: Container(
                       height: 100,
                       decoration: BoxDecoration(
@@ -117,6 +143,7 @@ class NoticiaCard extends StatelessWidget {
                         image: DecorationImage(
                           image: NetworkImage(imageUrl),
                           fit: BoxFit.cover,
+                          matchTextDirection: true,
                         ),
                       ),
                     ),
@@ -139,6 +166,13 @@ class NoticiaCard extends StatelessWidget {
                   Expanded(
                     child: Row(
                       children: [
+                        const Icon(
+                          Icons.source,
+                          size: 16,
+                          color: Colors.grey,
+                          weight: 100,
+                        ),
+                        const SizedBox(width: 3),
                         Flexible(
                           child: Text(
                             noticia.fuente,
@@ -149,6 +183,14 @@ class NoticiaCard extends StatelessWidget {
                         ),
 
                         const SizedBox(width: 8),
+                        Icon(
+                          Icons.access_time,
+                          size: 16,
+                          color: Colors.grey[600],
+                          weight: 100,
+                        ),
+                        const SizedBox(width: 3),
+
                         Text(
                           "${noticia.tiempoLectura} min",
                           style: NoticiaEstilos.fuenteNoticia,
@@ -161,16 +203,30 @@ class NoticiaCard extends StatelessWidget {
                   Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
+                      // En la sección de iconos de NoticiaCard
                       IconButton(
-                        icon: const Icon(Icons.comment, size: 24),
+                        icon: Row(
+                          children: [
+                            FutureBuilder<int>(
+                              future: ComentarioRepository()
+                                  .obtenerNumeroComentarios(noticia.id),
+                              builder: (context, snapshot) {
+                                final count = snapshot.data ?? 0;
+                                return Text(
+                                  '$count',
+                                  style: NoticiaEstilos.fuenteNoticia,
+                                );
+                              },
+                            ),
+                            const SizedBox(width: 4),
+                            const Icon(Icons.comment, size: 24),
+                          ],
+                        ),
                         tooltip: 'Comentarios',
                         onPressed: () {
-                          // Disparamos el evento para cargar los comentarios de esta noticia
                           context.read<ComentarioBloc>().add(
                             LoadComentarios(noticiaId: noticia.id),
                           );
-
-                          // Navegamos a la pantalla de comentarios
                           Navigator.push(
                             context,
                             MaterialPageRoute(

@@ -1,3 +1,4 @@
+import 'package:afranco/noticias_estilos.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:afranco/bloc/auth_bloc/auth_bloc.dart';
@@ -46,19 +47,26 @@ class _LoginScreenState extends State<LoginScreen> {
         },
         builder: (context, state) {
           return Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(22.0),
             child: Form(
               key: _formKey,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // Título con emoji y estilo mejorado
-                  Text(
-                    "🔐 Iniciar Sesión",
+                  
+                  const Center(
+                    child: Icon(
+                      Icons.person,
+                      size: 50,
+                      color: Color.fromARGB(255, 3, 65, 65),
+                    ),
+                  ),
+                  const Text(
+                    "Iniciar Sesión",
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
-                      fontSize: 40,
-                      color: Theme.of(context).colorScheme.primary,
+                      fontSize: 45,
+                      color:  Color.fromARGB(255, 8, 71, 71),
                     ),
                   ),
                   const SizedBox(height: 26),
@@ -68,7 +76,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     controller: _usernameController,
                     decoration: const InputDecoration(
                       labelText: 'Usuario',
-                      border: OutlineInputBorder(),
+                      border:OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(20)),
+                      ),
                     ),
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
@@ -77,14 +87,16 @@ class _LoginScreenState extends State<LoginScreen> {
                       return null;
                     },
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 26),
 
                   // Campo de Contraseña
                   TextFormField(
                     controller: _passwordController,
                     decoration: const InputDecoration(
                       labelText: 'Contraseña',
-                      border: OutlineInputBorder(),
+                      border:OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(20)),
+                      ),
                     ),
                     obscureText: true,
                     validator: (value) {
@@ -100,6 +112,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   state is AuthLoading
                       ? const CircularProgressIndicator()
                       : ElevatedButton(
+                        style: NoticiaEstilos.estiloBotonInicioSesion(context),
+                        //clipBehavior: Clip.antiAlias,
                           onPressed: () {
                             // Validar el formulario
                             if (_formKey.currentState?.validate() ?? false) {

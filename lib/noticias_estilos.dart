@@ -9,8 +9,10 @@ class NoticiaEstilos {
   static const margenCard = EdgeInsets.symmetric(horizontal: 16, vertical: 8);
 
   static const TextStyle tituloNoticia = TextStyle(
-    fontSize: 18,
-    fontWeight: FontWeight.bold,
+    fontSize: 22,
+    fontWeight: FontWeight.w900,
+    overflow: TextOverflow.ellipsis,
+    color: Color.fromARGB(255, 1, 63, 57),
   );
 
   static const TextStyle descripcionNoticia = TextStyle(
@@ -70,6 +72,23 @@ class NoticiaEstilos {
     fontWeight: FontWeight.bold,
     fontSize: 20,
   );
+  static const TextStyle categoriaEstilo = TextStyle(
+    color: Color(0xFF006D77),
+    fontWeight: FontWeight.bold,
+    backgroundColor: Color.fromARGB(255, 150, 203, 233),
+    fontSize: 12,
+  );
 
   static const EdgeInsets paddingCard = EdgeInsets.all(10);
+
+  static ButtonStyle estiloBotonInicioSesion(BuildContext context) {
+    ButtonStyle estiloBoton = ButtonStyle(
+      backgroundColor: WidgetStatePropertyAll(Theme.of(context).primaryColor),
+      foregroundColor: WidgetStatePropertyAll(
+        Theme.of(context).secondaryHeaderColor,
+      ),
+      minimumSize:const WidgetStatePropertyAll( Size(700, 60)),
+    );
+    return estiloBoton;
+  }
 }

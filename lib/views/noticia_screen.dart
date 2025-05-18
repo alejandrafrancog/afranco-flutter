@@ -34,7 +34,7 @@ class NoticiaScreenState extends State<NoticiaScreen> {
   final ScrollController _scrollController = ScrollController();
   late final NoticiaBloc _noticiaBloc = context.read<NoticiaBloc>();
   bool _showFab = true;
-  double _lastScrollOffset = 0;
+  final double _lastScrollOffset = 0;
 
   @override
   void initState() {
@@ -47,14 +47,11 @@ class NoticiaScreenState extends State<NoticiaScreen> {
 
   void _scrollListener() {
     final currentOffset = _scrollController.position.pixels;
+
     if (currentOffset > _lastScrollOffset + 20) {
       if (_showFab) setState(() => _showFab = false);
     } else if (currentOffset < _lastScrollOffset - 20) {
       if (!_showFab) setState(() => _showFab = true);
-    }
-    _lastScrollOffset = currentOffset;
-    if (currentOffset >= _scrollController.position.maxScrollExtent * 0.8) {
-      context.read<NoticiaBloc>().add(NoticiaCargarMasEvent());
     }
   }
 
@@ -119,7 +116,7 @@ class NoticiaScreenState extends State<NoticiaScreen> {
             IconButton(
               icon: Icon(
                 Icons.filter_list,
-                color: filtrosActivos ? Colors.amber : null,
+                color: filtrosActivos ? Colors.white : Colors.white,
               ),
               tooltip: 'Preferencias',
               onPressed: () {
@@ -146,7 +143,6 @@ class NoticiaScreenState extends State<NoticiaScreen> {
         ),
         body: BlocListener<ReporteBloc, ReporteState>(
           listener: (context, state) {
-            
             if (state is ReporteLoadedWithMessage) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(

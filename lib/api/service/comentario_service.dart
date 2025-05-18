@@ -144,7 +144,6 @@ class ComentarioService {
         );
       }
     } catch (e) {
-      print('Error al obtener número de comentarios: ${e.toString()}');
       return 0;
     }
   }

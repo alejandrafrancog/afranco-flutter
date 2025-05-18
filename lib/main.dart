@@ -1,6 +1,7 @@
 import 'package:afranco/bloc/auth_bloc/auth_bloc.dart';
 import 'package:afranco/bloc/categoria_bloc/categoria_bloc.dart';
 import 'package:afranco/bloc/comentario_bloc/comentario_bloc.dart';
+import 'package:afranco/bloc/connectivity_bloc/connectivity_bloc.dart';
 import 'package:afranco/bloc/counter_bloc/counter_bloc.dart';
 import 'package:afranco/bloc/noticia_bloc/noticia_bloc.dart';
 import 'package:afranco/bloc/preferencia_bloc/preferencia_bloc.dart';
@@ -12,6 +13,8 @@ import 'package:afranco/views/login_screen.dart';
 import 'package:afranco/constants/constants.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:google_fonts/google_fonts.dart';
+
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -29,7 +32,7 @@ Future<void> main() async {
         BlocProvider<ComentarioBloc>(create: (context) => ComentarioBloc()),
         BlocProvider<AuthBloc>(create: (context) => AuthBloc()),
         BlocProvider<ReporteBloc>(create: (context) => ReporteBloc()),
-
+        BlocProvider<ConnectivityBloc>(create: (context) => ConnectivityBloc()),
       ],
       child: const MyApp(),
     ),
@@ -46,6 +49,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         brightness: Brightness.light,
+        textTheme:GoogleFonts.merriweatherSansTextTheme(),
         colorScheme: const ColorScheme.light(
           primary: Colors.teal,
           secondary: Colors.white,
@@ -59,7 +63,7 @@ class MyApp extends StatelessWidget {
         textTheme: ThemeData.dark().textTheme.copyWith(
           bodyLarge: const TextStyle(color: Colors.white),
           bodyMedium: TextStyle(color: Colors.grey[300]),
-        ), 
+        ),
       ),
 
       themeMode: ThemeMode.light,
