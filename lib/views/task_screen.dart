@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:afranco/domain/task.dart';
 import 'package:afranco/constants/constants.dart';
-import 'package:afranco/components/task_modals.dart';
+import 'package:afranco/components/task/task_modals.dart';
 import 'package:afranco/data/task_repository.dart'; // Importa TaskRepository
 import 'package:afranco/api/service/task_service.dart'; // Importa TaskService
 import 'package:afranco/helpers/common_widgets_helper.dart';
-import 'package:afranco/components/task_image.dart';
+import 'package:afranco/components/task/task_image.dart';
 import 'package:afranco/views/task_detail_screen.dart';
 import 'package:intl/intl.dart';
 
