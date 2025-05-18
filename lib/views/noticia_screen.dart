@@ -1,6 +1,7 @@
 import 'package:afranco/bloc/preferencia_bloc/preferencia_bloc.dart';
 import 'package:afranco/bloc/reporte_bloc/reporte_bloc.dart'; // Nuevo import
 import 'package:afranco/bloc/reporte_bloc/reporte_state.dart';
+import 'package:afranco/helpers/category_helper.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:afranco/exceptions/api_exception.dart';
 import 'package:afranco/helpers/error_helper.dart';
@@ -21,6 +22,7 @@ import 'package:afranco/components/noticia/noticia_edit_modal.dart';
 import 'package:afranco/bloc/noticia_bloc/noticia_bloc.dart';
 import 'package:afranco/bloc/noticia_bloc/noticia_event.dart';
 import 'package:afranco/bloc/noticia_bloc/noticia_state.dart';
+
 
 class NoticiaScreen extends StatefulWidget {
   final NoticiaRepository repository = NoticiaRepository();
@@ -53,7 +55,7 @@ class NoticiaScreenState extends State<NoticiaScreen> {
     } else if (currentOffset < _lastScrollOffset - 20) {
       if (!_showFab) setState(() => _showFab = true);
     }
-    
+
     // Actualizar el último offset después de la comparación
     _lastScrollOffset = currentOffset;
   }
@@ -107,6 +109,7 @@ class NoticiaScreenState extends State<NoticiaScreen> {
           actions: [
             IconButton(
               icon: const Icon(Icons.category),
+              tooltip: 'Categorías',
               color: Colors.white,
               onPressed: () {
                 Navigator.of(context).push(
@@ -142,6 +145,28 @@ class NoticiaScreenState extends State<NoticiaScreen> {
                 });
               },
             ),
+            IconButton(
+              icon: const Icon(Icons.refresh),
+              tooltip: 'Refrescar',
+              color:Colors.white,
+              onPressed: () {
+                // Al refrescar, aplicar los filtros actuales si existen
+                final categoriasSeleccionadas =
+                    context
+                        .read<PreferenciaBloc>()
+                        .state
+                        .categoriasSeleccionadas;
+                if (categoriasSeleccionadas.isNotEmpty) {
+                  context.read<NoticiaBloc>().add(
+                    FilterNoticiasByPreferencias(categoriasSeleccionadas),
+                  );
+                } else {
+                  context.read<NoticiaBloc>().add(NoticiaCargadaEvent());
+                  CategoryHelper.refreshCategories();
+                }
+              },
+            ),
+            
           ],
         ),
         body: BlocListener<ReporteBloc, ReporteState>(
@@ -211,6 +236,7 @@ class NoticiaScreenState extends State<NoticiaScreen> {
           duration: const Duration(milliseconds: 300),
           child: FloatingActionButton(
             backgroundColor: Theme.of(context).primaryColor,
+            tooltip: 'Agregar noticia',
             onPressed: _mostrarModalCreacion,
             child: const Icon(Icons.add),
           ),

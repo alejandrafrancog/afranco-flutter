@@ -7,6 +7,7 @@ class CategoriaRepository {
 
   /// Obtiene todas las categorías desde el repositorio
   Future<List<Categoria>> getCategorias() async {
+    
     try {
       List<Categoria> categorias = await _service.getCategorias();
      

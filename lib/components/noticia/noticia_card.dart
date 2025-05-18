@@ -3,6 +3,7 @@ import 'package:afranco/bloc/reporte_bloc/reporte_event.dart';
 import 'package:afranco/components/reporte/reporte_modal.dart';
 import 'package:afranco/components/noticia/delete_noticia_modal.dart';
 import 'package:afranco/data/comentario_repository.dart';
+import 'package:afranco/data/reporte_repository.dart';
 import 'package:afranco/helpers/category_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:afranco/domain/noticia.dart';
@@ -19,8 +20,9 @@ class NoticiaCard extends StatelessWidget {
   final String imageUrl;
   final Function(Noticia) onEditPressed;
   final VoidCallback onDelete;
+  final reporteRepository = ReporteRepository();
 
-  const NoticiaCard({
+  NoticiaCard({
     super.key,
     required this.noticia,
     required this.imageUrl,
@@ -238,8 +240,29 @@ class NoticiaCard extends StatelessWidget {
                         },
                       ),
                       IconButton(
-                        icon: const Icon(Icons.flag, size: 24),
-                        tooltip: 'Reportar noticia',
+                        icon: Row(
+                          children: [
+                            FutureBuilder<int>(
+                              future: reporteRepository.obtenerNumeroReportes(
+                                noticia.id,
+                              ),
+                              builder: (context, snapshot) {
+                                final count = snapshot.data ?? 0;
+                                return Text(
+                                  '$count',
+                                  style: NoticiaEstilos.fuenteNoticia,
+                                );
+                              },
+                            ),
+                            const SizedBox(width: 4),
+                            const Icon(
+                              Icons.warning_amber,
+                              size: 24,
+                              color: Colors.red,
+                            ),
+                          ],
+                        ),
+                        tooltip: 'Reportes de esta noticia',
                         onPressed:
                             () => showDialog(
                               context: context,
@@ -255,8 +278,9 @@ class NoticiaCard extends StatelessWidget {
                                       );
                                     },
                                   ),
-                            ),
+                            ), // Puedes añadir lógica adicional aquí
                       ),
+
                       PopupMenuButton<String>(
                         onSelected: (value) {
                           switch (value) {

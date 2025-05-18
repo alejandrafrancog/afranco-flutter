@@ -17,6 +17,18 @@ class ReporteRepository {
   }
 
   // Crear un nuevo reporte
+  // Dentro de ReporteRepository
+  Future<int> obtenerNumeroReportes(String noticiaId) async {
+    try {
+      final reportes = await _reporteService.getReportesPorNoticia(noticiaId);
+      return reportes.length;
+    } on ApiException catch (e) {
+      throw Exception('Error al contar reportes: ${e.message}');
+    } catch (e) {
+      throw Exception('Error al contar reportes: ${e.toString()}');
+    }
+  }
+
   Future<Reporte?> crearReporte({
     required String noticiaId,
     required MotivoReporte motivo,

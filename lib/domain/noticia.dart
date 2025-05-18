@@ -60,4 +60,5 @@ class Noticia with NoticiaMappable {
   String tiempoLecturaFormateado() {
     return '$tiempoLectura min${tiempoLectura > 1 ? 's' : ''}';
   }
+  
 }
