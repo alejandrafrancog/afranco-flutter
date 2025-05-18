@@ -34,7 +34,7 @@ class NoticiaScreenState extends State<NoticiaScreen> {
   final ScrollController _scrollController = ScrollController();
   late final NoticiaBloc _noticiaBloc = context.read<NoticiaBloc>();
   bool _showFab = true;
-  final double _lastScrollOffset = 0;
+  double _lastScrollOffset = 0;
 
   @override
   void initState() {
@@ -53,6 +53,9 @@ class NoticiaScreenState extends State<NoticiaScreen> {
     } else if (currentOffset < _lastScrollOffset - 20) {
       if (!_showFab) setState(() => _showFab = true);
     }
+    
+    // Actualizar el último offset después de la comparación
+    _lastScrollOffset = currentOffset;
   }
 
   void _abrirModalEdicion(Noticia noticia) {
