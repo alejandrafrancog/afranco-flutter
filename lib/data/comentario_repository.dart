@@ -7,16 +7,23 @@ class ComentarioRepository {
   final ComentarioService _service = ComentarioService();
 
   /// Obtiene los comentarios asociados a una noticia específica
-  Future<List<Comentario>> obtenerComentariosPorNoticia(String noticiaId) async {
+  Future<List<Comentario>> obtenerComentariosPorNoticia(
+    String noticiaId,
+  ) async {
     try {
-      final comentarios = await _service.obtenerComentariosPorNoticia(noticiaId);
+      final comentarios = await _service.obtenerComentariosPorNoticia(
+        noticiaId,
+      );
       return comentarios;
     } catch (e) {
       if (e is ApiException) {
         rethrow; // Relanza la excepción para que la maneje el BLoC
       }
       debugPrint('Error inesperado al obtener comentarios: $e');
-      throw ApiException(message:'Error inesperado al obtener comentarios.',statusCode: 0);
+      throw ApiException(
+        message: 'Error inesperado al obtener comentarios.',
+        statusCode: 0,
+      );
     }
   }
 
@@ -28,23 +35,23 @@ class ComentarioRepository {
     String fecha,
   ) async {
     if (texto.isEmpty) {
-      throw ApiException(message: 'El texto del comentario no puede estar vacío.',
-      statusCode: 400);
-    }
-    
-    try {
-      await _service.agregarComentario(
-        noticiaId,
-        texto,
-        autor,
-        fecha,
+      throw ApiException(
+        message: 'El texto del comentario no puede estar vacío.',
+        statusCode: 400,
       );
+    }
+
+    try {
+      await _service.agregarComentario(noticiaId, texto, autor, fecha);
     } catch (e) {
       if (e is ApiException) {
         rethrow;
       }
       debugPrint('Error inesperado al agregar comentario: $e');
-      throw ApiException(message: 'Error inesperado al agregar comentario.',statusCode: null);
+      throw ApiException(
+        message: 'Error inesperado al agregar comentario.',
+        statusCode: null,
+      );
     }
   }
 
@@ -77,7 +84,10 @@ class ComentarioRepository {
         rethrow;
       }
       debugPrint('Error inesperado al reaccionar al comentario: $e');
-      throw ApiException(message:'Error inesperado al reaccionar al comentario.',statusCode: null);
+      throw ApiException(
+        message: 'Error inesperado al reaccionar al comentario.',
+        statusCode: null,
+      );
     }
   }
 
@@ -90,7 +100,7 @@ class ComentarioRepository {
     if (texto.isEmpty) {
       return {
         'success': false,
-        'message': 'El texto del subcomentario no puede estar vacío.'
+        'message': 'El texto del subcomentario no puede estar vacío.',
       };
     }
 
@@ -105,7 +115,7 @@ class ComentarioRepository {
       debugPrint('Error inesperado al agregar subcomentario: $e');
       return {
         'success': false,
-        'message': 'Error inesperado al agregar subcomentario: ${e.toString()}'
+        'message': 'Error inesperado al agregar subcomentario: ${e.toString()}',
       };
     }
   }
