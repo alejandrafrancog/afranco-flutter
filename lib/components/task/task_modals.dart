@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:afranco/domain/task.dart';
-import 'package:afranco/components/task_form.dart';
+import 'package:afranco/components/task/task_form.dart';
 import 'package:afranco/data/task_repository.dart';
 
 Future<void> showEditTaskModal(BuildContext context,Task task, Function(Task) onEditTask,
