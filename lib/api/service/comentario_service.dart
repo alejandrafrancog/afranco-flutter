@@ -181,7 +181,7 @@ class ComentarioService extends BaseService {
         dislikes: 0,
         subcomentarios: [],
         isSubComentario: true,
-        idSubcomentario: comentarioData['idSubcomentario'],
+        idSubComentario: comentarioData['idSubComentario'],
       );
 
       final subcomentariosActuales = _parsearSubcomentarios(comentarioData['subcomentarios']);

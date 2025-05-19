@@ -89,7 +89,7 @@ class SubcommentCard extends StatelessWidget {
     context.read<ComentarioBloc>().add(
       AddReaccion(
         noticiaId: noticiaId,
-        comentarioId: subcomentario.id ?? '',
+        comentarioId: subcomentario.idSubComentario ?? subcomentario.id ?? '',
         tipoReaccion: tipoReaccion,
       ),
     );

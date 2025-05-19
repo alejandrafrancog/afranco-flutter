@@ -57,7 +57,7 @@ class BaseService {
   // }
 
   /// Obtiene opciones de solicitud con token de autenticación si es requerido
-  Future<Options> _getRequestOptions({bool requireAuthToken = false}) async {
+  Future<Options> _getRequestOptions({bool requireAuthToken = true}) async {
     final options = Options();
     
     if (requireAuthToken) {

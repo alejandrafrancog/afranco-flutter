@@ -307,11 +307,21 @@ class NoticiaCard extends StatelessWidget {
                             (BuildContext context) => [
                               const PopupMenuItem<String>(
                                 value: 'edit',
-                                child: Text('Editar'),
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.edit, size: 15),
+                                    Text('Editar'),
+                                  ],
+                                ),
                               ),
                               const PopupMenuItem<String>(
                                 value: 'delete',
-                                child: Text('Eliminar'),
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.delete, size: 15),
+                                    Text('Eliminar'),
+                                  ],
+                                ),
                               ),
                             ],
                         icon: const Icon(Icons.more_vert),
