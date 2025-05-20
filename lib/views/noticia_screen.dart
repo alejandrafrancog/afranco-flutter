@@ -23,7 +23,6 @@ import 'package:afranco/bloc/noticia_bloc/noticia_bloc.dart';
 import 'package:afranco/bloc/noticia_bloc/noticia_event.dart';
 import 'package:afranco/bloc/noticia_bloc/noticia_state.dart';
 
-
 class NoticiaScreen extends StatefulWidget {
   final NoticiaRepository repository = NoticiaRepository();
   NoticiaScreen({super.key});
@@ -148,7 +147,7 @@ class NoticiaScreenState extends State<NoticiaScreen> {
             IconButton(
               icon: const Icon(Icons.refresh),
               tooltip: 'Refrescar',
-              color:Colors.white,
+              color: Colors.white,
               onPressed: () {
                 // Al refrescar, aplicar los filtros actuales si existen
                 final categoriasSeleccionadas =
@@ -166,7 +165,6 @@ class NoticiaScreenState extends State<NoticiaScreen> {
                 }
               },
             ),
-            
           ],
         ),
         body: BlocListener<ReporteBloc, ReporteState>(
@@ -231,16 +229,15 @@ class NoticiaScreenState extends State<NoticiaScreen> {
             },
           ),
         ),
-        floatingActionButton: AnimatedOpacity(
-          opacity: _showFab ? 1.0 : 0.0,
-          duration: const Duration(milliseconds: 300),
-          child: FloatingActionButton(
-            backgroundColor: Theme.of(context).primaryColor,
-            tooltip: 'Agregar noticia',
-            onPressed: _mostrarModalCreacion,
-            child: const Icon(Icons.add),
-          ),
-        ),
+        floatingActionButton:
+            _showFab
+                ? FloatingActionButton(
+                  backgroundColor: Theme.of(context).primaryColor,
+                  tooltip: 'Agregar noticia',
+                  onPressed: _mostrarModalCreacion,
+                  child: const Icon(Icons.add),
+                )
+                : null,
       ),
     );
   }
