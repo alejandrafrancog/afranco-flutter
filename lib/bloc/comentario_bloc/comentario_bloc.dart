@@ -3,15 +3,21 @@ import 'package:afranco/bloc/comentario_bloc/comentario_event.dart';
 import 'package:afranco/bloc/comentario_bloc/comentario_state.dart';
 import 'package:afranco/exceptions/api_exception.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter/foundation.dart';
 
 import 'package:afranco/data/comentario_repository.dart';
+import 'package:afranco/core/comentario_cache_service.dart';
 
 class ComentarioBloc extends Bloc<ComentarioEvent, ComentarioState> {
   final ComentarioRepository comentarioRepository;
+  final ComentarioCacheService _cacheService;
 
-  ComentarioBloc({ComentarioRepository? comentarioRepository})
-    : comentarioRepository = comentarioRepository ?? ComentarioRepository(),
-      super(ComentarioInitial()) {
+  ComentarioBloc({
+    ComentarioRepository? comentarioRepository,
+    ComentarioCacheService? cacheService,
+  })  : comentarioRepository = comentarioRepository ?? ComentarioRepository(),
+        _cacheService = cacheService ?? ComentarioCacheService(),
+        super(ComentarioInitial()) {
     on<LoadComentarios>(_onLoadComentarios);
     on<AddComentario>(_onAddComentario);
     on<GetNumeroComentarios>(_onGetNumeroComentarios);
@@ -19,6 +25,7 @@ class ComentarioBloc extends Bloc<ComentarioEvent, ComentarioState> {
     on<OrdenarComentarios>(_onOrdenarComentarios);
     on<AddReaccion>(_onAddReaccion);
     on<AddSubcomentario>(_onAddSubcomentario);
+    on<InvalidateCache>(_onInvalidateCache);
   }
 
   Future<void> _onLoadComentarios(
@@ -28,9 +35,10 @@ class ComentarioBloc extends Bloc<ComentarioEvent, ComentarioState> {
     try {
       emit(ComentarioLoading());
 
-      final comentarios = await comentarioRepository
-          .obtenerComentariosPorNoticia(event.noticiaId);
+      // Usamos el servicio de cache para obtener los comentarios
+      final comentarios = await _cacheService.getComentariosPorNoticia(event.noticiaId);
 
+      debugPrint('📝 Cargados ${comentarios.length} comentarios para la noticia ${event.noticiaId}');
       emit(ComentarioLoaded(comentariosList: comentarios));
     } on ApiException catch (e) {
       emit(
@@ -42,8 +50,7 @@ class ComentarioBloc extends Bloc<ComentarioEvent, ComentarioState> {
       emit(
         ComentarioError(
           errorMessage:
-              'Error al cargar comentarios'
-              '${e.toString()}',
+              'Error al cargar comentarios: ${e.toString()}',
         ),
       );
     }
@@ -56,22 +63,22 @@ class ComentarioBloc extends Bloc<ComentarioEvent, ComentarioState> {
     try {
       // Guardamos el estado actual antes de emitir ComentarioLoading
       final currentState = state;
+      emit(ComentarioLoading());
 
-      await comentarioRepository.agregarComentario(
+      // Utilizamos el servicio de cache para agregar el comentario
+      await _cacheService.agregarComentario(
         event.noticiaId,
         event.texto,
         event.autor,
         event.fecha,
       );
 
-      // Recargar comentarios después de agregar uno nuevo
-      final comentarios = await comentarioRepository
-          .obtenerComentariosPorNoticia(event.noticiaId);
+      // Obtenemos los comentarios actualizados desde el cache
+      final comentarios = await _cacheService.getComentariosPorNoticia(event.noticiaId);
       emit(ComentarioLoaded(comentariosList: comentarios));
 
       // Actualizar también el número de comentarios
-      final numeroComentarios = await comentarioRepository
-          .obtenerNumeroComentarios(event.noticiaId);
+      final numeroComentarios = await _cacheService.getNumeroComentarios(event.noticiaId);
 
       // Emitimos el nuevo estado con el número de comentarios actualizado
       emit(
@@ -87,7 +94,7 @@ class ComentarioBloc extends Bloc<ComentarioEvent, ComentarioState> {
       }
     } catch (e) {
       emit(
-        const ComentarioError(errorMessage: 'Error al agregar el comentario'),
+        ComentarioError(errorMessage: 'Error al agregar el comentario: ${e.toString()}'),
       );
     }
   }
@@ -99,8 +106,8 @@ class ComentarioBloc extends Bloc<ComentarioEvent, ComentarioState> {
     try {
       emit(ComentarioLoading());
 
-      final numeroComentarios = await comentarioRepository
-          .obtenerNumeroComentarios(event.noticiaId);
+      // Utilizamos el servicio de cache para obtener el número de comentarios
+      final numeroComentarios = await _cacheService.getNumeroComentarios(event.noticiaId);
 
       emit(
         NumeroComentariosLoaded(
@@ -127,9 +134,8 @@ class ComentarioBloc extends Bloc<ComentarioEvent, ComentarioState> {
     try {
       emit(ComentarioLoading());
 
-      // Obtener todos los comentarios primero
-      final comentarios = await comentarioRepository
-          .obtenerComentariosPorNoticia(event.noticiaId);
+      // Obtenemos los comentarios desde el cache
+      final comentarios = await _cacheService.getComentariosPorNoticia(event.noticiaId);
 
       // Filtrar los comentarios según el criterio
       final comentariosFiltrados =
@@ -187,7 +193,6 @@ class ComentarioBloc extends Bloc<ComentarioEvent, ComentarioState> {
         final comentarioIndex = comentarios.indexWhere(
           (c) => c.id == event.comentarioId,
         );
-        // Si no encontramos el comentario, no hacemos nada
         // Si encontramos el comentario, actualizamos localmente antes de hacer la llamada API
         if (comentarioIndex != -1) {
           final comentario = comentarios[comentarioIndex];
@@ -200,8 +205,11 @@ class ComentarioBloc extends Bloc<ComentarioEvent, ComentarioState> {
               texto: comentario.texto,
               autor: comentario.autor,
               fecha: comentario.fecha,
-              likes: comentario.likes,
+              likes: comentario.likes + 1, // Incrementamos optimistamente
               dislikes: comentario.dislikes,
+              subcomentarios: comentario.subcomentarios,
+              isSubComentario: comentario.isSubComentario,
+              idSubComentario: comentario.idSubComentario,
             );
           } else {
             comentarioActualizado = Comentario(
@@ -211,7 +219,10 @@ class ComentarioBloc extends Bloc<ComentarioEvent, ComentarioState> {
               autor: comentario.autor,
               fecha: comentario.fecha,
               likes: comentario.likes,
-              dislikes: comentario.dislikes,
+              dislikes: comentario.dislikes + 1, // Incrementamos optimistamente
+              subcomentarios: comentario.subcomentarios,
+              isSubComentario: comentario.isSubComentario,
+              idSubComentario: comentario.idSubComentario,
             );
           }
 
@@ -220,28 +231,26 @@ class ComentarioBloc extends Bloc<ComentarioEvent, ComentarioState> {
         }
       }
 
-      // Llamamos al repositorio para persistir el cambio
-      await comentarioRepository.reaccionarComentario(
+      // Llamamos al servicio de cache para persistir el cambio
+      await _cacheService.reaccionarComentario(
+        noticiaId: event.noticiaId,
         comentarioId: event.comentarioId,
         tipoReaccion: event.tipoReaccion,
       );
 
       // Recargamos los comentarios para asegurar los datos más recientes
-      final comentariosActualizados = await comentarioRepository
-          .obtenerComentariosPorNoticia(event.noticiaId);
-
+      final comentariosActualizados = await _cacheService.getComentariosPorNoticia(event.noticiaId);
       emit(ComentarioLoaded(comentariosList: comentariosActualizados));
     } catch (e) {
       // Si ocurre un error, intentamos recargar los comentarios para restaurar el estado
       try {
-        final comentarios = await comentarioRepository
-            .obtenerComentariosPorNoticia(event.noticiaId);
+        final comentarios = await _cacheService.getComentariosPorNoticia(event.noticiaId);
         emit(ComentarioLoaded(comentariosList: comentarios));
       } catch (_) {
         // Si incluso la recarga falla, mostramos el error
         emit(
-          const ComentarioError(
-            errorMessage: 'Error al agregar reacción. Intenta de nuevo.',
+          ComentarioError(
+            errorMessage: 'Error al agregar reacción. Intenta de nuevo: ${e.toString()}',
           ),
         );
       }
@@ -256,18 +265,17 @@ class ComentarioBloc extends Bloc<ComentarioEvent, ComentarioState> {
       // Mostrar estado de carga
       emit(ComentarioLoading());
 
-      // Llamar al repositorio para agregar el subcomentario
-      final resultado = await comentarioRepository.agregarSubcomentario(
+      // Llamar al servicio de cache para agregar el subcomentario
+      final resultado = await _cacheService.agregarSubcomentario(
+        noticiaId: event.noticiaId,
         comentarioId: event.comentarioId,
         texto: event.texto,
         autor: event.autor,
       );
 
       if (resultado['success'] == true) {
-        // Recargar comentarios usando directamente el noticiaId proporcionado
-        final comentarios = await comentarioRepository
-            .obtenerComentariosPorNoticia(event.noticiaId);
-
+        // Recargar comentarios usando el servicio de cache
+        final comentarios = await _cacheService.getComentariosPorNoticia(event.noticiaId);
         emit(ComentarioLoaded(comentariosList: comentarios));
       } else {
         // Si hubo un error, mostrar el mensaje de error
@@ -277,6 +285,27 @@ class ComentarioBloc extends Bloc<ComentarioEvent, ComentarioState> {
       emit(
         ComentarioError(
           errorMessage: 'Error al agregar subcomentario: ${e.toString()}',
+        ),
+      );
+    }
+  }
+
+  Future<void> _onInvalidateCache(
+    InvalidateCache event,
+    Emitter<ComentarioState> emit,
+  ) async {
+    try {
+      // Invalidamos la cache para la noticia específica
+      _cacheService.invalidateCache(event.noticiaId);
+      
+      // Recargamos los comentarios desde la API
+      emit(ComentarioLoading());
+      final comentarios = await _cacheService.getComentariosPorNoticia(event.noticiaId);
+      emit(ComentarioLoaded(comentariosList: comentarios));
+    } catch (e) {
+      emit(
+        ComentarioError(
+          errorMessage: 'Error al invalidar cache: ${e.toString()}',
         ),
       );
     }

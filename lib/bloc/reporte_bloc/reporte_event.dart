@@ -39,3 +39,5 @@ class ReporteGetByNoticiaEvent extends ReporteEvent {
   @override
   List<Object?> get props => [noticiaId];
 }
+class ReporteRefreshEvent extends ReporteEvent {}
+

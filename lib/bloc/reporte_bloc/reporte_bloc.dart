@@ -1,3 +1,4 @@
+import 'package:afranco/domain/reporte.dart';
 import 'package:afranco/exceptions/api_exception.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:afranco/bloc/reporte_bloc/reporte_event.dart';
@@ -7,6 +8,8 @@ import 'package:watch_it/watch_it.dart';
 
 class ReporteBloc extends Bloc<ReporteEvent, ReporteState> {
   final ReporteRepository reporteRepository = di<ReporteRepository>();
+  List<Reporte>? _reporteCache;
+
 
   ReporteBloc() : super(ReporteInitial()) {
     on<ReporteInitEvent>(_onInit);
@@ -14,26 +17,27 @@ class ReporteBloc extends Bloc<ReporteEvent, ReporteState> {
     on<ReporteDeleteEvent>(_onDeleteReporte);
     on<ReporteGetByNoticiaEvent>(_onGetByNoticia);
   }
+Future<void> _onInit(
+  ReporteInitEvent event,
+  Emitter<ReporteState> emit,
+) async {
+  emit(ReporteLoading());
 
-  Future<void> _onInit(
-    ReporteInitEvent event,
-    Emitter<ReporteState> emit,
-  ) async {
-    emit(ReporteLoading());
-
-    try {
-      final reportes = await reporteRepository.obtenerReportes();
-      emit(ReporteLoaded(reportes, DateTime.now()));
-    } catch (e) {
-      final int? statusCode = e is ApiException ? e.statusCode : null;
-      emit(
-        ReporteError(
-          'Error al cargar reportes: ${e.toString()}',
-          statusCode: statusCode,
-        ),
-      );
+  try {
+    if (_reporteCache != null) {
+      emit(ReporteLoaded(_reporteCache!, DateTime.now()));
+      return;
     }
+
+    final reportes = await reporteRepository.obtenerReportes();
+    _reporteCache = reportes;
+    emit(ReporteLoaded(reportes, DateTime.now()));
+  } catch (e) {
+    final int? statusCode = e is ApiException ? e.statusCode : null;
+    emit(ReporteError('Error al cargar reportes: ${e.toString()}', statusCode: statusCode));
   }
+}
+
 
   Future<void> _onCreateReporte(
     ReporteCreateEvent event,
@@ -118,4 +122,5 @@ class ReporteBloc extends Bloc<ReporteEvent, ReporteState> {
       );
     }
   }
+  
 }

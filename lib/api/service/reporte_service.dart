@@ -94,21 +94,22 @@ class ReporteService extends BaseService {
   }
 
   /// Obtiene reportes por ID de noticia
+  // En ReporteService
   Future<List<Reporte>> getReportesPorNoticia(String noticiaId) async {
     try {
-      final reportes = await getReportes();
-      return reportes
-          .where((reporte) => reporte.noticiaId == noticiaId)
-          .toList();
-    } catch (e) {
-      debugPrint('❌ Error en getReportesPorNoticia: ${e.toString()}');
-      if (e is ApiException) {
-        rethrow;
-      }
-      throw ApiException(
-        message: 'Error al obtener reportes por noticia: $e',
-        statusCode: 500,
+      final data = await get(
+        '/reportes',
+        queryParameters: {'noticiaId': noticiaId},
       );
+
+      if (data is List) {
+        return data.map((json) => ReporteMapper.fromMap(json)).toList();
+      } else {
+        throw ApiException(message: 'Formato inválido', statusCode: 500);
+      }
+    } on DioException catch (e) {
+      handleError(e);
+      rethrow;
     }
   }
 
