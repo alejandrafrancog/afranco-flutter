@@ -21,11 +21,10 @@ class NoticiaMapper extends ClassMapperBase<Noticia> {
   final String id = 'Noticia';
 
   static String _$id(Noticia v) => v.id;
-  static const Field<Noticia, String> _f$id =
-      Field('id', _$id, key: r'urlImagen');
+  static const Field<Noticia, String> _f$id = Field('id', _$id);
   static String _$categoryId(Noticia v) => v.categoryId;
   static const Field<Noticia, String> _f$categoryId =
-      Field('categoryId', _$categoryId, opt: true);
+      Field('categoryId', _$categoryId, key: r'categoriaId', opt: true);
   static String _$titulo(Noticia v) => v.titulo;
   static const Field<Noticia, String> _f$titulo = Field('titulo', _$titulo);
   static String _$fuente(Noticia v) => v.fuente;

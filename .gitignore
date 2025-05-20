@@ -244,7 +244,8 @@ fabric.properties
 !/gradle/wrapper/gradle-wrapper.jar
 
 # End of https://www.toptal.com/developers/gitignore/api/flutter,androidstudio
-.env*
+.env
+!.env.example
 /android/key.properties
 /android/app/google-services.json
 .metadata

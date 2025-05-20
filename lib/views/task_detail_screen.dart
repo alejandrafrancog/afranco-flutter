@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:afranco/domain/task.dart';
 import 'package:afranco/api/service/task_service.dart';
-import 'package:afranco/components/task_image.dart';
+import 'package:afranco/components/task/task_image.dart';
 import 'package:afranco/helpers/common_widgets_helper.dart';
 class TaskDetailScreen extends StatelessWidget {
   final Task task;
