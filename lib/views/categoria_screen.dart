@@ -65,6 +65,21 @@ class CategoriaScreenState extends State<CategoriaScreen> {
         title: const Text('Categorías'),
         backgroundColor: Theme.of(context).primaryColor,
         foregroundColor: Colors.white,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            tooltip: 'Recargar categorías',
+            onPressed: () {
+              context.read<CategoriaBloc>().add(CategoriaInitEvent());
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Recargando categorías...'),
+                  duration: Duration(seconds: 1),
+                ),
+              );
+            },
+          ),
+        ],
       ),
       body: BlocConsumer<CategoriaBloc, CategoriaState>(
         listener: (context, state) {
