@@ -170,9 +170,9 @@ class ComentarioService extends BaseService {
           'success': false,
           'message': 'No se pueden añadir subcomentarios a otros subcomentarios'};
       }
-
+      String subId =  'sub_${DateTime.now().millisecondsSinceEpoch}_${texto.hashCode}';
       final nuevoSubcomentario = Comentario(
-        id: 'sub_${DateTime.now().millisecondsSinceEpoch}_${texto.hashCode}',
+        id: subId,
         noticiaId: comentarioData['noticiaId'],
         texto: texto,
         fecha: DateTime.now().toIso8601String(),
@@ -181,7 +181,7 @@ class ComentarioService extends BaseService {
         dislikes: 0,
         subcomentarios: [],
         isSubComentario: true,
-        idSubComentario: comentarioData['idSubComentario'],
+        idSubComentario: subId
       );
 
       final subcomentariosActuales = _parsearSubcomentarios(comentarioData['subcomentarios']);

@@ -1,10 +1,11 @@
+import 'package:afranco/bloc/comentario_bloc/comentario_state.dart';
 import 'package:afranco/bloc/reporte_bloc/reporte_bloc.dart';
 import 'package:afranco/bloc/reporte_bloc/reporte_event.dart';
 import 'package:afranco/components/reporte/reporte_modal.dart';
 import 'package:afranco/components/noticia/delete_noticia_modal.dart';
-import 'package:afranco/data/comentario_repository.dart';
+import 'package:afranco/core/comentario_cache_service.dart';
+import 'package:afranco/core/reporte_cache_service.dart';
 import 'package:afranco/data/reporte_repository.dart';
-import 'package:afranco/helpers/category_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:afranco/domain/noticia.dart';
 import 'package:afranco/noticias_estilos.dart';
@@ -14,6 +15,7 @@ import 'package:afranco/views/comentario_screen.dart';
 import 'package:afranco/bloc/comentario_bloc/comentario_bloc.dart';
 import 'package:afranco/bloc/comentario_bloc/comentario_event.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:watch_it/watch_it.dart';
 
 class NoticiaCard extends StatelessWidget {
   final Noticia noticia;
@@ -29,7 +31,7 @@ class NoticiaCard extends StatelessWidget {
     required this.onEditPressed,
     required this.onDelete,
   });
-
+  
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -78,28 +80,19 @@ class NoticiaCard extends StatelessWidget {
                     ),
                   ],*/
                 ),
-                child: FutureBuilder<String>(
-                  future: CategoryHelper.getCategoryName(noticia.categoryId),
-                  builder: (context, snapshot) {
-                    // Mantener misma lógica pero ahora usando el cache
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Text(
-                        "Cargando...",
-                        style: NoticiaEstilos.fuenteNoticia,
-                      );
-                    }
-                    if (snapshot.hasError) {
+                child: // Reemplazar el FutureBuilder por BlocBuilder
+                    BlocBuilder<ComentarioBloc, ComentarioState>(
+                  builder: (context, state) {
+                    if (state is NumeroComentariosLoaded &&
+                        state.noticiaId == noticia.id) {
                       return Text(
-                        "Error: ${snapshot.error}",
+                        '${state.numeroComentarios}',
                         style: NoticiaEstilos.fuenteNoticia,
                       );
                     }
-                    return Text(
-                      snapshot.data ?? "General",
-                      style: const TextStyle(
-                        color: Color(0xFF006D77),
-                        fontWeight: FontWeight.bold,
-                      ),
+                    return const Text(
+                      '...',
+                      style: NoticiaEstilos.fuenteNoticia,
                     );
                   },
                 ),
@@ -210,8 +203,8 @@ class NoticiaCard extends StatelessWidget {
                         icon: Row(
                           children: [
                             FutureBuilder<int>(
-                              future: ComentarioRepository()
-                                  .obtenerNumeroComentarios(noticia.id),
+                              future: di<ComentarioCacheService>()
+                                  .getNumeroComentarios(noticia.id),
                               builder: (context, snapshot) {
                                 final count = snapshot.data ?? 0;
                                 return Text(
@@ -243,9 +236,12 @@ class NoticiaCard extends StatelessWidget {
                         icon: Row(
                           children: [
                             FutureBuilder<int>(
-                              future: reporteRepository.obtenerNumeroReportes(
-                                noticia.id,
-                              ),
+                              future: di<ReporteCacheService>()
+                                  .getNumeroReportesPorNoticia(
+                                    noticia.id,
+                                    (id) => reporteRepository
+                                        .obtenerReportesPorNoticia(id),
+                                  ),
                               builder: (context, snapshot) {
                                 final count = snapshot.data ?? 0;
                                 return Text(
@@ -270,12 +266,16 @@ class NoticiaCard extends StatelessWidget {
                                   (context) => ReporteModal(
                                     noticiaId: noticia.id,
                                     onSubmit: (motivo) {
-                                      context.read<ReporteBloc>().add(
+                                      final bloc = context.read<ReporteBloc>();
+                                      bloc.add(
                                         ReporteCreateEvent(
                                           noticiaId: noticia.id,
                                           motivo: motivo,
                                         ),
                                       );
+                                      bloc.add(
+                                        ReporteRefreshEvent(),
+                                      ); // Esto solo si el bloc lo soporta
                                     },
                                   ),
                             ), // Puedes añadir lógica adicional aquí

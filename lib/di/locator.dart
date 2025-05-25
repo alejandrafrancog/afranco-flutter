@@ -1,4 +1,6 @@
 import 'package:afranco/core/category_cache_service.dart';
+import 'package:afranco/core/comentario_cache_service.dart';
+import 'package:afranco/core/reporte_cache_service.dart';
 import 'package:afranco/data/auth_repository.dart';
 import 'package:afranco/data/categoria_repository.dart';
 import 'package:afranco/data/comentario_repository.dart';
@@ -19,7 +21,8 @@ Future<void> initLocator() async {
   di.registerLazySingleton<ComentarioRepository>(() => ComentarioRepository());
   di.registerLazySingleton<AuthRepository>(() => AuthRepository());
   di.registerLazySingleton<ReporteRepository>(() => ReporteRepository());
+  di.registerSingleton<ComentarioCacheService>(ComentarioCacheService());
   di.registerSingleton<CategoryCacheService>(CategoryCacheService());
-
+  di.registerSingleton<ReporteCacheService>(ReporteCacheService());
 
 }
