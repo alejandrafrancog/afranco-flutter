@@ -37,14 +37,18 @@ class ApiConstants {
   static String noticiasEndpoint = 'noticias';
   static String preferenciasEndpoint = 'preferencias';
   static String categoryEndpoint = 'categorias';
-  static String comentarioEndpoint = 'categorias';
+  static String comentarioEndpoint = 'comentarios';
   static String urlCategorias = '$baseUrl/$categoryEndpoint';
   static String urlNoticias = '$baseUrl/$noticiasEndpoint';
   static String urlPreferencias = '$baseUrl/$preferenciasEndpoint';
   static String comentariosUrl = '$baseUrl/$comentarioEndpoint';
   static var serverError= 'Error del servidor!';
-
+  static int timeoutSeconds = 10;
   static var errorTimeout = 'Tiempo de espera agotado';
+
+  static String errorNoInternet = 'No hay conexión a Internet';
+
+  static var errorUnauthorized = "No autorizado";
 
 
 }
@@ -52,6 +56,7 @@ class CategoriaConstants{
   static String errorTimeout = 'Tiempo de espera agotado';
   static String errorNoCategory = 'Categoría no encontrada';
   static String defaultCategoryId = 'sin_categoria';
+  static String sinCategoria = 'Sin categoría';
   static const int timeOutSeconds = 10;
 }
 class NoticiaConstants {

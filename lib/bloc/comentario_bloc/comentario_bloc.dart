@@ -33,7 +33,11 @@ class ComentarioBloc extends Bloc<ComentarioEvent, ComentarioState> {
 
       emit(ComentarioLoaded(comentariosList: comentarios));
     } on ApiException catch (e) {
-      emit(ComentarioError(errorMessage: e.message ?? 'Error desconocido en ComentarioBloc'));
+      emit(
+        ComentarioError(
+          errorMessage: e.message ?? 'Error desconocido en ComentarioBloc',
+        ),
+      );
     } catch (e) {
       emit(
         ComentarioError(
@@ -183,7 +187,6 @@ class ComentarioBloc extends Bloc<ComentarioEvent, ComentarioState> {
         final comentarioIndex = comentarios.indexWhere(
           (c) => c.id == event.comentarioId,
         );
-        print('\n\nComentario index: $comentarioIndex\n\n\n');
         // Si no encontramos el comentario, no hacemos nada
         // Si encontramos el comentario, actualizamos localmente antes de hacer la llamada API
         if (comentarioIndex != -1) {
@@ -229,8 +232,6 @@ class ComentarioBloc extends Bloc<ComentarioEvent, ComentarioState> {
 
       emit(ComentarioLoaded(comentariosList: comentariosActualizados));
     } catch (e) {
-      print('Error en _onAddReaccion: ${e.toString()}');
-
       // Si ocurre un error, intentamos recargar los comentarios para restaurar el estado
       try {
         final comentarios = await comentarioRepository
