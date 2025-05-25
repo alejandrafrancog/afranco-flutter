@@ -60,4 +60,8 @@ class NoticiaRepository extends BaseRepository {
 
     await handleApiCall(() => _service.updateNoticia(noticia));
   }
+    Future<Noticia> obtenerNoticiaPorId(String id) async {
+    checkForEmpty([MapEntry('id', id)]);
+    return handleApiCall(() => _service.getNoticiaById(id));
+  }
 }

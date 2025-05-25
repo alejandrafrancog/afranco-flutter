@@ -2,10 +2,11 @@ import 'package:afranco/core/auth_service.dart';
 import 'package:afranco/core/secure_storage_service.dart';
 import 'package:afranco/domain/login_response.dart';
 import 'package:afranco/domain/login_request.dart';
+import 'package:watch_it/watch_it.dart';
 
 class AuthRepository {
   final AuthService _authService = AuthService();
-  final SecureStorageService _secureStorage = SecureStorageService();
+  final SecureStorageService _secureStorage = di<SecureStorageService>();
 
   // Login user and store JWT token
   Future<bool> login(String email, String password) async {

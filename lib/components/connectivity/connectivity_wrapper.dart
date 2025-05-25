@@ -1,26 +1,36 @@
+import 'package:afranco/bloc/connectivity_bloc/connectivity_event.dart';
 import 'package:flutter/material.dart';
-import 'package:afranco/components/connectivity/connectivity_alert.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:afranco/bloc/connectivity_bloc/connectivity_bloc.dart';
+import 'package:afranco/bloc/connectivity_bloc/connectivity_state.dart';
+import 'package:afranco/components/connectivity/no_connection_view.dart';
 
-/// Widget que envuelve la aplicación y muestra una alerta de conectividad cuando es necesario
 class ConnectivityWrapper extends StatelessWidget {
   final Widget child;
+  final bool requiresConnection;
 
   const ConnectivityWrapper({
     super.key,
     required this.child,
+    this.requiresConnection = true,
   });
 
   @override
   Widget build(BuildContext context) {
-    // Como ahora usamos SnackBar que se superpone en la pantalla,
-    // ya no necesitamos colocar la alerta en una columna
-    return Stack(
-      children: [
-        // Contenido principal de la aplicación
-        child,
-        // Widget invisible que escucha cambios de conectividad y muestra SnackBars
-        const ConnectivityAlert(),
-      ],
+    return BlocBuilder<ConnectivityBloc, ConnectivityState>(
+      builder: (context, state) {
+        if (state is ConnectivityDisconnected && requiresConnection) {
+          return Scaffold(
+            body: NoConnectionView(
+              onRetry: () {
+                context.read<ConnectivityBloc>().add(CheckConnectivity());
+              },
+            ),
+          );
+        }
+        
+        return child;
+      },
     );
   }
 }

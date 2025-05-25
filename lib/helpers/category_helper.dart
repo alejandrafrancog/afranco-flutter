@@ -1,54 +1,41 @@
-import 'package:afranco/domain/categoria.dart';
 import 'package:afranco/core/category_cache_service.dart';
-import 'package:watch_it/watch_it.dart';
-import 'package:afranco/constants/constants.dart';
+import 'package:afranco/domain/categoria.dart';
 
-/// Utilidad para trabajar con categorías en la aplicación
 class CategoryHelper {
-  /// Obtiene una categoría por su ID
-  /// Usa el caché para minimizar llamadas a la API
-  static Future<Categoria?> getCategoryById(String id) async {
-    final categoryService = di<CategoryCacheService>();
+  static final CategoryCacheService _cacheService = CategoryCacheService();
+
+  /// Obtiene el nombre de una categoría por su ID
+  /// Utiliza el cache service para optimizar las consultas
+  static Future<String> getCategoryName(String categoryId) async {
     try {
-      final List<Categoria> categorias = await categoryService.getCategories();
-      return categorias.firstWhere(
-        (categoria) => categoria.id == id,
-        orElse: () => throw Exception(CategoriaConstants.errorNoCategory),
-      );
+      return await _cacheService.getCategoryName(categoryId);
     } catch (e) {
-      // Si ocurre un error o la categoría no existe, intentar refrescar la cache
-      try {
-        await categoryService.refreshCategories();
-        final List<Categoria> categorias =
-            await categoryService.getCategories();
-        return categorias.firstWhere(
-          (categoria) => categoria.id == id,
-          orElse: () => throw Exception(CategoriaConstants.errorNoCategory),
-        );
-      } catch (_) {
-        return null; // No se encontró la categoría incluso después de refrescar
-      }
+      // En caso de error, retornar un valor por defecto
+      return 'Sin categoría';
     }
   }
 
-  /// Obtiene el nombre de una categoría por su ID
-  /// Retorna "Sin categoría" si no se encuentra
-  static Future<String> getCategoryName(String id) async {
-    if (id.isEmpty) return CategoriaConstants.sinCategoria;
-
-    final categoria = await getCategoryById(id);
-    return categoria?.nombre ?? CategoriaConstants.sinCategoria;
+  /// Obtiene una categoría completa por su ID
+  static Future<Categoria?> getCategoryById(String categoryId) async {
+    try {
+      return await _cacheService.getCategoryById(categoryId);
+    } catch (e) {
+      return null;
+    }
   }
 
-  /// Verifica si hay categorías en caché
-  static bool hasCachedCategories() {
-    final categoryService = di<CategoryCacheService>();
-    return categoryService.hasCachedCategories;
+  /// Obtiene todas las categorías
+  static Future<List<Categoria>> getAllCategories() async {
+    try {
+      return await _cacheService.getCategories();
+    } catch (e) {
+      return [];
+    }
   }
 
-  /// Fuerza una actualización de las categorías desde la API
-  static Future<void> refreshCategories() async {
-    final categoryService = di<CategoryCacheService>();
-    await categoryService.refreshCategories();
+  /// Invalida el cache de categorías
+  /// Útil cuando sabes que los datos han cambiado externamente
+  static void invalidateCache() {
+    _cacheService.invalidateCache();
   }
 }

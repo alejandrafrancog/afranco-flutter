@@ -5,6 +5,7 @@ import 'package:afranco/noticias_estilos.dart';
 import 'package:flutter/material.dart';
 import 'package:afranco/domain/noticia.dart';
 import 'package:afranco/data/noticia_repository.dart';
+import 'package:watch_it/watch_it.dart';
 
 class NoticiaCreationModal extends StatefulWidget {
   final Function(Noticia) onNoticiaCreated;
@@ -28,7 +29,7 @@ class _NoticiaCreationModalState extends State<NoticiaCreationModal> {
   final _imagenController = TextEditingController();
   final _urlController = TextEditingController();
   bool _isSubmitting = false;
-  final CategoriaRepository _categoriaRepo = CategoriaRepository();
+  final CategoriaRepository _categoriaRepo = di<CategoriaRepository>();
   Categoria? _categoriaSeleccionada;
   List<Categoria> _categorias = [];
   @override

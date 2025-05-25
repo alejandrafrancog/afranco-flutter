@@ -1,7 +1,6 @@
 import 'package:afranco/bloc/preferencia_bloc/preferencia_bloc.dart';
 import 'package:afranco/bloc/reporte_bloc/reporte_bloc.dart'; // Nuevo import
 import 'package:afranco/bloc/reporte_bloc/reporte_state.dart';
-import 'package:afranco/helpers/category_helper.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:afranco/exceptions/api_exception.dart';
 import 'package:afranco/helpers/error_helper.dart';
@@ -161,7 +160,6 @@ class NoticiaScreenState extends State<NoticiaScreen> {
                   );
                 } else {
                   context.read<NoticiaBloc>().add(NoticiaCargadaEvent());
-                  CategoryHelper.refreshCategories();
                 }
               },
             ),

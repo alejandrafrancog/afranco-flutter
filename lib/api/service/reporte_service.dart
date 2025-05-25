@@ -1,165 +1,91 @@
-import 'dart:async';
-import 'package:afranco/exceptions/api_exception.dart';
+import 'package:afranco/constants/constants.dart';
 import 'package:afranco/domain/reporte.dart';
-import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
 import 'package:afranco/api/service/base_service.dart';
+import 'package:afranco/exceptions/api_exception.dart';
+import 'package:flutter/foundation.dart';
 
 class ReporteService extends BaseService {
-  // Constructor
   ReporteService() : super();
 
   /// Obtiene todos los reportes
   Future<List<Reporte>> getReportes() async {
-    try {
-      final data = await get('/reportes', requireAuthToken: false);
+    final data = await get(
+      ApiConstantes.reportesEndpoint,
+      errorMessage: ReporteConstantes.errorObtenerReportes,
+    );
 
-      if (data is List) {
-        debugPrint('📊 Procesando ${data.length} reportes');
+    debugPrint('📊 Procesando ${data.length} reportes');
 
-        return data
-            .map((json) {
-              try {
-                if (json is Map<String, dynamic>) {
-                  return ReporteMapper.fromMap(json);
-                } else {
-                  return ReporteMapper.fromJson(json.toString());
-                }
-              } catch (e) {
-                debugPrint('❌ Error al deserializar reporte: $e');
-                // Retornar null y luego filtrar los nulos
-                return null;
-              }
-            })
-            .where((reporte) => reporte != null)
-            .cast<Reporte>()
-            .toList();
-      } else {
-        debugPrint('❌ La respuesta no es una lista: $data');
+    return data.map((json) {
+      try {
+        return json is Map<String, dynamic>
+            ? ReporteMapper.fromMap(json)
+            : ReporteMapper.fromJson(json.toString());
+      } catch (e) {
+        debugPrint('❌ Error al deserializar reporte: $e');
         throw ApiException(
-          message: 'Formato de respuesta inválido',
+          message: ReporteConstantes.errorFormatoInvalido,
           statusCode: 500,
         );
       }
-    } on DioException catch (e) {
-      debugPrint('❌ DioException en getReportes: ${e.toString()}');
-      handleError(e);
-      return []; // Retornar lista vacía en caso de error
-    } catch (e) {
-      if (e is ApiException) {
-        rethrow;
-      }
-      debugPrint('❌ Error inesperado: ${e.toString()}');
-      throw ApiException(message: 'Error inesperado: $e', statusCode: 500);
-    }
+    }).toList();
   }
 
   /// Crea un nuevo reporte
-  Future<Reporte?> crearReporte({
+  Future<Reporte> crearReporte({
     required String noticiaId,
     required MotivoReporte motivo,
   }) async {
-    try {
-      final fecha = DateTime.now().toIso8601String();
-      final data = await post(
-        '/reportes',
-        data: {
-          'noticiaId': noticiaId,
-          'fecha': fecha,
-          'motivo':
-              motivo.toValue(), // Método para serializar el enum correctamente
-        },
-        requireAuthToken: true, // Operación de escritura
-      );
+    final fecha = DateTime.now().toIso8601String();
+    final data = await post(
+      ApiConstantes.reportesEndpoint,
+      data: {
+        'noticiaId': noticiaId,
+        'fecha': fecha,
+        'motivo': motivo.toValue(),
+      },
+      errorMessage: ReporteConstantes.errorCrearReporte,
+      requireAuthToken: true,
+    );
 
-      debugPrint('✅ Reporte creado correctamente');
-
-      if (data is Map<String, dynamic>) {
-        return ReporteMapper.fromMap(data);
-      } else if (data != null) {
-        return ReporteMapper.fromJson(data.toString());
-      }
-      return null;
-    } on DioException catch (e) {
-      debugPrint('❌ DioException en crearReporte: ${e.toString()}');
-      handleError(e);
-      return null;
-    } catch (e) {
-      debugPrint('❌ Error inesperado en crearReporte: ${e.toString()}');
-      if (e is ApiException) {
-        rethrow;
-      }
-      throw ApiException(message: 'Error inesperado: $e', statusCode: 500);
-    }
+    debugPrint('✅ Reporte creado correctamente');
+    return ReporteMapper.fromMap(data);
   }
 
   /// Obtiene reportes por ID de noticia
-  // En ReporteService
   Future<List<Reporte>> getReportesPorNoticia(String noticiaId) async {
-    try {
-      final data = await get(
-        '/reportes',
-        queryParameters: {'noticiaId': noticiaId},
-      );
+    final data = await get<List<dynamic>>(
+      ApiConstantes.reportesEndpoint,
+      queryParameters: {'noticiaId': noticiaId},
+      errorMessage: ReporteConstantes.errorObtenerPorNoticia,
+    );
 
-      if (data is List) {
-        return data.map((json) => ReporteMapper.fromMap(json)).toList();
-      } else {
-        throw ApiException(message: 'Formato inválido', statusCode: 500);
-      }
-    } on DioException catch (e) {
-      handleError(e);
-      rethrow;
-    }
+    return data.map((json) => ReporteMapper.fromMap(json)).toList();
   }
 
   /// Elimina un reporte
   Future<void> eliminarReporte(String reporteId) async {
-    try {
-      await delete('/reportes/$reporteId', requireAuthToken: true);
-      debugPrint('✅ Reporte eliminado correctamente');
-    } on DioException catch (e) {
-      debugPrint('❌ DioException en eliminarReporte: ${e.toString()}');
-      handleError(e);
-    } catch (e) {
-      debugPrint('❌ Error inesperado en eliminarReporte: ${e.toString()}');
-      if (e is ApiException) {
-        rethrow;
-      }
-      throw ApiException(message: 'Error inesperado: $e', statusCode: 500);
-    }
+    await delete(
+      '${ApiConstantes.reportesEndpoint}/$reporteId',
+      errorMessage: ReporteConstantes.errorEliminarReporte,
+      requireAuthToken: true,
+    );
+    debugPrint('✅ Reporte eliminado correctamente');
   }
 
   /// Actualiza un reporte existente
-  Future<Reporte?> actualizarReporte(
+  Future<Reporte> actualizarReporte(
     String reporteId,
     Map<String, dynamic> datosActualizados,
   ) async {
-    try {
-      final data = await put(
-        '/reportes/$reporteId',
-        data: datosActualizados,
-        requireAuthToken: true, // Operación de escritura
-      );
+    final data = await put(
+      '${ApiConstantes.reportesEndpoint}/$reporteId',
+      data: datosActualizados,
+      errorMessage: ReporteConstantes.errorActualizarReporte,
+      requireAuthToken: true,
+    );
 
-      debugPrint('✅ Reporte actualizado correctamente');
-
-      if (data is Map<String, dynamic>) {
-        return ReporteMapper.fromMap(data);
-      } else if (data != null) {
-        return ReporteMapper.fromJson(data.toString());
-      }
-      return null;
-    } on DioException catch (e) {
-      debugPrint('❌ DioException en actualizarReporte: ${e.toString()}');
-      handleError(e);
-      return null;
-    } catch (e) {
-      debugPrint('❌ Error inesperado en actualizarReporte: ${e.toString()}');
-      if (e is ApiException) {
-        rethrow;
-      }
-      throw ApiException(message: 'Error inesperado: $e', statusCode: 400);
-    }
+    debugPrint('✅ Reporte actualizado correctamente');
+    return ReporteMapper.fromMap(data);
   }
 }

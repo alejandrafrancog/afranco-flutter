@@ -25,28 +25,48 @@ class ComentarioService extends BaseService {
     }
   }
 
-  Future<List<Comentario>> obtenerComentariosPorNoticia(String noticiaId) async {
+  Future<List<Comentario>> obtenerComentariosPorNoticia(
+    String noticiaId,
+  ) async {
     try {
+      debugPrint('🔍 Obteniendo comentarios para noticia: $noticiaId');
+
+      // Use query parameters to filter on the backend
       final data = await get(
         ApiConstants.comentariosUrl,
+        queryParameters: {'noticiaId': noticiaId},
         requireAuthToken: false,
       );
-      final comentarios = (data as List)
-          .where((json) => json['noticiaId'] == noticiaId)
-          .map((json) {
+
+      if (data is! List) {
+        debugPrint('❌ La respuesta no es una lista: $data');
+        throw ApiException(
+          message: 'Formato de respuesta inválido',
+          statusCode: 500,
+        );
+      }
+
+      final comentarios =
+          data.map((json) {
             if (json['subcomentarios'] != null) {
-              json['subcomentarios'] = _parsearSubcomentarios(json['subcomentarios']);
+              json['subcomentarios'] = _parsearSubcomentarios(
+                json['subcomentarios'],
+              );
             }
             return ComentarioMapper.fromMap(json);
-          })
-          .toList();
+          }).toList();
 
+      debugPrint('✅ ${comentarios.length} comentarios obtenidos');
       return comentarios;
     } on ApiException {
+      debugPrint('❌ Error de API obteniendo comentarios');
       rethrow;
     } catch (e) {
-      debugPrint('Error inesperado: $e');
-      throw ApiException(message: 'Error obteniendo comentarios', statusCode: 500);
+      debugPrint('❌ Error inesperado: $e');
+      throw ApiException(
+        message: 'Error obteniendo comentarios',
+        statusCode: 500,
+      );
     }
   }
 
@@ -80,21 +100,46 @@ class ComentarioService extends BaseService {
       rethrow;
     } catch (e) {
       debugPrint('Error agregando comentario: $e');
-      throw ApiException(message: 'Error agregando comentario', statusCode: 500);
+      throw ApiException(
+        message: 'Error agregando comentario',
+        statusCode: 500,
+      );
     }
   }
 
   Future<int> obtenerNumeroComentarios(String noticiaId) async {
     try {
+      debugPrint(
+        '🔢 Obteniendo número de comentarios para noticia: $noticiaId',
+      );
+
       final data = await get(
         ApiConstants.comentariosUrl,
+        queryParameters: {'noticiaId': noticiaId},
         requireAuthToken: false,
       );
-      return (data as List).where((json) => json['noticiaId'] == noticiaId).length;
+
+      if (data is! List) {
+        debugPrint('❌ La respuesta no es una lista: $data');
+        return 0;
+      }
+
+      int total = 0;
+
+      for (final comentario in data) {
+        total += 1; // Contar el comentario principal
+
+        final sub = _parsearSubcomentarios(comentario['subcomentarios']);
+        total += sub.length; // Contar los subcomentarios
+      }
+
+      debugPrint('✅ Total de comentarios (incluyendo subcomentarios): $total');
+      return total;
     } on ApiException {
+      debugPrint('❌ Error de API obteniendo número de comentarios');
       rethrow;
     } catch (e) {
-      debugPrint('Error contando comentarios: $e');
+      debugPrint('❌ Error contando comentarios: $e');
       return 0;
     }
   }
@@ -123,15 +168,20 @@ class ComentarioService extends BaseService {
           break;
         }
 
-        final subcomentarios = _parsearSubcomentarios(comentario['subcomentarios']);
+        final subcomentarios = _parsearSubcomentarios(
+          comentario['subcomentarios'],
+        );
         for (final sub in subcomentarios) {
           if (sub['id'] == comentarioId) {
             final subActualizado = _aplicarReaccion(sub, tipoReaccion);
             final comentarioActualizado = {
               ...comentario,
-              'subcomentarios': subcomentarios.map((s) => s == sub ? subActualizado : s).toList()
+              'subcomentarios':
+                  subcomentarios
+                      .map((s) => s == sub ? subActualizado : s)
+                      .toList(),
             };
-            
+
             await put(
               '${ApiConstants.comentariosUrl}/${comentario['id']}',
               data: comentarioActualizado,
@@ -144,7 +194,12 @@ class ComentarioService extends BaseService {
         if (encontrado) break;
       }
 
-      if (!encontrado) throw ApiException(message: 'Comentario no encontrado', statusCode: 404);
+      if (!encontrado) {
+        throw ApiException(
+          message: 'Comentario no encontrado',
+          statusCode: 404,
+        );
+      }
     } on ApiException {
       rethrow;
     } catch (e) {
@@ -168,9 +223,12 @@ class ComentarioService extends BaseService {
       if (comentarioData['isSubComentario'] == true) {
         return {
           'success': false,
-          'message': 'No se pueden añadir subcomentarios a otros subcomentarios'};
+          'message':
+              'No se pueden añadir subcomentarios a otros subcomentarios',
+        };
       }
-      String subId =  'sub_${DateTime.now().millisecondsSinceEpoch}_${texto.hashCode}';
+      String subId =
+          'sub_${DateTime.now().millisecondsSinceEpoch}_${texto.hashCode}';
       final nuevoSubcomentario = Comentario(
         id: subId,
         noticiaId: comentarioData['noticiaId'],
@@ -181,10 +239,12 @@ class ComentarioService extends BaseService {
         dislikes: 0,
         subcomentarios: [],
         isSubComentario: true,
-        idSubComentario: subId
+        idSubComentario: subId,
       );
 
-      final subcomentariosActuales = _parsearSubcomentarios(comentarioData['subcomentarios']);
+      final subcomentariosActuales = _parsearSubcomentarios(
+        comentarioData['subcomentarios'],
+      );
       subcomentariosActuales.add(nuevoSubcomentario.toMap());
 
       await put(
@@ -193,7 +253,10 @@ class ComentarioService extends BaseService {
         requireAuthToken: true,
       );
 
-      return {'success': true, 'message': 'Subcomentario agregado correctamente'};
+      return {
+        'success': true,
+        'message': 'Subcomentario agregado correctamente',
+      };
     } on ApiException catch (e) {
       return {'success': false, 'message': e.message};
     } catch (e) {
@@ -212,7 +275,10 @@ class ComentarioService extends BaseService {
     return List<dynamic>.from(subcomentarios ?? []);
   }
 
-  Map<String, dynamic> _aplicarReaccion(Map<String, dynamic> comentario, String tipoReaccion) {
+  Map<String, dynamic> _aplicarReaccion(
+    Map<String, dynamic> comentario,
+    String tipoReaccion,
+  ) {
     final clave = tipoReaccion == 'like' ? 'likes' : 'dislikes';
     return {...comentario, clave: (comentario[clave] ?? 0) + 1};
   }

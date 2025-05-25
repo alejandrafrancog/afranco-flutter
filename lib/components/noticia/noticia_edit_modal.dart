@@ -5,13 +5,14 @@ import 'package:afranco/data/noticia_repository.dart';
 import 'package:afranco/domain/categoria.dart';
 import 'package:afranco/data/categoria_repository.dart';
 import 'package:afranco/noticias_estilos.dart';
+import 'package:watch_it/watch_it.dart';
 
 class NoticiaEditModal extends StatefulWidget {
   final Noticia noticia;
   final String id;
   final Function()? onNoticiaUpdated;
 
-  final service = NoticiaRepository();
+  final service = di<NoticiaRepository>();
 
   NoticiaEditModal({
     super.key,
