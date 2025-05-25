@@ -1,91 +1,166 @@
-
+import 'package:afranco/api/service/task_service.dart';
+import 'package:afranco/constants/constants.dart';
+import 'package:afranco/core/service/shared_preferences_service.dart';
+import 'package:afranco/core/secure_storage_service.dart';
 import 'package:afranco/domain/task.dart';
-import 'package:uuid/uuid.dart';
-class TaskRepository {
-  static final TaskRepository _instance = TaskRepository._privado();
-  
+import 'package:afranco/domain/task_cache_prefs.dart';
+import 'package:afranco/data/base_repository.dart';
+import 'package:flutter/material.dart';
+import 'package:watch_it/watch_it.dart';
 
-  TaskRepository._privado();
+class TaskRepository extends BaseRepository{
+  final TaskService _taskService = TaskService();
+  final _secureStorage = di<SecureStorageService>();
+  final _sharedPreferencesService = di<SharedPreferencesService>();
+  static const String _cacheTareasKey = TareasConstantes.cacheTareasKey;
+  String? _usuario;
 
-  // Factory para acceso global
-  factory TaskRepository() => _instance;
-  
-  List<Task> getTasks() => _tasks;
-  
-  final _tasks = List.generate(5, (index) {
-    final fechaLimite = DateTime(2025, 4,  10); // Genera fechas únicas);
-    return Task(
-      id: const Uuid().v4(), // <<< Genera ID único
-      title: 'Tarea ${index + 1}',
-      type: index % 2 == 0 ? 'normal' : 'urgente',
-      fechaLimite: fechaLimite,
-      pasos: generateSteps('Tarea ${index + 1}', fechaLimite),
+  TaskCachePrefs _fromJson(Map<String, dynamic> json) {
+    return TaskCachePrefsMapper.fromMap(json);
+  }
+  Map<String,dynamic> _toJson(TaskCachePrefs cache) {
+    return cache.toMap();
+  }
+  Future<void> _obtenerUsuario() async {
+    _usuario = await _secureStorage.getUserEmail();
+  }
+  TaskRepository() {
+    // Inicializar usuario de forma asíncrona
+    _obtenerUsuario().catchError((e) {
+      debugPrint('Error al obtener usuario: $e');
+    });
+  }
+  @override
+  void validarEntidad(dynamic tarea) {
+    validarNoVacio(tarea.titulo, TareasConstantes.tituloVacio);
+  }
+
+  Future<TaskCachePrefs?> _obtenerDatosDeCache(TaskCachePrefs? defaultValue) async {
+    return _sharedPreferencesService.getObject<TaskCachePrefs>(
+      key: _cacheTareasKey,
+      fromJson: _fromJson,
+      defaultValue: defaultValue,
     );
-  });
-
- static List<String> generateSteps(String title, DateTime fecha) {
-  String formatoSimple(DateTime fecha) {
-    // Agrega 0 izquierdo a día/mes si son menores a 10
-    String dia = fecha.day.toString().padLeft(2, '0');
-    String mes = fecha.month.toString().padLeft(2, '0');
-    return '$dia/$mes/${fecha.year}'; // Formato: 10/04/2025
-  }
-  return [
-    'Paso 1: Planificar $title antes del ${formatoSimple(DateTime(2025,4,10))}', // <<< Usa la fecha real
-    'Paso 2: Ejecutar $title',
-    'Paso 3: Revisar $title',
-  ];
-}
-  
-
-  // Agregar una nueva tarea
- Future<void> addTask(Task task) async {
-  await Future.delayed(const Duration(milliseconds: 300)); // Simula una operación asincrónica
-  if (!_tasks.contains(task)) { // Verifica que la tarea no exista ya en la lista
-    _tasks.add(task);
-  }
-}
-// En TaskRepository:
-Future<void> deleteTaskById(String id) async { // <<< Cambia a ID
-  await Future.delayed(const Duration(milliseconds: 300));
-  _tasks.removeWhere((task) => task.id == id); // Elimina por ID
-}
-  // Eliminar una tarea por título
-  void deleteTask(String title) {
-    _tasks.removeWhere((task) => task.title == title);
   }
 
-  // Eliminar una tarea por índice
- // En TaskRepository
-Future<void> deleteTaskByIndex(int index) async {
-  await Future.delayed(const Duration(milliseconds: 300)); // Simula async
-  if (index >= 0 && index < _tasks.length) {
-    _tasks.removeAt(index); // Asegura eliminar por índice
-  }
-}
-  // Actualizar el tipo de una tarea
-void updateTaskType(String title, String newType) {
-  final task = _tasks.firstWhere(
-    (task) => task.title == title,
-    orElse: () => Task(
-      id: '', // <<< Campo obligatorio pero no se usará
-      title: '',
-      type: 'normal',
-      fechaLimite: DateTime.now(),
-      pasos: [],
-    ),
-  );
-  if (task.title.isNotEmpty) {
-    task.type = newType;
-  }
-}
-
-  // Actualizar una tarea por índice
-  Future<void> updateTask(int index, Task updatedTask) async {
-    // Simula una operación asincrónica
-    await Future.delayed(const Duration(milliseconds: 300));
-    if (index >= 0 && index < _tasks.length) {
-      _tasks[index] = updatedTask;
+  Future<bool> _guardarDatosEnCache(List<Task> tareas) async {
+    if (_usuario == null) {
+      await _obtenerUsuario();
     }
+    
+    final usuario = _usuario ?? 'default_user';
+    return await _sharedPreferencesService.saveObject<TaskCachePrefs>(
+      key: _cacheTareasKey,
+      value: TaskCachePrefs(usuario: usuario, misTareas: tareas),
+      toJson: _toJson,
+    );
+  }
+
+  Future<bool> _actualizarCache(TaskCachePrefs Function(TaskCachePrefs cache) updateFn) async {
+    return await _sharedPreferencesService.updateObject<TaskCachePrefs>(
+      key: _cacheTareasKey,
+      updateFn: (current) {
+        if (current == null) {
+          // Si no hay un valor actual, creamos uno con el usuario actual
+          if (_usuario == null) {
+            _obtenerUsuario(); // Intentamos obtener el usuario aunque sea asíncrono
+          }
+          final usuario = _usuario ?? 'default_user';
+          return updateFn(TaskCachePrefs(usuario: usuario, misTareas: []));
+        }
+        return updateFn(current);
+      },
+      fromJson: _fromJson,
+      toJson: _toJson,
+    );
+  }
+  Future<List<Task>?> obtenerTareasDeCache() async {
+    try {
+      await _obtenerUsuario();
+      final cache = await _obtenerDatosDeCache(null);
+      if (cache != null) {
+        return cache.misTareas;
+      }
+    } catch (e) {
+      debugPrint('Error al obtener tareas de caché: $e');
+    }
+    return null;
+  }
+
+  Future<List<Task>?> obtenerTareasPorUsuario(String usuario) async {
+    List<Task>? tareasUsuario = await manejarExcepcion( 
+      () => _taskService.obtenerTareasPorUsuario(usuario),
+      mensajeError: TareasConstantes.errorObtenerTareasPorUsuario,
+    );
+    return tareasUsuario;
+  }
+  
+  /// Obtiene todas las tareas del usuario autenticado
+  /// Si [forzarRecarga] es true, se ignora la caché y se obtienen las tareas desde la API
+  /// Si [forzarRecarga] es false, se intenta obtener las tareas desde la caché
+  /// Si no hay caché se obtiene desde la API
+  Future<List<Task>> obtenerTareas({bool forzarRecarga = false}) async {
+    return await manejarExcepcion(() async {
+      // Asegurarse de tener un usuario
+      List<Task>? tareas = [];
+      String usuario = _usuario ?? 'default_user';
+      TaskCachePrefs? tareasCache = await _obtenerDatosDeCache(
+        TaskCachePrefs(usuario: usuario, misTareas: tareas),
+      );
+      if (tareasCache != null) {
+        return tareasCache.misTareas;
+      }
+      tareas = await obtenerTareasPorUsuario(usuario);
+      await _guardarDatosEnCache(tareas ?? []);
+      return tareas ?? [];
+    }, mensajeError: TareasConstantes.errorObtenerTareas);
+  }
+  /// Crea una tarea en la API y en la caché
+  Future<Task> agregarTarea(Task tarea) async {
+    return manejarExcepcion(() async {
+      validarEntidad(tarea);
+      final tareaConUsuario = tarea.copyWith(usuario: _usuario);
+      
+
+      Task nuevaTarea = await _taskService.crearTarea(tareaConUsuario);
+      await _actualizarCache((cache) =>
+        cache.copyWith(
+          misTareas: [...cache.misTareas, nuevaTarea],
+        ),
+      );
+      return nuevaTarea;
+    }, mensajeError: TareasConstantes.errorAgregarTarea);
+  }
+  Future<void> eliminarTarea(String id) async {
+    return manejarExcepcion(() async {
+      validarId(id);
+      await _taskService.eliminarTarea(id);
+      await _actualizarCache((cache) {
+        final tareasFiltradas = cache.misTareas.where((tarea) => tarea.id != id).toList();
+        return cache.copyWith(
+          misTareas: tareasFiltradas,
+        );
+      });
+    }, mensajeError: TareasConstantes.errorEliminarTarea);
+  }
+
+  Future<Task> actualizarTarea(Task tarea) async {
+    return manejarExcepcion(() async {
+      validarEntidad(tarea);
+      validarId(tarea.id);
+      final tareaActualizada = await _taskService.actualizarTarea(tarea);
+      await _actualizarCache((cache) {
+        final tareasActualizadas = cache.misTareas.map((t) {
+          if (t.id == tarea.id) {
+            return tareaActualizada;
+          }
+          return t;
+        }).toList();
+        return cache.copyWith(
+          misTareas: tareasActualizadas,
+        );
+      });
+      return tareaActualizada;
+    }, mensajeError: TareasConstantes.errorActualizarTarea);
   }
 }

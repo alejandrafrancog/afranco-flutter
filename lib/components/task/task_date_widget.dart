@@ -9,7 +9,7 @@ class TaskDateWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Text(
-      'Fecha límite: ${_formatDate(task.fechaLimite)}',
+      'Fecha límite: ${_formatDate(task.fechaLimite ?? DateTime.now())}',
       style: const TextStyle(
         fontSize: 14,
         fontStyle: FontStyle.italic,

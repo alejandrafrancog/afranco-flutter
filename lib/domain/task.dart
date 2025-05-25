@@ -1,28 +1,23 @@
-// Task entity/model
-class Task {
-  final String id;
-  final String title;
-  final String description;
-  String? type;
-  final DateTime fechaLimite; // Nuevo atributo: Fecha límite
-  final List<String> pasos; 
+import 'package:dart_mappable/dart_mappable.dart';
+part 'task.mapper.dart';
 
+@MappableClass()
+class Task with TaskMappable{
+  final String? id;
+  final String usuario;
+  final String titulo;
+  final String tipo;
+  final String? descripcion;
+  final DateTime? fecha;
+  final DateTime? fechaLimite; // Nueva fecha límite
 
   Task({
-    required this.id,
-    required this.title,
-    this.type = 'normal',
-    this.description = 'This is a random description',
-    required this.fechaLimite, // Requerido
-    this.pasos = const [], // Lista vacía por defecto
+    this.id,
+    required this.usuario,
+    required this.titulo,
+    this.tipo = 'normal', // Valor por defecto
+    this.descripcion,
+    this.fecha,
+    this.fechaLimite,
   });
-  @override
-  bool operator ==(Object other) =>
-    identical(this, other) ||
-    other is Task && runtimeType == other.runtimeType && title == other.title;
-
-  @override
-  int get hashCode => title.hashCode;
-  // Static list of task types
-  static const List<String> taskTypes = ['normal', 'urgente'];
 }
