@@ -7,6 +7,7 @@ import 'package:flutter/foundation.dart';
 
 import 'package:afranco/data/comentario_repository.dart';
 import 'package:afranco/core/comentario_cache_service.dart';
+import 'package:watch_it/watch_it.dart';
 
 class ComentarioBloc extends Bloc<ComentarioEvent, ComentarioState> {
   final ComentarioRepository comentarioRepository;
@@ -15,7 +16,7 @@ class ComentarioBloc extends Bloc<ComentarioEvent, ComentarioState> {
   ComentarioBloc({
     ComentarioRepository? comentarioRepository,
     ComentarioCacheService? cacheService,
-  })  : comentarioRepository = comentarioRepository ?? ComentarioRepository(),
+  })  : comentarioRepository = comentarioRepository ?? di<ComentarioRepository>(),
         _cacheService = cacheService ?? ComentarioCacheService(),
         super(ComentarioInitial()) {
     on<LoadComentarios>(_onLoadComentarios);

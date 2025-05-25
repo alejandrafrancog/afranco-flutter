@@ -9,7 +9,7 @@ import 'package:watch_it/watch_it.dart';
 class CategoryCard extends StatelessWidget {
   final Categoria category;
   final VoidCallback onCategoriaEliminada;
-  final CategoriaRepository repository = CategoriaRepository();
+  final CategoriaRepository repository = di<CategoriaRepository>();
   CategoryCard({
     super.key,
     required this.category,

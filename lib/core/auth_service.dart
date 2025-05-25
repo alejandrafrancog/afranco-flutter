@@ -1,30 +1,31 @@
 import 'dart:async';
+import 'package:afranco/constants/constants.dart';
+import 'package:afranco/core/api_config.dart';
 import 'package:afranco/domain/login_request.dart';
 import 'package:afranco/domain/login_response.dart';
 import 'package:afranco/api/service/base_service.dart';
-import 'package:afranco/exceptions/api_exception.dart';
+import 'package:flutter/material.dart';
 
 class AuthService extends BaseService {
   AuthService() : super();
-  
+
   Future<LoginResponse> login(LoginRequest request) async {
     try {
-      final data = await post(
-        '/login',
-        data: request.toJson(),   
+      debugPrint('🔐 Intentando login con usuario: ${request.username}');
+      debugPrint(
+        '🌐 URL: ${ApiConfig.beeceptorBaseUrl}${ApiConstantes.loginEndpoint}',
       );
-      
-      if (data != null) {
-        return LoginResponseMapper.fromMap(data);
-      } else {
-        throw ApiException(message:'Error de autenticación: respuesta vacía',statusCode:404);
-      }
+
+      final data = await post(
+        ApiConstantes.loginEndpoint,
+        data: request.toJson(),
+      );
+
+      debugPrint('✅ Login exitoso');
+      return LoginResponseMapper.fromMap(data);
     } catch (e) {
-      if (e is ApiException) {
-        rethrow;
-      } else {
-        throw ApiException(message:'Error de conexión: ${e.toString()}',statusCode:500);
-      }
+      debugPrint('❌ Error en login: $e');
+      rethrow;
     }
   }
 }

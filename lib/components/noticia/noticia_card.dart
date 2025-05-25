@@ -1,4 +1,3 @@
-import 'package:afranco/bloc/comentario_bloc/comentario_state.dart';
 import 'package:afranco/bloc/reporte_bloc/reporte_bloc.dart';
 import 'package:afranco/bloc/reporte_bloc/reporte_event.dart';
 import 'package:afranco/components/reporte/reporte_modal.dart';
@@ -6,6 +5,7 @@ import 'package:afranco/components/noticia/delete_noticia_modal.dart';
 import 'package:afranco/core/comentario_cache_service.dart';
 import 'package:afranco/core/reporte_cache_service.dart';
 import 'package:afranco/data/reporte_repository.dart';
+import 'package:afranco/helpers/category_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:afranco/domain/noticia.dart';
 import 'package:afranco/noticias_estilos.dart';
@@ -22,7 +22,7 @@ class NoticiaCard extends StatelessWidget {
   final String imageUrl;
   final Function(Noticia) onEditPressed;
   final VoidCallback onDelete;
-  final reporteRepository = ReporteRepository();
+  final reporteRepository = di<ReporteRepository>();
 
   NoticiaCard({
     super.key,
@@ -31,7 +31,7 @@ class NoticiaCard extends StatelessWidget {
     required this.onEditPressed,
     required this.onDelete,
   });
-  
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -71,34 +71,31 @@ class NoticiaCard extends StatelessWidget {
                   color: const Color(0xFFEDF6F9),
                   border: Border.all(color: const Color(0xFFEDF6F9), width: 2),
                   borderRadius: BorderRadius.circular(82),
-                  /*boxShadow: [
-                    BoxShadow(
-                      color: const Color.fromARGB(255, 161, 207, 228)
-                          .withAlpha(100),
-                      blurRadius: 2,
-                      offset: const Offset(0, 5),
-                    ),
-                  ],*/
                 ),
-                child: // Reemplazar el FutureBuilder por BlocBuilder
-                    BlocBuilder<ComentarioBloc, ComentarioState>(
-                  builder: (context, state) {
-                    if (state is NumeroComentariosLoaded &&
-                        state.noticiaId == noticia.id) {
-                      return Text(
-                        '${state.numeroComentarios}',
-                        style: NoticiaEstilos.fuenteNoticia,
+                child: FutureBuilder<String>(
+                  future: CategoryHelper.getCategoryName(noticia.categoryId),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.white,
                       );
                     }
-                    return const Text(
-                      '...',
-                      style: NoticiaEstilos.fuenteNoticia,
+
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
+                      child: Text(
+                        snapshot.data ?? 'Sin categoría',
+                        style: NoticiaEstilos.fuenteNoticia,
+                      ),
                     );
                   },
                 ),
               ),
             ),
-
             // Fecha
             Padding(
               padding: const EdgeInsets.only(left: 20),
@@ -137,6 +134,7 @@ class NoticiaCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(12),
                         image: DecorationImage(
                           image: NetworkImage(imageUrl),
+
                           fit: BoxFit.cover,
                           matchTextDirection: true,
                         ),
@@ -232,6 +230,7 @@ class NoticiaCard extends StatelessWidget {
                           );
                         },
                       ),
+                      
                       IconButton(
                         icon: Row(
                           children: [
@@ -273,9 +272,12 @@ class NoticiaCard extends StatelessWidget {
                                           motivo: motivo,
                                         ),
                                       );
-                                      bloc.add(
-                                        ReporteRefreshEvent(),
-                                      ); // Esto solo si el bloc lo soporta
+                                      Future.delayed(
+                                        const Duration(milliseconds: 500),
+                                        () {
+                                          bloc.add(ReporteRefreshEvent());
+                                        },
+                                      );
                                     },
                                   ),
                             ), // Puedes añadir lógica adicional aquí

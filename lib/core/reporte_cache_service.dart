@@ -14,29 +14,29 @@ class ReporteCacheService {
 
   // Caché de reportes por noticiaId
   final Map<String, List<Reporte>> _reportesPorNoticiaCache = {};
-  
+
   // Caché del total de reportes
   List<Reporte>? _todosLosReportes;
 
   // Tiempo de expiración de la caché (5 minutos)
   final Duration _cacheExpiration = const Duration(minutes: 5);
-  
+
   // Timestamp para el último refresh de cada noticia
   final Map<String, DateTime> _lastRefreshByNoticiaId = {};
-  
+
   // Timestamp para el último refresh global
   DateTime? _lastGlobalRefresh;
 
   /// Obtiene los reportes de una noticia específica, ya sea desde la caché o solicitándolos
   Future<List<Reporte>> getReportesPorNoticia(
-    String noticiaId, 
-    Future<List<Reporte>> Function(String) fetchFromApi
+    String noticiaId,
+    Future<List<Reporte>> Function(String) fetchFromApi,
   ) async {
     // Verificar si el caché ha expirado para esta noticia
     final lastRefresh = _lastRefreshByNoticiaId[noticiaId];
     final now = DateTime.now();
-    final isCacheExpired = lastRefresh == null || 
-                          now.difference(lastRefresh) > _cacheExpiration;
+    final isCacheExpired =
+        lastRefresh == null || now.difference(lastRefresh) > _cacheExpiration;
 
     // Si no está en caché o ha expirado, cargar desde la API
     if (!_reportesPorNoticiaCache.containsKey(noticiaId) || isCacheExpired) {
@@ -50,7 +50,9 @@ class ReporteCacheService {
         debugPrint('❌ Error cargando reportes desde API: $e');
         // Si ya tenemos datos en caché, usarlos aunque hayan expirado
         if (_reportesPorNoticiaCache.containsKey(noticiaId)) {
-          debugPrint('⚠️ Usando caché expirada para reportes de noticia $noticiaId');
+          debugPrint(
+            '⚠️ Usando caché expirada para reportes de noticia $noticiaId',
+          );
           return _reportesPorNoticiaCache[noticiaId]!;
         }
         // Si no hay caché, propagar el error
@@ -64,12 +66,13 @@ class ReporteCacheService {
 
   /// Obtiene todos los reportes, ya sea desde la caché o solicitándolos
   Future<List<Reporte>> getTodosLosReportes(
-    Future<List<Reporte>> Function() fetchFromApi
+    Future<List<Reporte>> Function() fetchFromApi,
   ) async {
     // Verificar si el caché global ha expirado
     final now = DateTime.now();
-    final isCacheExpired = _lastGlobalRefresh == null || 
-                          now.difference(_lastGlobalRefresh!) > _cacheExpiration;
+    final isCacheExpired =
+        _lastGlobalRefresh == null ||
+        now.difference(_lastGlobalRefresh!) > _cacheExpiration;
 
     // Si no está en caché o ha expirado, cargar desde la API
     if (_todosLosReportes == null || isCacheExpired) {
@@ -97,8 +100,8 @@ class ReporteCacheService {
 
   /// Obtiene el número de reportes para una noticia específica
   Future<int> getNumeroReportesPorNoticia(
-    String noticiaId, 
-    Future<List<Reporte>> Function(String) fetchFromApi
+    String noticiaId,
+    Future<List<Reporte>> Function(String) fetchFromApi,
   ) async {
     final reportes = await getReportesPorNoticia(noticiaId, fetchFromApi);
     return reportes.length;
@@ -107,6 +110,9 @@ class ReporteCacheService {
   /// Agrega un reporte a la caché
   void addReporte(Reporte reporte) {
     // Actualizar caché por noticia
+    invalidateNoticiaCache(reporte.noticiaId); // <-- Añadir
+    _todosLosReportes = null;
+
     if (_reportesPorNoticiaCache.containsKey(reporte.noticiaId)) {
       final reportesNoticia = _reportesPorNoticiaCache[reporte.noticiaId]!;
       if (!reportesNoticia.any((r) => r.id == reporte.id)) {
@@ -152,7 +158,9 @@ class ReporteCacheService {
   void removeReporte(String reporteId, String noticiaId) {
     // Eliminar de caché por noticia
     if (_reportesPorNoticiaCache.containsKey(noticiaId)) {
-      _reportesPorNoticiaCache[noticiaId]!.removeWhere((r) => r.id == reporteId);
+      _reportesPorNoticiaCache[noticiaId]!.removeWhere(
+        (r) => r.id == reporteId,
+      );
     }
 
     // Eliminar de caché global si existe

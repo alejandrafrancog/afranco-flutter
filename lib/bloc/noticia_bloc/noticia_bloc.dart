@@ -5,9 +5,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:afranco/data/noticia_repository.dart';
 import 'package:afranco/constants/constants.dart';
 import 'package:watch_it/watch_it.dart';
+import 'package:afranco/core/noticia_cache_service.dart'; // Asegúrate de importar el servicio
 
 class NoticiaBloc extends Bloc<NoticiaEvent, NoticiaState> {
   final NoticiaRepository noticiaRepository = di<NoticiaRepository>();
+  final NoticiaCacheService _cacheService = NoticiaCacheService(); // Instancia del caché
   int _currentPage = 1;
   final bool _ordenarPorFecha = true;
 
@@ -71,14 +73,18 @@ class NoticiaBloc extends Bloc<NoticiaEvent, NoticiaState> {
           )
           .timeout(const Duration(seconds: 15));
 
+      // Actualizar caché con las nuevas noticias
+      for (final noticia in nuevasNoticias) {
+        await _cacheService.updateNoticia(noticia);
+      }
+
       final tieneMas = nuevasNoticias.length >= NoticiaConstants.pageSize;
 
       emit(
         state.copyWith(
-          noticias:
-              resetear
-                  ? nuevasNoticias
-                  : [...state.noticias, ...nuevasNoticias],
+          noticias: resetear
+              ? nuevasNoticias
+              : [...state.noticias, ...nuevasNoticias],
           tieneMas: tieneMas,
           ultimaActualizacion: DateTime.now(),
           isLoading: false,
@@ -116,18 +122,22 @@ class NoticiaBloc extends Bloc<NoticiaEvent, NoticiaState> {
       );
 
       final allNoticias = await noticiaRepository.obtenerNoticias();
-      final filteredNoticias =
-          allNoticias
-              .where(
-                (noticia) => event.categoriasIds.contains(noticia.categoryId),
-              )
-              .toList();
+      
+      // Actualizar caché con todas las noticias obtenidas
+      for (final noticia in allNoticias) {
+        await _cacheService.updateNoticia(noticia);
+      }
 
-      // Use state.copyWith instead of creating a new state type
+      final filteredNoticias = allNoticias
+          .where(
+            (noticia) => event.categoriasIds.contains(noticia.categoryId),
+          )
+          .toList();
+
       emit(
         state.copyWith(
           noticias: filteredNoticias,
-          tieneMas: false, // Since we're showing all filtered results at once
+          tieneMas: false,
           ultimaActualizacion: DateTime.now(),
           isLoading: false,
         ),

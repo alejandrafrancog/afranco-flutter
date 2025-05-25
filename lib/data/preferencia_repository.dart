@@ -1,9 +1,13 @@
 import 'package:afranco/data/base_repository.dart';
 import 'package:afranco/api/service/preferencia_service.dart';
+import 'package:afranco/core/secure_storage_service.dart';
 import 'package:afranco/domain/preferencia.dart';
+import 'package:flutter/foundation.dart';
+import 'package:watch_it/watch_it.dart';
 
 class PreferenciaRepository extends BaseRepository {
-  final PreferenciaService _preferenciaService = PreferenciaService();
+  final PreferenciaService _preferenciaService = di<PreferenciaService>();
+  final SecureStorageService _secureStorage = di<SecureStorageService>();
   Preferencia? _cachedPreferencias;
 
   Future<List<String>> obtenerCategoriasSeleccionadas() async {
@@ -15,8 +19,15 @@ class PreferenciaRepository extends BaseRepository {
 
   Future<void> guardarCategoriasSeleccionadas(List<String> categoriaIds) async {
     return handleApiCall(() async {
+      final email = await _secureStorage.getUserEmail() ?? '';
+      debugPrint('💾 Guardando categorías para usuario: $email');
+      
       _cachedPreferencias ??= await _preferenciaService.getPreferencias();
-      _cachedPreferencias = Preferencia(categoriasSeleccionadas: categoriaIds);
+      _cachedPreferencias = Preferencia(
+        email: email,
+        categoriasSeleccionadas: categoriaIds,
+      );
+      
       await _preferenciaService.guardarPreferencias(_cachedPreferencias!);
     });
   }
@@ -45,8 +56,12 @@ class PreferenciaRepository extends BaseRepository {
 
   Future<void> limpiarFiltrosCategorias() async {
     await handleApiCall(() async {
-      await guardarCategoriasSeleccionadas([]);
-      _cachedPreferencias = Preferencia.empty();
+      final email = await _secureStorage.getUserEmail() ?? '';
+      _cachedPreferencias = Preferencia(
+        email: email,
+        categoriasSeleccionadas: const [],
+      );
+      await _preferenciaService.guardarPreferencias(_cachedPreferencias!);
     });
   }
 

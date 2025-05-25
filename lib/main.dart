@@ -15,12 +15,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  ComentarioMapper.ensureInitialized();
+
   await dotenv.load(fileName: ".env");
+  
   await initLocator();
+
+  ComentarioMapper.ensureInitialized();
 
   runApp(
     MultiBlocProvider(
@@ -49,7 +51,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         brightness: Brightness.light,
-        textTheme:GoogleFonts.merriweatherSansTextTheme(),
+        textTheme: GoogleFonts.merriweatherSansTextTheme(),
         colorScheme: const ColorScheme.light(
           primary: Colors.teal,
           secondary: Colors.white,
