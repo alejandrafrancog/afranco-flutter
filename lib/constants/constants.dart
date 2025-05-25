@@ -43,6 +43,48 @@ class AppConstantes {
   static const String errorCache = 'Error al actualizar caché local';
 }
 
+class TareasConstantes {
+  static const String tituloAppBar = 'Mis Tareas';
+  static const String listaVacia = 'No hay tareas';
+  static const String tipoTarea = 'Tipo: ';
+  static const String taskTypeNormal = 'normal';
+  static const String taskTypeUrgent = 'urgente';
+  static const String taskDescription = 'Descripción: ';
+  static const String pasosTitulo = 'Pasos para completar: ';
+  static const String fechaLimite = 'Fecha límite: ';
+  static const String tareaEliminada = 'Tarea eliminada';
+  static const int limitePasos = 2;
+  static const int limiteTareas = 10;
+  // Constantes para cache y persistencia
+  static const String cacheTareasKey = 'tarea_cache_prefs';
+  // Mensajes de error
+  static const String errorObtenerTareasPorUsuario =
+      'Error al obtener tareas del usuario';
+  static const String errorObtenerTareas = 'Error al obtener tareas';
+  static const String errorAgregarTarea = 'Error al agregar tarea';
+  static const String errorEliminarTarea = 'Error al eliminar tarea';
+  static const String errorActualizarTarea = 'Error al actualizar tarea';
+  static const String tituloVacio = 'El título no puede estar vacío';
+}
+class ValidacionConstantes {
+  // Mensajes genéricos
+  static const String campoVacio = ' no puede estar vacío';
+  static const String noFuturo = ' no puede estar en el futuro.';
+  // static const String campoInvalido = 'no es válido';
+  // static const String campoMuyCorto = 'es demasiado corto';
+  // static const String campoMuyLargo = 'es demasiado largo';
+  
+  // Campos comunes
+  static const String imagenUrl = 'URL de la imagen';
+
+  static const String nombreCategoria = 'El nombre de la categoría';
+  static const String descripcionCategoria = 'La descripción de la categoría';
+  static const String tituloNoticia = 'El título de la noticia';
+  static const String descripcionNoticia = 'La descripción de la noticia';
+  static const String fuenteNoticia = 'La fuente de la noticia';
+  static const String fechaNoticia = 'La fecha de la publicación de la noticia';
+}
+
 class ApiConstantes {
   static const String categoriaEndpoint = '/categorias';
   static const String noticiasEndpoint = '/noticias';
@@ -50,7 +92,7 @@ class ApiConstantes {
   static const String comentariosEndpoint = '/comentarios';
   static const String reportesEndpoint = '/reportes';
   static const String loginEndpoint = '/login';
-
+  static const String tareasEndpoint = '/tareasPreferencias';
 }
 
 class PreferenciaConstantes {
@@ -92,6 +134,8 @@ class ApiConstants {
   static String get baseUrl => ApiConfig.beeceptorBaseUrl;
   static String errorNotFound = 'No se encontró el recurso';
   static String noticiasEndpoint = 'noticias';
+  static String tareasEndpoint = 'tareasPreferencias';
+
   static String preferenciasEndpoint = 'preferenciasEmail';
   static String categoryEndpoint = 'categorias';
   static String comentarioEndpoint = 'comentarios';
@@ -99,6 +143,8 @@ class ApiConstants {
   static String urlNoticias = '$baseUrl/$noticiasEndpoint';
   static String urlPreferencias = '$baseUrl/$preferenciasEndpoint';
   static String comentariosUrl = '$baseUrl/$comentarioEndpoint';
+  static String urlTareas = '$baseUrl/$tareasEndpoint';
+
   static var serverError = 'Error del servidor!';
   static int timeoutSeconds = 10;
   static var errorTimeout = 'Tiempo de espera agotado';

@@ -1,90 +1,163 @@
-import 'package:afranco/data/task_repository.dart';
+import 'package:afranco/api/service/base_service.dart';
+import 'package:afranco/constants/constants.dart';
 import 'package:afranco/domain/task.dart';
-import 'package:afranco/data/assistant_repository.dart';
-import 'package:uuid/uuid.dart';
+import 'package:afranco/exceptions/api_exception.dart';
 
-class TaskService {
-  static final TaskService _instance = TaskService._private(); // Nombre alternativo
-  final TaskRepository _taskRepository = TaskRepository();
+/// Servicio para gestionar las tareas
+class TaskService extends BaseService {
+  // Utilizamos el constructor del BaseService
+  TaskService() : super();
 
-  // Constructor privado (puedes usar cualquier nombre)
-  TaskService._private();
-
-  // Factory para acceder a la instancia
-  factory TaskService() => _instance;
-
-  // Métodos existentes...
-  List<Task> getAllTasks() => _taskRepository.getTasks();
- 
-  List<Task> getInitialTasks() {
-    return _taskRepository.getTasks(); // Devuelve las 5 tareas generadas
-  }
-  
-
-
-  final AssistantRepository _assistantRepository = AssistantRepository();
-
-
-  Future<void> addTask(String title, String type, DateTime fechaLimite) async {
-  final pasos = await _assistantRepository.generateSteps(title, fechaLimite);
-  final newTask = Task(
-    id: const Uuid().v4(), // <<< Agrega ID
-    title: title,
-    type: type,
-    fechaLimite: fechaLimite,
-    pasos: pasos,
-  );
-  await _taskRepository.addTask(newTask);
-}
-  Future<void> addTaskDirectly(Task task) async {
-  await _taskRepository.addTask(task);
-}
-  // Eliminar una tarea por título
-  void deleteTask(String title) {
-    _taskRepository.deleteTask(title);
-  
+  Future<List<Task>> obtenerTareasPorUsuario(String usuario) async {
+    try {
+      final data = await get(
+        '${ApiConstantes.tareasEndpoint}/?usuario=$usuario',
+        errorMessage: 'Error al obtener tareas del usuario',
+      );
+      return data.map((json) => TaskMapper.fromMap(json)).toList();
+    } catch (e) {
+      if (e is ApiException) {
+        rethrow;
+      }
+      throw ApiException(
+        message: 'Error al obtener tareas por usuario',
+        statusCode: null,
+      );
+    }
   }
 
-  // Actualizar el tipo de una tarea
-  void updateTaskType(String title, String newType) {
-    _taskRepository.updateTaskType(title, newType);
-  
-  } 
-  Future<List<String>> obtenerPasos(String tituloTarea, DateTime fechaLimite) async {
-    await Future.delayed(const Duration(milliseconds: 300)); // Simula un retraso
+  /// Obtiene todas las tareas desde la API
+  Future<List<Task>> obtenerTareas() async {
+    try {
+      // Usamos el método get heredado de BaseService
+      final data = await get<List<dynamic>>(
+        ApiConstantes.tareasEndpoint,
+        errorMessage: 'Error al obtener tareas',
+      );
 
-    
-    return TaskRepository.generateSteps(tituloTarea,DateTime(2025,04,10));
+      // Convertimos los datos a objetos Task
+      return data.map((json) => TaskMapper.fromMap(json)).toList();
+    } catch (e) {
+      if (e is ApiException) {
+        rethrow;
+      }
+      throw ApiException(message: 'Error al obtener tareas', statusCode: null);
+    }
   }
-Future<Task> generarTarea(String titulo, DateTime fechaLimite, String tipo) async {
-  final pasos = await obtenerPasos(titulo, fechaLimite);
-  return Task(
-    id: const Uuid().v4(),
-    title: titulo,
-    type: tipo,
-    fechaLimite: DateTime(2025,04,10),
-    pasos: pasos,
-  );
-}
 
-// En TaskService:
-// En TaskService.generarTareas:
-Future<List<Task>> generarTareas(int cantidad, int inicio) async {
-  return Future.wait(
-    List.generate(
-      cantidad,
-      (index) async {
-        final taskIndex = inicio + index + 1;
-        return generarTarea(
-          'Tarea $taskIndex',
-          DateTime.now().add(Duration(days: taskIndex)),
-          taskIndex % 2 == 0 ? 'urgente' : 'normal',
-        );
-      },
-    ),
-  );
-}
+  /// Obtiene una tarea específica por su ID
+  Future<Task> obtenerTareaPorId(String id) async {
+    try {
+      // Usamos el método get heredado de BaseService
+      final data = await get<Map<String, dynamic>>(
+        '${ApiConstantes.tareasEndpoint}/$id',
+        errorMessage: 'Error al obtener la tarea',
+      );
 
-  // Método para obtener pasos simulados según el título de la tarea
+      return TaskMapper.fromMap(data);
+    } catch (e) {
+      if (e is ApiException) {
+        rethrow;
+      }
+      throw ApiException(
+        message: 'Error al obtener la tarea',
+        statusCode: null,
+      );
+    }
+  }
 
+  /// Crea una nueva tarea
+  Future<Task> crearTarea(Task tarea) async {
+    try {
+      // Usando el método generado por dart_mappable
+      final Map<String, dynamic> tareaData = tarea.toMap();
+
+      // CORRECCIÓN 1: Usar la constante correcta y consistente
+      // Cambiar de ApiConstants.urlTareas a ApiConstantes.tareasEndpoint
+      final response = await post(
+        ApiConstantes.tareasEndpoint, 
+        data: tareaData,
+        errorMessage: 'Error al crear la tarea',
+      );
+
+      return TaskMapper.fromMap(response);
+    } catch (e) {
+      // CORRECCIÓN 2: Mejor manejo de errores con logging
+      print('Error en crearTarea: $e'); // Para debugging
+      if (e is ApiException) {
+        rethrow;
+      }
+      throw ApiException(message: 'Error al crear la tarea', statusCode: null);
+    }
+  }
+
+  /// Actualiza una tarea existente
+  Future<Task> actualizarTarea(Task tarea) async {
+    if (tarea.id == null) {
+      throw ApiException(
+        message: 'No se puede actualizar una tarea sin ID',
+        statusCode: null,
+      );
+    }
+
+    try {
+      // Usando el método generado por dart_mappable
+      final Map<String, dynamic> tareaData = tarea.toMap();
+
+      // Usamos el método put heredado de BaseService
+      final response = await put(
+        '${ApiConstantes.tareasEndpoint}/${tarea.id}',
+        data: tareaData,
+        errorMessage: 'Error al actualizar la tarea',
+      );
+
+      return TaskMapper.fromMap(response);
+    } catch (e) {
+      print('Error en actualizarTarea: $e'); // Para debugging
+      if (e is ApiException) {
+        rethrow;
+      }
+      throw ApiException(
+        message: 'Error al actualizar la tarea',
+        statusCode: null,
+      );
+    }
+  }
+
+  /// Elimina una tarea
+  Future<void> eliminarTarea(String id) async {
+    try {
+      // Usamos el método delete heredado de BaseService
+      await delete(
+        '${ApiConstantes.tareasEndpoint}/$id',
+        errorMessage: 'Error al eliminar la tarea',
+      );
+    } catch (e) {
+      if (e is ApiException) {
+        rethrow;
+      }
+      throw ApiException(
+        message: 'Error al eliminar la tarea',
+        statusCode: null,
+      );
+    }
+  }
+
+  // CORRECCIÓN 3: Método adicional para crear tarea sin conexión (fallback local)
+  Future<Task> crearTareaLocal(Task tarea) async {
+    try {
+      // Generar un ID temporal si no existe
+      if (tarea.id == null) {
+        final nuevoId = DateTime.now().millisecondsSinceEpoch.toString();
+        tarea = tarea.copyWith(id: nuevoId);
+      }
+
+      return tarea;
+    } catch (e) {
+      throw ApiException(
+        message: 'Error al crear la tarea localmente',
+        statusCode: null,
+      );
+    }
+  }
 }

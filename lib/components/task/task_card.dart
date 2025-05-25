@@ -17,11 +17,11 @@ class TaskCard extends StatelessWidget {
       ),
       child: ListTile(
         leading: Icon(
-          task.type == 'urgente' ? Icons.warning : Icons.task,
-          color: task.type == 'urgente' ? Colors.red : Colors.blue,
+          task.tipo == 'urgente' ? Icons.warning : Icons.task,
+          color: task.tipo == 'urgente' ? Colors.red : Colors.blue,
         ),
-        title: Text(task.title),
-        subtitle: Text('${AppConstants.taskTypeLabel}: ${task.type}'),
+        title: Text(task.titulo),
+        subtitle: Text('${AppConstants.taskTypeLabel}: ${task.tipo}'),
       ),
     );
   }
