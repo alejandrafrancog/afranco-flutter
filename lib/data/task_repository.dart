@@ -5,6 +5,7 @@ import 'package:afranco/core/secure_storage_service.dart';
 import 'package:afranco/domain/task.dart';
 import 'package:afranco/domain/task_cache_prefs.dart';
 import 'package:afranco/data/base_repository.dart';
+import 'package:afranco/exceptions/api_exception.dart';
 import 'package:flutter/material.dart';
 import 'package:watch_it/watch_it.dart';
 
@@ -114,26 +115,31 @@ class TaskRepository extends BaseRepository {
       }
 
       // 2. Obtener usuario actual
+      await _obtenerUsuario();
       if (_usuario == null) {
-        await _obtenerUsuario();
+        throw ApiException(
+          message: 'No hay usuario autenticado',
+          statusCode: 401,
+        );
       }
-      String usuario = _usuario ?? 'default_user';
 
       try {
-        // 3. Intentar obtener tareas desde API primero
-        final tareasApi = await obtenerTareasPorUsuario(usuario);
+        // 3. Intentar obtener tareas desde API
+        final tareasApi = await obtenerTareasPorUsuario(_usuario!);
 
-        // 4. Actualizar caché con datos frescos de API
+        // 4. Actualizar caché solo con las tareas del usuario actual
         await _guardarDatosEnCache(tareasApi ?? []);
 
         return tareasApi ?? [];
       } catch (e) {
         debugPrint('❌ Error obteniendo tareas de API: $e');
 
-        // 5. Si falla API, intentar usar caché
+        // 5. Si falla API, intentar usar caché pero verificar usuario
         final cache = await _obtenerDatosDeCache(null);
-        if (cache != null) {
-          debugPrint('✅ Usando tareas desde caché');
+        if (cache != null && cache.usuario == _usuario) {
+          debugPrint(
+            '✅ Usando tareas desde caché del usuario: ${cache.usuario}',
+          );
           return cache.misTareas;
         }
         rethrow;
@@ -184,5 +190,15 @@ class TaskRepository extends BaseRepository {
       });
       return tareaActualizada;
     }, mensajeError: TareasConstantes.errorActualizarTarea);
+  }
+
+  Future<void> limpiarCache() async {
+    try {
+      await _sharedPreferencesService.remove(_cacheTareasKey);
+      debugPrint('✅ Caché de tareas limpiado correctamente');
+    } catch (e) {
+      debugPrint('❌ Error al limpiar caché de tareas: $e');
+      rethrow;
+    }
   }
 }
