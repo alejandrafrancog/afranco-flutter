@@ -251,6 +251,18 @@ class TasksScreenState extends State<TasksScreen> {
             children: [
               TaskImage(randomIndex: index, height: 150),
               ListTile(
+                leading: StatefulBuilder(
+                builder: (context, setState) {
+                  return Checkbox(
+                    value: false, // Por ahora siempre falso
+                    onChanged: (bool? value) {
+                      setState(() {
+                        // Por ahora solo visual
+                      });
+                    },
+                  );
+                },
+              ),
                 contentPadding: const EdgeInsets.all(16),
                 title: CommonWidgetsHelper.buildBoldTitle(task.titulo),
                 subtitle: Column(
