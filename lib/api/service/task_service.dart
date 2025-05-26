@@ -69,21 +69,17 @@ class TaskService extends BaseService {
   /// Crea una nueva tarea
   Future<Task> crearTarea(Task tarea) async {
     try {
-      // Usando el método generado por dart_mappable
       final Map<String, dynamic> tareaData = tarea.toMap();
 
-      // CORRECCIÓN 1: Usar la constante correcta y consistente
-      // Cambiar de ApiConstants.urlTareas a ApiConstantes.tareasEndpoint
+      // Usar la URL correcta con el usuario
       final response = await post(
-        ApiConstantes.tareasEndpoint, 
+        ApiConstantes.tareasEndpoint,
         data: tareaData,
         errorMessage: 'Error al crear la tarea',
       );
 
       return TaskMapper.fromMap(response);
     } catch (e) {
-      // CORRECCIÓN 2: Mejor manejo de errores con logging
-      print('Error en crearTarea: $e'); // Para debugging
       if (e is ApiException) {
         rethrow;
       }
