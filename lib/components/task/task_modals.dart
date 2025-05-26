@@ -49,8 +49,8 @@ Future<void> showEditTaskModal(
     },
   );
 }
-
-void _showAddTaskModal(BuildContext context) {
+// Remover el guión bajo para hacerlo público
+void showAddTaskModal(BuildContext context) {
   final secureStorage = di<SecureStorageService>();
   
   showModalBottomSheet(
@@ -59,19 +59,39 @@ void _showAddTaskModal(BuildContext context) {
     builder: (context) => Padding(
       padding: EdgeInsets.only(
         bottom: MediaQuery.of(context).viewInsets.bottom,
+        left: 16,
+        right: 16,
+        top: 16,
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
+          const Text(
+            'Nueva Tarea',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 16),
           FutureBuilder<String?>(
             future: secureStorage.getUserEmail(),
             builder: (context, snapshot) {
-              if (!snapshot.hasData) return const CircularProgressIndicator();
+              if (snapshot.hasError) {
+                return const Text('Error obteniendo usuario');
+              }
+              
+              if (!snapshot.hasData) {
+                return const CircularProgressIndicator();
+              }
               
               return TaskForm(
-                usuario: snapshot.data,
                 onSave: (newTask) {
-                  context.read<TareasBloc>().add(TareasAddEvent(tarea: newTask));
+                  // Asegurar que la tarea tenga el usuario correcto
+                  final taskWithUser = newTask.copyWith(
+                    usuario: snapshot.data,
+                  );
+                  
+                  context.read<TareasBloc>().add(
+                    TareasAddEvent(tarea: taskWithUser),
+                  );
                   Navigator.of(context).pop();
                 },
               );

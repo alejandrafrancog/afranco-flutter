@@ -92,7 +92,7 @@ class ApiConstantes {
   static const String comentariosEndpoint = '/comentarios';
   static const String reportesEndpoint = '/reportes';
   static const String loginEndpoint = '/login';
-  static const String tareasEndpoint = '/tareasPreferencias';
+  static const String tareasEndpoint = '/tareas';
 }
 
 class PreferenciaConstantes {

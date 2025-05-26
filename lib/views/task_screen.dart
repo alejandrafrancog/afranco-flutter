@@ -43,18 +43,22 @@ class TasksScreenState extends State<TasksScreen> {
           BlocBuilder<TareasBloc, TareasState>(
             builder: (context, state) {
               return IconButton(
-                icon: state.status == TareasStatus.loading
-                    ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Icon(Icons.refresh),
-                onPressed: state.status == TareasStatus.loading
-                    ? null
-                    : () {
-                        context.read<TareasBloc>().add(const TareasLoadEvent());
-                      },
+                icon:
+                    state.status == TareasStatus.loading
+                        ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                        : const Icon(Icons.refresh),
+                onPressed:
+                    state.status == TareasStatus.loading
+                        ? null
+                        : () {
+                          context.read<TareasBloc>().add(
+                            const TareasLoadEvent(),
+                          );
+                        },
               );
             },
           ),
@@ -63,7 +67,8 @@ class TasksScreenState extends State<TasksScreen> {
       body: BlocConsumer<TareasBloc, TareasState>(
         listener: (context, state) {
           // MEJORA 2: Mejor manejo de mensajes de estado
-          if (state.status == TareasStatus.error && state.errorMessage != null) {
+          if (state.status == TareasStatus.error &&
+              state.errorMessage != null) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(state.errorMessage!),
@@ -79,10 +84,9 @@ class TasksScreenState extends State<TasksScreen> {
               ),
             );
           }
-          
+
           // MEJORA 3: Mensaje de éxito al agregar tarea
-          if (state.status == TareasStatus.loaded && 
-              state.tareas.isNotEmpty) {
+          if (state.status == TareasStatus.loaded && state.tareas.isNotEmpty) {
             // Este es un hack simple para detectar si se agregó una tarea
             // En una implementación más robusta, podrías usar un estado específico
             WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -126,10 +130,9 @@ class TasksScreenState extends State<TasksScreen> {
                   ),
                   const SizedBox(height: 16),
                   // MEJORA 4: Botón para agregar primera tarea
-                  ElevatedButton.icon(
+                  FloatingActionButton(
                     onPressed: () => _showAddTaskModal(context),
-                    icon: const Icon(Icons.add),
-                    label: const Text('Agregar primera tarea'),
+                    child: const Icon(Icons.add),
                   ),
                 ],
               ),
@@ -147,7 +150,8 @@ class TasksScreenState extends State<TasksScreen> {
                 },
               ),
               // MEJORA 5: Indicador de carga superpuesto durante operaciones
-              if (state.status == TareasStatus.loading && state.tareas.isNotEmpty)
+              if (state.status == TareasStatus.loading &&
+                  state.tareas.isNotEmpty)
                 Container(
                   color: Colors.black12,
                   child: const Center(
@@ -173,22 +177,25 @@ class TasksScreenState extends State<TasksScreen> {
       floatingActionButton: BlocBuilder<TareasBloc, TareasState>(
         builder: (context, state) {
           return FloatingActionButton(
-            onPressed: state.status == TareasStatus.loading
-                ? null
-                : () => _showAddTaskModal(context),
-            backgroundColor: state.status == TareasStatus.loading
-                ? Colors.grey
-                : null,
-            child: state.status == TareasStatus.loading
-                ? const SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                    ),
-                  )
-                : const Icon(Icons.add),
+            // Agregar heroTag único
+            heroTag: 'addTaskButton',
+            onPressed:
+                state.status == TareasStatus.loading
+                    ? null
+                    : () => _showAddTaskModal(context),
+            backgroundColor:
+                state.status == TareasStatus.loading ? Colors.grey : null,
+            child:
+                state.status == TareasStatus.loading
+                    ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      ),
+                    )
+                    : const Icon(Icons.add),
           );
         },
       ),
@@ -221,7 +228,10 @@ class TasksScreenState extends State<TasksScreen> {
                 ),
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(true),
-                  child: const Text('Eliminar', style: TextStyle(color: Colors.red)),
+                  child: const Text(
+                    'Eliminar',
+                    style: TextStyle(color: Colors.red),
+                  ),
                 ),
               ],
             );
@@ -250,9 +260,12 @@ class TasksScreenState extends State<TasksScreen> {
                     CommonWidgetsHelper.buildInfoLines(
                       line1: task.descripcion ?? 'Sin descripción',
                       line2: task.descripcion ?? '',
-                      line3: task.fechaLimite != null
-                          ? DateFormat('dd/MM/yyyy').format(task.fechaLimite!)
-                          : 'Sin fecha límite',
+                      line3:
+                          task.fechaLimite != null
+                              ? DateFormat(
+                                'dd/MM/yyyy',
+                              ).format(task.fechaLimite!)
+                              : 'Sin fecha límite',
                       icon: task.tipo == 'urgente' ? Icons.warning : Icons.task,
                       iconColor:
                           task.tipo == 'urgente' ? Colors.red : Colors.blue,
@@ -276,107 +289,110 @@ class TasksScreenState extends State<TasksScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => TaskDetailScreen(
-          task: task,
-          indice: index,
-          onTaskUpdated: (updatedTask) {
-            context.read<TareasBloc>().add(
-              TareasUpdateEvent(tarea: updatedTask, index: index),
-            );
-          },
-        ),
+        builder:
+            (context) => TaskDetailScreen(
+              task: task,
+              indice: index,
+              onTaskUpdated: (updatedTask) {
+                context.read<TareasBloc>().add(
+                  TareasUpdateEvent(tarea: updatedTask, index: index),
+                );
+              },
+            ),
       ),
     );
   }
 
   void _showAddTaskModal(BuildContext context) {
     print('Abriendo modal para agregar tarea'); // Debug
-    
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (context) => Padding(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom,
-          left: 16,
-          right: 16,
-          top: 16,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text(
-              'Nueva Tarea',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+      builder:
+          (context) => Padding(
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(context).viewInsets.bottom,
+              left: 16,
+              right: 16,
+              top: 16,
             ),
-            const SizedBox(height: 16),
-            TaskForm(
-              onSave: (newTask) {
-                print('Guardando nueva tarea: ${newTask.titulo}'); // Debug
-                
-                // MEJORA 6: Validación adicional antes de enviar
-                if (newTask.titulo.trim().isEmpty) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('El título de la tarea es obligatorio'),
-                      backgroundColor: Colors.orange,
-                    ),
-                  );
-                  return;
-                }
-                
-                context.read<TareasBloc>().add(
-                  TareasAddEvent(tarea: newTask),
-                );
-                Navigator.of(context).pop();
-              },
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'Nueva Tarea',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 16),
+                TaskForm(
+                  onSave: (newTask) {
+                    print('Guardando nueva tarea: ${newTask.titulo}'); // Debug
+
+                    // MEJORA 6: Validación adicional antes de enviar
+                    if (newTask.titulo.trim().isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('El título de la tarea es obligatorio'),
+                          backgroundColor: Colors.orange,
+                        ),
+                      );
+                      return;
+                    }
+
+                    context.read<TareasBloc>().add(
+                      TareasAddEvent(tarea: newTask),
+                    );
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
+          ),
     );
   }
 
   void _showEditTaskModal(BuildContext context, Task task, int index) {
     print('Abriendo modal para editar tarea: ${task.titulo}'); // Debug
-    
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (context) => Padding(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom,
-          left: 16,
-          right: 16,
-          top: 16,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text(
-              'Editar Tarea',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+      builder:
+          (context) => Padding(
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(context).viewInsets.bottom,
+              left: 16,
+              right: 16,
+              top: 16,
             ),
-            const SizedBox(height: 16),
-            TaskForm(
-              task: task,
-              onSave: (updatedTask) {
-                print('Actualizando tarea: ${updatedTask.titulo}'); // Debug
-                context.read<TareasBloc>().add(
-                  TareasUpdateEvent(tarea: updatedTask, index: index),
-                );
-                Navigator.of(context).pop();
-              },
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'Editar Tarea',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 16),
+                TaskForm(
+                  task: task,
+                  onSave: (updatedTask) {
+                    print('Actualizando tarea: ${updatedTask.titulo}'); // Debug
+                    context.read<TareasBloc>().add(
+                      TareasUpdateEvent(tarea: updatedTask, index: index),
+                    );
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
+          ),
     );
   }
 
