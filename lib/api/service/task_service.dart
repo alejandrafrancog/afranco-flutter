@@ -2,20 +2,30 @@ import 'package:afranco/api/service/base_service.dart';
 import 'package:afranco/constants/constants.dart';
 import 'package:afranco/domain/task.dart';
 import 'package:afranco/exceptions/api_exception.dart';
+import 'package:flutter/material.dart';
 
 /// Servicio para gestionar las tareas
 class TaskService extends BaseService {
   // Utilizamos el constructor del BaseService
   TaskService() : super();
-
   Future<List<Task>> obtenerTareasPorUsuario(String usuario) async {
     try {
+      // Modificar la URL para usar el formato correcto
       final data = await get(
-        '${ApiConstantes.tareasEndpoint}/?usuario=$usuario',
+        '${ApiConstantes.tareasEndpoint}?usuario=$usuario', // Cambiar de /?usuario=$usuario a /$usuario
         errorMessage: 'Error al obtener tareas del usuario',
       );
+
+      if (data is! List) {
+        throw ApiException(
+          message: 'Formato de respuesta inválido',
+          statusCode: 400,
+        );
+      }
+
       return data.map((json) => TaskMapper.fromMap(json)).toList();
     } catch (e) {
+      debugPrint('❌ Error en obtenerTareasPorUsuario: $e');
       if (e is ApiException) {
         rethrow;
       }

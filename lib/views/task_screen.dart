@@ -177,6 +177,8 @@ class TasksScreenState extends State<TasksScreen> {
       floatingActionButton: BlocBuilder<TareasBloc, TareasState>(
         builder: (context, state) {
           return FloatingActionButton(
+            // Agregar heroTag único
+            heroTag: 'addTaskButton',
             onPressed:
                 state.status == TareasStatus.loading
                     ? null
