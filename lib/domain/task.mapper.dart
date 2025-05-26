@@ -38,6 +38,9 @@ class TaskMapper extends ClassMapperBase<Task> {
   static DateTime? _$fechaLimite(Task v) => v.fechaLimite;
   static const Field<Task, DateTime> _f$fechaLimite =
       Field('fechaLimite', _$fechaLimite, opt: true);
+  static bool _$completada(Task v) => v.completada;
+  static const Field<Task, bool> _f$completada =
+      Field('completada', _$completada, opt: true, def: false);
 
   @override
   final MappableFields<Task> fields = const {
@@ -48,6 +51,7 @@ class TaskMapper extends ClassMapperBase<Task> {
     #descripcion: _f$descripcion,
     #fecha: _f$fecha,
     #fechaLimite: _f$fechaLimite,
+    #completada: _f$completada,
   };
 
   static Task _instantiate(DecodingData data) {
@@ -58,7 +62,8 @@ class TaskMapper extends ClassMapperBase<Task> {
         tipo: data.dec(_f$tipo),
         descripcion: data.dec(_f$descripcion),
         fecha: data.dec(_f$fecha),
-        fechaLimite: data.dec(_f$fechaLimite));
+        fechaLimite: data.dec(_f$fechaLimite),
+        completada: data.dec(_f$completada));
   }
 
   @override
@@ -114,7 +119,8 @@ abstract class TaskCopyWith<$R, $In extends Task, $Out>
       String? tipo,
       String? descripcion,
       DateTime? fecha,
-      DateTime? fechaLimite});
+      DateTime? fechaLimite,
+      bool? completada});
   TaskCopyWith<$R2, $In, $Out2> $chain<$R2, $Out2>(Then<$Out2, $R2> t);
 }
 
@@ -132,7 +138,8 @@ class _TaskCopyWithImpl<$R, $Out> extends ClassCopyWithBase<$R, Task, $Out>
           String? tipo,
           Object? descripcion = $none,
           Object? fecha = $none,
-          Object? fechaLimite = $none}) =>
+          Object? fechaLimite = $none,
+          bool? completada}) =>
       $apply(FieldCopyWithData({
         if (id != $none) #id: id,
         if (usuario != null) #usuario: usuario,
@@ -140,7 +147,8 @@ class _TaskCopyWithImpl<$R, $Out> extends ClassCopyWithBase<$R, Task, $Out>
         if (tipo != null) #tipo: tipo,
         if (descripcion != $none) #descripcion: descripcion,
         if (fecha != $none) #fecha: fecha,
-        if (fechaLimite != $none) #fechaLimite: fechaLimite
+        if (fechaLimite != $none) #fechaLimite: fechaLimite,
+        if (completada != null) #completada: completada
       }));
   @override
   Task $make(CopyWithData data) => Task(
@@ -150,7 +158,8 @@ class _TaskCopyWithImpl<$R, $Out> extends ClassCopyWithBase<$R, Task, $Out>
       tipo: data.get(#tipo, or: $value.tipo),
       descripcion: data.get(#descripcion, or: $value.descripcion),
       fecha: data.get(#fecha, or: $value.fecha),
-      fechaLimite: data.get(#fechaLimite, or: $value.fechaLimite));
+      fechaLimite: data.get(#fechaLimite, or: $value.fechaLimite),
+      completada: data.get(#completada, or: $value.completada));
 
   @override
   TaskCopyWith<$R2, Task, $Out2> $chain<$R2, $Out2>(Then<$Out2, $R2> t) =>

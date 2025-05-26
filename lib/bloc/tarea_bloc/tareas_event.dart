@@ -44,3 +44,21 @@ class TareasDeleteEvent extends TareasEvent {
   @override
   List<Object?> get props => [index];
 }
+
+// NUEVO EVENTO: Para completar/descompletar una tarea
+class CompletarTareaEvent extends TareasEvent {
+  final int index;
+  final bool completada;
+
+  const CompletarTareaEvent({
+    required this.index,
+    required this.completada,
+  });
+
+  @override
+  List<Object?> get props => [index, completada];
+}
+class TareasToggleCompletedEvent extends TareasEvent {
+  final int index;
+  const TareasToggleCompletedEvent({required this.index});
+}

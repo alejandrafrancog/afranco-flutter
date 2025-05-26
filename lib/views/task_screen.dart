@@ -1,3 +1,6 @@
+import 'package:afranco/bloc/tarea_contador_bloc/tarea_contador_event.dart';
+import 'package:afranco/bloc/tarea_contador_bloc/tarea_contador_state.dart';
+import 'package:afranco/components/task/progreso_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:afranco/domain/task.dart';
@@ -5,6 +8,7 @@ import 'package:afranco/constants/constants.dart';
 import 'package:afranco/bloc/tarea_bloc/tareas_bloc.dart';
 import 'package:afranco/bloc/tarea_bloc/tareas_event.dart';
 import 'package:afranco/bloc/tarea_bloc/tareas_state.dart';
+import 'package:afranco/bloc/tarea_contador_bloc/tarea_contador_bloc.dart';
 import 'package:afranco/helpers/common_widgets_helper.dart';
 import 'package:afranco/components/task/task_image.dart';
 import 'package:afranco/views/task_detail_screen.dart';
@@ -26,6 +30,35 @@ class TasksScreenState extends State<TasksScreen> {
     context.read<TareasBloc>().add(const TareasLoadEvent());
   }
 
+  void _actualizarContadores(List<Task> tareas) {
+    final total = tareas.length;
+    final completadas = tareas.where((t) => t.completada).length;
+    
+    context.read<TareaContadorBloc>().add(
+      ActualizarContadores(completadas, total),
+    );
+  }
+
+  void _mostrarSnackBar(String mensaje, bool esCompletada) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            Icon(
+              esCompletada ? Icons.check_circle : Icons.radio_button_unchecked,
+              color: Colors.white,
+            ),
+            const SizedBox(width: 10),
+            Text(mensaje),
+          ],
+        ),
+        backgroundColor: esCompletada ? Colors.green : Colors.orange,
+        duration: const Duration(seconds: 2),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -38,164 +71,162 @@ class TasksScreenState extends State<TasksScreen> {
           },
         ),
         centerTitle: true,
-        // MEJORA 1: Botón de refresh en la AppBar
         actions: [
           BlocBuilder<TareasBloc, TareasState>(
             builder: (context, state) {
               return IconButton(
-                icon:
-                    state.status == TareasStatus.loading
-                        ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                        : const Icon(Icons.refresh),
-                onPressed:
-                    state.status == TareasStatus.loading
-                        ? null
-                        : () {
-                          context.read<TareasBloc>().add(
-                            const TareasLoadEvent(),
-                          );
-                        },
+                icon: state.status == TareasStatus.loading
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.refresh),
+                onPressed: state.status == TareasStatus.loading
+                    ? null
+                    : () {
+                        context.read<TareasBloc>().add(
+                          const TareasLoadEvent(),
+                        );
+                      },
               );
             },
           ),
         ],
       ),
-      body: BlocConsumer<TareasBloc, TareasState>(
-        listener: (context, state) {
-          // MEJORA 2: Mejor manejo de mensajes de estado
-          if (state.status == TareasStatus.error &&
-              state.errorMessage != null) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(state.errorMessage!),
-                backgroundColor: Colors.red,
-                action: SnackBarAction(
-                  label: 'Reintentar',
-                  textColor: Colors.white,
-                  onPressed: () {
-                    context.read<TareasBloc>().add(const TareasLoadEvent());
-                  },
-                ),
-                duration: const Duration(seconds: 5),
-              ),
-            );
-          }
+      body: Column(
+        children: [
+          // WIDGET DE PROGRESO EN LA PARTE SUPERIOR
+          BlocBuilder<TareaContadorBloc, TareaContadorState>(
+            builder: (context, contadorState) {
+              return ProgresoWidget(
+                progreso: contadorState.progreso,
+                tareasCompletadas: contadorState.tareasCompletadas,
+                totalTareas: contadorState.totalTareas,
+              );
+            },
+          ),
+          
+          // LISTA DE TAREAS
+          Expanded(
+            child: BlocConsumer<TareasBloc, TareasState>(
+              listener: (context, state) {
+                // ACTUALIZAR CONTADORES CUANDO CAMBIAN LAS TAREAS
+                _actualizarContadores(state.tareas);
 
-          // MEJORA 3: Mensaje de éxito al agregar tarea
-          if (state.status == TareasStatus.loaded && state.tareas.isNotEmpty) {
-            // Este es un hack simple para detectar si se agregó una tarea
-            // En una implementación más robusta, podrías usar un estado específico
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              if (mounted) {
-                // Solo mostrar si hay tareas y no es la carga inicial
-                final shouldShowSuccess = state.tareas.length > 0;
-                if (shouldShowSuccess) {
-                  // Mostrar mensaje de éxito de manera sutil
-                  print('Tareas cargadas/actualizadas correctamente');
+                // MANEJO DE MENSAJES DE ESTADO
+                if (state.status == TareasStatus.error &&
+                    state.errorMessage != null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(state.errorMessage!),
+                      backgroundColor: Colors.red,
+                      action: SnackBarAction(
+                        label: 'Reintentar',
+                        textColor: Colors.white,
+                        onPressed: () {
+                          context.read<TareasBloc>().add(const TareasLoadEvent());
+                        },
+                      ),
+                      duration: const Duration(seconds: 5),
+                    ),
+                  );
                 }
-              }
-            });
-          }
-        },
-        builder: (context, state) {
-          // Mostrar indicador de carga
-          if (state.status == TareasStatus.loading && state.tareas.isEmpty) {
-            return const Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  CircularProgressIndicator(),
-                  SizedBox(height: 16),
-                  Text('Cargando tareas...'),
-                ],
-              ),
-            );
-          }
+              },
+              builder: (context, state) {
+                // Mostrar indicador de carga
+                if (state.status == TareasStatus.loading && state.tareas.isEmpty) {
+                  return const Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        CircularProgressIndicator(),
+                        SizedBox(height: 16),
+                        Text('Cargando tareas...'),
+                      ],
+                    ),
+                  );
+                }
 
-          // Mostrar mensaje de lista vacía
-          if (state.tareas.isEmpty && state.status != TareasStatus.loading) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.task_alt, size: 64, color: Colors.grey),
-                  const SizedBox(height: 16),
-                  const Text(
-                    AppConstants.emptyList,
-                    style: TextStyle(fontSize: 18, color: Colors.grey),
-                  ),
-                  const SizedBox(height: 16),
-                  // MEJORA 4: Botón para agregar primera tarea
-                  FloatingActionButton(
-                    onPressed: () => _showAddTaskModal(context),
-                    child: const Icon(Icons.add),
-                  ),
-                ],
-              ),
-            );
-          }
+                // Mostrar mensaje de lista vacía
+                if (state.tareas.isEmpty && state.status != TareasStatus.loading) {
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.task_alt, size: 64, color: Colors.grey),
+                        const SizedBox(height: 16),
+                        const Text(
+                          AppConstants.emptyList,
+                          style: TextStyle(fontSize: 18, color: Colors.grey),
+                        ),
+                        const SizedBox(height: 16),
+                        FloatingActionButton(
+                          heroTag: 'emptyListAddButton',
+                          onPressed: () => _showAddTaskModal(context),
+                          child: const Icon(Icons.add),
+                        ),
+                      ],
+                    ),
+                  );
+                }
 
-          // Mostrar lista de tareas con indicador de carga superpuesto
-          return Stack(
-            children: [
-              ListView.builder(
-                itemCount: state.tareas.length,
-                itemBuilder: (context, index) {
-                  final task = state.tareas[index];
-                  return _buildTaskItem(task, index, context);
-                },
-              ),
-              // MEJORA 5: Indicador de carga superpuesto durante operaciones
-              if (state.status == TareasStatus.loading &&
-                  state.tareas.isNotEmpty)
-                Container(
-                  color: Colors.black12,
-                  child: const Center(
-                    child: Card(
-                      child: Padding(
-                        padding: EdgeInsets.all(16.0),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            CircularProgressIndicator(),
-                            SizedBox(height: 8),
-                            Text('Procesando...'),
-                          ],
+                // Mostrar lista de tareas
+                return Stack(
+                  children: [
+                    ListView.builder(
+                      itemCount: state.tareas.length,
+                      itemBuilder: (context, index) {
+                        final task = state.tareas[index];
+                        return _buildTaskItem(task, index, context);
+                      },
+                    ),
+                    if (state.status == TareasStatus.loading &&
+                        state.tareas.isNotEmpty)
+                      Container(
+                        color: Colors.black12,
+                        child: const Center(
+                          child: Card(
+                            child: Padding(
+                              padding: EdgeInsets.all(16.0),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  CircularProgressIndicator(),
+                                  SizedBox(height: 8),
+                                  Text('Procesando...'),
+                                ],
+                              ),
+                            ),
+                          ),
                         ),
                       ),
-                    ),
-                  ),
-                ),
-            ],
-          );
-        },
+                  ],
+                );
+              },
+            ),
+          ),
+        ],
       ),
       floatingActionButton: BlocBuilder<TareasBloc, TareasState>(
         builder: (context, state) {
           return FloatingActionButton(
-            // Agregar heroTag único
             heroTag: 'addTaskButton',
-            onPressed:
-                state.status == TareasStatus.loading
-                    ? null
-                    : () => _showAddTaskModal(context),
+            onPressed: state.status == TareasStatus.loading
+                ? null
+                : () => _showAddTaskModal(context),
             backgroundColor:
                 state.status == TareasStatus.loading ? Colors.grey : null,
-            child:
-                state.status == TareasStatus.loading
-                    ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                      ),
-                    )
-                    : const Icon(Icons.add),
+            child: state.status == TareasStatus.loading
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    ),
+                  )
+                : const Icon(Icons.add),
           );
         },
       ),
@@ -251,8 +282,31 @@ class TasksScreenState extends State<TasksScreen> {
             children: [
               TaskImage(randomIndex: index, height: 150),
               ListTile(
+                leading: Checkbox(
+                  value: task.completada,
+                  onChanged: (bool? value) {
+                    // TOGGLE DE ESTADO COMPLETADA
+                    context.read<TareasBloc>().add(
+                      TareasToggleCompletedEvent(index: index),
+                    );
+                    
+                    // MOSTRAR SNACKBAR
+                    _mostrarSnackBar(
+                      value! ? '¡Tarea completada!' : 'Tarea marcada como pendiente',
+                      value,
+                    );
+                  },
+                  activeColor: Colors.green,
+                ),
                 contentPadding: const EdgeInsets.all(16),
-                title: CommonWidgetsHelper.buildBoldTitle(task.titulo),
+                title: CommonWidgetsHelper.buildBoldTitle(
+                  task.titulo,
+                  // APLICAR TACHADO SI ESTÁ COMPLETADA
+                  /*style: TextStyle(
+                    decoration: task.completada ? TextDecoration.lineThrough : null,
+                    color: task.completada ? Colors.grey : null,
+                  ),*/
+                ),
                 subtitle: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -260,15 +314,16 @@ class TasksScreenState extends State<TasksScreen> {
                     CommonWidgetsHelper.buildInfoLines(
                       line1: task.descripcion ?? 'Sin descripción',
                       line2: task.descripcion ?? '',
-                      line3:
-                          task.fechaLimite != null
-                              ? DateFormat(
-                                'dd/MM/yyyy',
-                              ).format(task.fechaLimite!)
-                              : 'Sin fecha límite',
+                      line3: task.fechaLimite != null
+                          ? DateFormat('dd/MM/yyyy').format(task.fechaLimite!)
+                          : 'Sin fecha límite',
                       icon: task.tipo == 'urgente' ? Icons.warning : Icons.task,
-                      iconColor:
-                          task.tipo == 'urgente' ? Colors.red : Colors.blue,
+                      iconColor: task.tipo == 'urgente' ? Colors.red : Colors.blue,
+                      
+                      // APLICAR ESTILO GRIS SI ESTÁ COMPLETADA
+                      /*textStyle: TextStyle(
+                        color: task.completada ? Colors.grey : Colors.black87,
+                      ),*/
                     ),
                     CommonWidgetsHelper.buildSpacing(),
                   ],
@@ -285,24 +340,23 @@ class TasksScreenState extends State<TasksScreen> {
     );
   }
 
+  // Resto de métodos permanecen igual...
   void _navigateToTaskDetail(BuildContext context, Task task, int index) {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder:
-            (context) => TaskDetailScreen(
-              task: task,
-              indice: index,
-              onTaskUpdated: (updatedTask) {
-                context.read<TareasBloc>().add(
-                  TareasUpdateEvent(tarea: updatedTask, index: index),
-                );
-              },
-            ),
+        builder: (context) => TaskDetailScreen(
+          task: task,
+          indice: index,
+          onTaskUpdated: (updatedTask) {
+            context.read<TareasBloc>().add(
+              TareasUpdateEvent(tarea: updatedTask, index: index),
+            );
+          },
+        ),
       ),
     );
   }
-
   void _showAddTaskModal(BuildContext context) {
     print('Abriendo modal para agregar tarea'); // Debug
 
@@ -355,44 +409,42 @@ class TasksScreenState extends State<TasksScreen> {
     );
   }
 
-  void _showEditTaskModal(BuildContext context, Task task, int index) {
-    print('Abriendo modal para editar tarea: ${task.titulo}'); // Debug
 
+
+  void _showEditTaskModal(BuildContext context, Task task, int index) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder:
-          (context) => Padding(
-            padding: EdgeInsets.only(
-              bottom: MediaQuery.of(context).viewInsets.bottom,
-              left: 16,
-              right: 16,
-              top: 16,
+      builder: (context) => Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
+          left: 16,
+          right: 16,
+          top: 16,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              'Editar Tarea',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Text(
-                  'Editar Tarea',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 16),
-                TaskForm(
-                  task: task,
-                  onSave: (updatedTask) {
-                    print('Actualizando tarea: ${updatedTask.titulo}'); // Debug
-                    context.read<TareasBloc>().add(
-                      TareasUpdateEvent(tarea: updatedTask, index: index),
-                    );
-                    Navigator.of(context).pop();
-                  },
-                ),
-              ],
+            const SizedBox(height: 16),
+            TaskForm(
+              task: task,
+              onSave: (updatedTask) {
+                context.read<TareasBloc>().add(
+                  TareasUpdateEvent(tarea: updatedTask, index: index),
+                );
+                Navigator.of(context).pop();
+              },
             ),
-          ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -403,7 +455,6 @@ class TasksScreenState extends State<TasksScreen> {
         action: SnackBarAction(
           label: 'Deshacer',
           onPressed: () {
-            // Para deshacer, necesitarías volver a añadir la tarea
             context.read<TareasBloc>().add(TareasAddEvent(tarea: task));
           },
         ),
@@ -412,3 +463,4 @@ class TasksScreenState extends State<TasksScreen> {
     );
   }
 }
+
