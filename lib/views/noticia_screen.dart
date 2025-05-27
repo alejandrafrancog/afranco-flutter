@@ -1,9 +1,10 @@
 import 'package:afranco/bloc/preferencia_bloc/preferencia_bloc.dart';
-import 'package:afranco/bloc/reporte_bloc/reporte_bloc.dart'; // Nuevo import
+import 'package:afranco/bloc/reporte_bloc/reporte_bloc.dart';
 import 'package:afranco/bloc/reporte_bloc/reporte_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:afranco/exceptions/api_exception.dart';
 import 'package:afranco/helpers/error_helper.dart';
+import 'package:afranco/helpers/snackbar_helper.dart'; // Agregar este import
 import 'package:afranco/views/categoria_screen.dart';
 import 'package:afranco/views/preferencia_screen.dart';
 import 'package:flutter/material.dart';
@@ -54,7 +55,6 @@ class NoticiaScreenState extends State<NoticiaScreen> {
       if (!_showFab) setState(() => _showFab = true);
     }
 
-    // Actualizar el último offset después de la comparación
     _lastScrollOffset = currentOffset;
   }
 
@@ -66,7 +66,13 @@ class NoticiaScreenState extends State<NoticiaScreen> {
             noticia: noticia,
             id: noticia.id,
             onNoticiaUpdated: () {
-              if (mounted) _noticiaBloc.add(NoticiaRecargarEvent());
+              if (mounted) {
+                // En lugar de NoticiaRecargarEvent, usar un evento específico
+                _noticiaBloc.add(
+                  NoticiaEditedEvent(),
+                ); // O el evento que corresponda
+                // El snackbar se mostrará automáticamente en el listener
+              }
             },
           ),
     );
@@ -80,7 +86,11 @@ class NoticiaScreenState extends State<NoticiaScreen> {
             service: widget.repository,
             onNoticiaCreated: (_) {
               if (!mounted) return;
-              _noticiaBloc.add(NoticiaRecargarEvent());
+              // En lugar de NoticiaRecargarEvent, usar un evento específico
+              _noticiaBloc.add(
+                NoticiaCreatedEvent(),
+              ); // O el evento que corresponda
+              // El snackbar se mostrará automáticamente en el listener
             },
           ),
     );
@@ -94,7 +104,7 @@ class NoticiaScreenState extends State<NoticiaScreen> {
     return MultiBlocProvider(
       providers: [
         BlocProvider.value(value: _noticiaBloc),
-        BlocProvider(create: (_) => ReporteBloc()), // Proveedor de ReporteBloc
+        BlocProvider(create: (_) => ReporteBloc()),
       ],
       child: Scaffold(
         backgroundColor: Colors.grey[200],
@@ -148,7 +158,6 @@ class NoticiaScreenState extends State<NoticiaScreen> {
               tooltip: 'Refrescar',
               color: Colors.white,
               onPressed: () {
-                // Al refrescar, aplicar los filtros actuales si existen
                 final categoriasSeleccionadas =
                     context
                         .read<PreferenciaBloc>()
@@ -168,16 +177,12 @@ class NoticiaScreenState extends State<NoticiaScreen> {
         body: BlocListener<ReporteBloc, ReporteState>(
           listener: (context, state) {
             if (state is ReporteLoadedWithMessage) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(state.message),
-                  duration: const Duration(seconds: 2),
-                ),
-              );
+              SnackBarHelper.showSuccess(context, state.message);
             }
           },
           child: BlocConsumer<NoticiaBloc, NoticiaState>(
             listener: (context, state) {
+              // Manejo de errores
               if (state is NoticiaErrorState) {
                 final error = state.error;
                 if (error is ApiException) {
@@ -185,18 +190,35 @@ class NoticiaScreenState extends State<NoticiaScreen> {
                     error.statusCode,
                   );
                   final message = errorData['message'] ?? 'Error desconocido.';
-                  final color = errorData['color'] ?? Colors.grey;
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(message), backgroundColor: color),
+                  SnackBarHelper.showSnackBar(
+                    context,
+                    message,
+                    statusCode: error.statusCode,
                   );
                 } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Ocurrió un error inesperado.'),
-                      backgroundColor: Colors.grey,
-                    ),
+                  SnackBarHelper.showClientError(
+                    context,
+                    'Ocurrió un error inesperado.',
                   );
                 }
+                return;
+              }
+
+              // Manejo específico por tipo de operación
+              if (state is NoticiasLoadedAfterCreate) {
+                SnackBarHelper.showCreateSuccess(context);
+              } else if (state is NoticiasLoadedAfterEdit) {
+                SnackBarHelper.showEditSuccess(context);
+              } else if (state is NoticiasLoadedAfterDelete) {
+                SnackBarHelper.showDeleteSuccess(context);
+              } else if (state is NoticiasLoadedAfterRefresh) {
+                SnackBarHelper.showRefreshSuccess(
+                  context,
+                  state.noticias.length,
+                );
+              } else if (state is NoticiasLoaded && !state.isLoading) {
+                // Para carga inicial o casos no específicos
+                SnackBarHelper.showLoadSuccess(context, state.noticias.length);
               }
             },
             builder: (context, state) {
@@ -266,8 +288,11 @@ class NoticiaScreenState extends State<NoticiaScreen> {
           noticia: state.noticias[index],
           imageUrl: state.noticias[index].urlImagen,
           onEditPressed: _abrirModalEdicion,
-          onDelete:
-              () => context.read<NoticiaBloc>().add(NoticiaRecargarEvent()),
+          onDelete: () {
+            // Simplemente emitir el evento, el snackbar se mostrará en el listener
+            context.read<NoticiaBloc>().add(NoticiaDeletedEvent());
+            // NO mostrar snackbar aquí, se maneja en el BlocConsumer listener
+          },
         );
       },
     );

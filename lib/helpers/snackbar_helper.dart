@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 
 class SnackBarHelper {
@@ -12,18 +11,40 @@ class SnackBarHelper {
       ),
     );
   }
+
   static void showSuccess(BuildContext context, String message) {
     showSnackBar(context, message, statusCode: 200);
   }
 
- // Nuevo método para errores del cliente (400-499)
+  // Nuevo método para errores del cliente (400-499)
   static void showClientError(BuildContext context, String message) {
     showSnackBar(context, message, statusCode: 400);
   }
-  
+     
   // Nuevo método para errores del servidor (500+)
   static void showServerError(BuildContext context, String message) {
     showSnackBar(context, message, statusCode: 500);
+  }
+
+  // Nuevos métodos para las operaciones CRUD
+  static void showLoadSuccess(BuildContext context, int count) {
+    showSuccess(context, 'Se cargaron $count noticias correctamente');
+  }
+
+  static void showEditSuccess(BuildContext context) {
+    showSuccess(context, 'Noticia editada correctamente');
+  }
+
+  static void showDeleteSuccess(BuildContext context) {
+    showSuccess(context, 'Noticia eliminada correctamente');
+  }
+
+  static void showCreateSuccess(BuildContext context) {
+    showSuccess(context, 'Noticia creada correctamente');
+  }
+
+  static void showRefreshSuccess(BuildContext context, int count) {
+    showSuccess(context, 'Lista actualizada - $count noticias');
   }
 
   static Color _getSnackBarColor(int? statusCode) {
