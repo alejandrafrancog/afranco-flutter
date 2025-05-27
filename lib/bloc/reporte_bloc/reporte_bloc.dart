@@ -50,7 +50,6 @@ class ReporteBloc extends Bloc<ReporteEvent, ReporteState> {
     ReporteCreateEvent event,
     Emitter<ReporteState> emit,
   ) async {
-    emit(ReporteLoading());
     try {
       final reporte = await reporteRepository.crearReporte(
         noticiaId: event.noticiaId,
@@ -58,23 +57,19 @@ class ReporteBloc extends Bloc<ReporteEvent, ReporteState> {
       );
 
       if (reporte != null) {
+        // ACTUALIZAR EL CACHE SERVICE - esto actualizará automáticamente el stream
         reporteCacheService.addReporte(reporte);
-        // Invalida solo la caché de esta noticia
-        reporteCacheService.invalidateNoticiaCache(
-          event.noticiaId,
-        ); // <-- Añadir
+        
+        // Actualizar caché local del BLoC
+        if (_reporteCache != null) {
+          _reporteCache = [..._reporteCache!, reporte];
+        }
 
-        // Obtener lista actualizada directamente de la caché actualizada
-        final nuevosReportes = [...?_reporteCache, reporte];
-        _reporteCache = nuevosReportes;
-
-        emit(ReporteCreated(reporte));
-        emit(
-          ReportesPorNoticiaLoaded(
-            await reporteRepository.obtenerReportesPorNoticia(event.noticiaId),
-            event.noticiaId,
-          ),
-        );
+        // Emitir estado de éxito con mensaje
+        emit(ReporteLoadedWithMessage(
+          reportes: _reporteCache ?? [reporte],
+          message: 'Reporte creado exitosamente',
+        ));
       }
     } catch (e) {
       final int? statusCode = e is ApiException ? e.statusCode : null;
@@ -106,7 +101,7 @@ class ReporteBloc extends Bloc<ReporteEvent, ReporteState> {
         noticiaId = reporte.noticiaId;
       }
 
-      // Eliminar de caché
+      // ACTUALIZAR EL CACHE SERVICE - esto actualizará automáticamente el stream
       if (noticiaId != null) {
         reporteCacheService.removeReporte(event.id, noticiaId);
       }

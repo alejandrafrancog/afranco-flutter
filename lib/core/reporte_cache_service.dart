@@ -1,10 +1,15 @@
+import 'dart:async';
+
 import 'package:afranco/domain/reporte.dart';
 import 'package:flutter/foundation.dart';
 
 /// Servicio para cachear reportes y minimizar llamadas a la API
 class ReporteCacheService {
   static final ReporteCacheService _instance = ReporteCacheService._internal();
+  final Map<String, int> _reportesCountCache = {};
 
+  // Streams para notificar cambios
+  final Map<String, StreamController<int>> _countStreamControllers = {};
   // Singleton pattern
   factory ReporteCacheService() {
     return _instance;
@@ -64,6 +69,87 @@ class ReporteCacheService {
     }
   }
 
+  Stream<int> getReportesCountStream(String noticiaId) {
+    // Crear controller si no existe
+    if (!_countStreamControllers.containsKey(noticiaId)) {
+      _countStreamControllers[noticiaId] = StreamController<int>.broadcast();
+
+      // Emitir valor inicial si existe en caché
+      if (_reportesCountCache.containsKey(noticiaId)) {
+        _countStreamControllers[noticiaId]!.add(
+          _reportesCountCache[noticiaId]!,
+        );
+      } else {
+        _countStreamControllers[noticiaId]!.add(0);
+      }
+    }
+
+    return _countStreamControllers[noticiaId]!.stream;
+  }
+  void addReporte(Reporte reporte) {
+    final noticiaId = reporte.noticiaId;
+    
+    // Actualizar caché de reportes
+    if (_reportesPorNoticiaCache.containsKey(noticiaId)) {
+      _reportesPorNoticiaCache[noticiaId]!.add(reporte);
+    } else {
+      _reportesPorNoticiaCache[noticiaId] = [reporte];
+    }
+    
+    // Actualizar contador
+    final newCount = _reportesPorNoticiaCache[noticiaId]!.length;
+    _reportesCountCache[noticiaId] = newCount;
+    
+    // Notificar cambio
+    _notifyCountChanged(noticiaId, newCount);
+  }
+  
+  // Método para remover reporte (llamado desde el BLoC)
+  void removeReporte(String reporteId, String noticiaId) {
+    // Remover de la lista de reportes
+    if (_reportesPorNoticiaCache.containsKey(noticiaId)) {
+      _reportesPorNoticiaCache[noticiaId]!.removeWhere((r) => r.id == reporteId);
+      
+      // Actualizar contador
+      final newCount = _reportesPorNoticiaCache[noticiaId]!.length;
+      _reportesCountCache[noticiaId] = newCount;
+      
+      // Notificar cambio
+      _notifyCountChanged(noticiaId, newCount);
+    }
+  }
+  
+  // Método para invalidar caché de una noticia específica
+  void invalidateNoticiaCache(String noticiaId) {
+    _reportesPorNoticiaCache.remove(noticiaId);
+    _reportesCountCache.remove(noticiaId);
+  }
+  
+  // Método para invalidar toda la caché
+  void invalidateAllCache() {
+    _reportesPorNoticiaCache.clear();
+    _reportesCountCache.clear();
+    
+    // Resetear todos los streams a 0
+    for (final controller in _countStreamControllers.values) {
+      controller.add(0);
+    }
+  }
+  // Método para limpiar recursos
+  void dispose() {
+    for (final controller in _countStreamControllers.values) {
+      controller.close();
+    }
+    _countStreamControllers.clear();
+  }
+
+  // NUEVO: Método privado para notificar cambios
+  void _notifyCountChanged(String noticiaId, int newCount) {
+    if (_countStreamControllers.containsKey(noticiaId)) {
+      _countStreamControllers[noticiaId]!.add(newCount);
+    }
+  }
+
   /// Obtiene todos los reportes, ya sea desde la caché o solicitándolos
   Future<List<Reporte>> getTodosLosReportes(
     Future<List<Reporte>> Function() fetchFromApi,
@@ -108,7 +194,7 @@ class ReporteCacheService {
   }
 
   /// Agrega un reporte a la caché
-  void addReporte(Reporte reporte) {
+  /*void addReporte(Reporte reporte) {
     // Actualizar caché por noticia
     invalidateNoticiaCache(reporte.noticiaId); // <-- Añadir
     _todosLosReportes = null;
@@ -130,7 +216,7 @@ class ReporteCacheService {
     }
 
     debugPrint('✅ Reporte ${reporte.id} añadido a caché');
-  }
+  }*/
 
   /// Actualiza un reporte en la caché
   void updateReporte(Reporte reporte) {
@@ -155,14 +241,13 @@ class ReporteCacheService {
   }
 
   /// Elimina un reporte de la caché
-  void removeReporte(String reporteId, String noticiaId) {
+  /*void removeReporte(String reporteId, String noticiaId) {
     // Eliminar de caché por noticia
     if (_reportesPorNoticiaCache.containsKey(noticiaId)) {
       _reportesPorNoticiaCache[noticiaId]!.removeWhere(
         (r) => r.id == reporteId,
       );
     }
-
     // Eliminar de caché global si existe
     if (_todosLosReportes != null) {
       _todosLosReportes!.removeWhere((r) => r.id == reporteId);
@@ -185,5 +270,5 @@ class ReporteCacheService {
     _lastRefreshByNoticiaId.clear();
     _lastGlobalRefresh = null;
     debugPrint('🔄 Caché de reportes completamente invalidada');
-  }
+  }*/
 }
