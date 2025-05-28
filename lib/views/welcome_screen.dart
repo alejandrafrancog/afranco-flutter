@@ -1,5 +1,4 @@
 import 'package:afranco/bloc/counter_bloc/counter_bloc.dart';
-import 'package:afranco/bloc/noticia_bloc/noticia_bloc.dart';
 import 'package:afranco/bloc/categoria_bloc/categoria_bloc.dart';
 import 'package:afranco/components/connectivity/connectivity_wrapper.dart';
 import 'package:afranco/views/categoria_screen.dart';
@@ -88,10 +87,8 @@ class WelcomeScreen extends StatelessWidget {
                 Navigator.of(context).push(
                   MaterialPageRoute(
                     builder:
-                        (context) => BlocProvider<NoticiaBloc>(
-                          create: (context) => NoticiaBloc(),
-                          child: ConnectivityWrapper(child: NoticiaScreen()),
-                        ),
+                        (context) =>
+                            ConnectivityWrapper(child: NoticiaScreen()),
                   ),
                 );
               },

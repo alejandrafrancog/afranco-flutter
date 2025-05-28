@@ -4,7 +4,7 @@ import 'package:afranco/bloc/reporte_bloc/reporte_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:afranco/exceptions/api_exception.dart';
 import 'package:afranco/helpers/error_helper.dart';
-import 'package:afranco/helpers/snackbar_helper.dart'; // Agregar este import
+import 'package:afranco/helpers/snackbar_helper.dart';
 import 'package:afranco/views/categoria_screen.dart';
 import 'package:afranco/views/preferencia_screen.dart';
 import 'package:flutter/material.dart';
@@ -33,7 +33,7 @@ class NoticiaScreen extends StatefulWidget {
 
 class NoticiaScreenState extends State<NoticiaScreen> {
   final ScrollController _scrollController = ScrollController();
-  late final NoticiaBloc _noticiaBloc = context.read<NoticiaBloc>();
+  // NO usar late final aquí, usar el bloc del contexto directamente
   bool _showFab = true;
   double _lastScrollOffset = 0;
 
@@ -41,7 +41,10 @@ class NoticiaScreenState extends State<NoticiaScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<NoticiaBloc>().add(NoticiaCargadaEvent());
+      // Asegurar que el widget esté montado antes de disparar eventos
+      if (mounted) {
+        context.read<NoticiaBloc>().add(NoticiaCargadaEvent());
+      }
     });
     _scrollController.addListener(_scrollListener);
   }
@@ -50,9 +53,9 @@ class NoticiaScreenState extends State<NoticiaScreen> {
     final currentOffset = _scrollController.position.pixels;
 
     if (currentOffset > _lastScrollOffset + 20) {
-      if (_showFab) setState(() => _showFab = false);
+      if (_showFab && mounted) setState(() => _showFab = false);
     } else if (currentOffset < _lastScrollOffset - 20) {
-      if (!_showFab) setState(() => _showFab = true);
+      if (!_showFab && mounted) setState(() => _showFab = true);
     }
 
     _lastScrollOffset = currentOffset;
@@ -61,38 +64,29 @@ class NoticiaScreenState extends State<NoticiaScreen> {
   void _abrirModalEdicion(Noticia noticia) {
     showDialog(
       context: context,
-      builder:
-          (context) => NoticiaEditModal(
-            noticia: noticia,
-            id: noticia.id,
-            onNoticiaUpdated: () {
-              if (mounted) {
-                // En lugar de NoticiaRecargarEvent, usar un evento específico
-                _noticiaBloc.add(
-                  NoticiaEditedEvent(),
-                ); // O el evento que corresponda
-                // El snackbar se mostrará automáticamente en el listener
-              }
-            },
-          ),
+      builder: (context) => NoticiaEditModal(
+        noticia: noticia,
+        id: noticia.id,
+        onNoticiaUpdated: () {
+          if (mounted) {
+            context.read<NoticiaBloc>().add(NoticiaEditedEvent());
+          }
+        },
+      ),
     );
   }
 
   void _mostrarModalCreacion() {
     showDialog(
       context: context,
-      builder:
-          (context) => NoticiaCreationModal(
-            service: widget.repository,
-            onNoticiaCreated: (_) {
-              if (!mounted) return;
-              // En lugar de NoticiaRecargarEvent, usar un evento específico
-              _noticiaBloc.add(
-                NoticiaCreatedEvent(),
-              ); // O el evento que corresponda
-              // El snackbar se mostrará automáticamente en el listener
-            },
-          ),
+      builder: (context) => NoticiaCreationModal(
+        service: widget.repository,
+        onNoticiaCreated: (_) {
+          if (mounted) {
+            context.read<NoticiaBloc>().add(NoticiaCreatedEvent());
+          }
+        },
+      ),
     );
   }
 
@@ -103,7 +97,8 @@ class NoticiaScreenState extends State<NoticiaScreen> {
 
     return MultiBlocProvider(
       providers: [
-        BlocProvider.value(value: _noticiaBloc),
+        // Usar BlocProvider.value para reutilizar el bloc existente
+        BlocProvider.value(value: context.read<NoticiaBloc>()),
         BlocProvider(create: (_) => ReporteBloc()),
       ],
       child: Scaffold(
@@ -140,7 +135,7 @@ class NoticiaScreenState extends State<NoticiaScreen> {
                     builder: (context) => const PreferenciasScreen(),
                   ),
                 ).then((categoriasSeleccionadas) {
-                  if (!context.mounted) return;
+                  if (!mounted) return;
                   if (categoriasSeleccionadas != null) {
                     if (categoriasSeleccionadas.isNotEmpty) {
                       context.read<NoticiaBloc>().add(
@@ -159,10 +154,7 @@ class NoticiaScreenState extends State<NoticiaScreen> {
               color: Colors.white,
               onPressed: () {
                 final categoriasSeleccionadas =
-                    context
-                        .read<PreferenciaBloc>()
-                        .state
-                        .categoriasSeleccionadas;
+                    context.read<PreferenciaBloc>().state.categoriasSeleccionadas;
                 if (categoriasSeleccionadas.isNotEmpty) {
                   context.read<NoticiaBloc>().add(
                     FilterNoticiasByPreferencias(categoriasSeleccionadas),
@@ -231,17 +223,16 @@ class NoticiaScreenState extends State<NoticiaScreen> {
                       horizontal: 16,
                     ),
                     color: Colors.grey[300],
-                    child:
-                        state.ultimaActualizacion != null
-                            ? Text(
-                              'Última actualización: ${DateFormat('dd/MM/yyyy HH:mm').format(state.ultimaActualizacion!)}',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey[700],
-                                fontStyle: FontStyle.italic,
-                              ),
-                            )
-                            : const SizedBox.shrink(),
+                    child: state.ultimaActualizacion != null
+                        ? Text(
+                            'Última actualización: ${DateFormat('dd/MM/yyyy HH:mm').format(state.ultimaActualizacion!)}',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey[700],
+                              fontStyle: FontStyle.italic,
+                            ),
+                          )
+                        : const SizedBox.shrink(),
                   ),
                   Expanded(child: _buildBodyContent(state)),
                 ],
@@ -249,15 +240,14 @@ class NoticiaScreenState extends State<NoticiaScreen> {
             },
           ),
         ),
-        floatingActionButton:
-            _showFab
-                ? FloatingActionButton(
-                  backgroundColor: Theme.of(context).primaryColor,
-                  tooltip: 'Agregar noticia',
-                  onPressed: _mostrarModalCreacion,
-                  child: const Icon(Icons.add),
-                )
-                : null,
+        floatingActionButton: _showFab
+            ? FloatingActionButton(
+                backgroundColor: Theme.of(context).primaryColor,
+                tooltip: 'Agregar noticia',
+                onPressed: _mostrarModalCreacion,
+                child: const Icon(Icons.add),
+              )
+            : null,
       ),
     );
   }
@@ -278,8 +268,7 @@ class NoticiaScreenState extends State<NoticiaScreen> {
     return ListView.separated(
       controller: _scrollController,
       itemCount: state.noticias.length + (state.tieneMas ? 1 : 0),
-      separatorBuilder:
-          (_, __) => const SizedBox(height: NoticiaEstilos.espaciadoAlto),
+      separatorBuilder: (_, __) => const SizedBox(height: NoticiaEstilos.espaciadoAlto),
       itemBuilder: (context, index) {
         if (index >= state.noticias.length) {
           return _buildLoadingIndicator(state.isLoading);
@@ -289,9 +278,7 @@ class NoticiaScreenState extends State<NoticiaScreen> {
           imageUrl: state.noticias[index].urlImagen,
           onEditPressed: _abrirModalEdicion,
           onDelete: () {
-            // Simplemente emitir el evento, el snackbar se mostrará en el listener
             context.read<NoticiaBloc>().add(NoticiaDeletedEvent());
-            // NO mostrar snackbar aquí, se maneja en el BlocConsumer listener
           },
         );
       },
@@ -311,7 +298,6 @@ class NoticiaScreenState extends State<NoticiaScreen> {
   @override
   void dispose() {
     _scrollController.dispose();
-    _noticiaBloc.close();
     super.dispose();
   }
 }
