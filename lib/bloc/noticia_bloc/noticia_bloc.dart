@@ -9,7 +9,8 @@ import 'package:afranco/core/noticia_cache_service.dart'; // Asegúrate de impor
 
 class NoticiaBloc extends Bloc<NoticiaEvent, NoticiaState> {
   final NoticiaRepository noticiaRepository = di<NoticiaRepository>();
-  final NoticiaCacheService _cacheService = NoticiaCacheService(); // Instancia del caché
+  final NoticiaCacheService _cacheService =
+      NoticiaCacheService(); // Instancia del caché
   int _currentPage = 1;
   final bool _ordenarPorFecha = true;
 
@@ -18,6 +19,79 @@ class NoticiaBloc extends Bloc<NoticiaEvent, NoticiaState> {
     on<NoticiaCargarMasEvent>(_onCargarMasNoticias);
     on<NoticiaRecargarEvent>(_onRecargarNoticias);
     on<FilterNoticiasByPreferencias>(_onFilterNoticiasByPreferencias);
+    on<NoticiaCreatedEvent>(_onNoticiaCreated);
+    on<NoticiaEditedEvent>(_onNoticiaEdited);
+    on<NoticiaDeletedEvent>(_onNoticiaDeleted);
+  }
+  void _onNoticiaCreated(
+    NoticiaCreatedEvent event,
+    Emitter<NoticiaState> emit,
+  ) async {
+    try {
+      emit(state.copyWith(isLoading: true));
+
+      // Recargar las noticias desde el repositorio
+      final noticias = await noticiaRepository.obtenerNoticias();
+
+      emit(NoticiasLoadedAfterCreate(noticias, DateTime.now()));
+    } catch (error) {
+      emit(
+        NoticiaErrorState(
+          error: error,
+          noticias: state.noticias,
+          tieneMas: state.tieneMas,
+          ultimaActualizacion: state.ultimaActualizacion,
+        ),
+      );
+    }
+  }
+
+  // Handler para edición de noticia
+  void _onNoticiaEdited(
+    NoticiaEditedEvent event,
+    Emitter<NoticiaState> emit,
+  ) async {
+    try {
+      emit(state.copyWith(isLoading: true));
+
+      // Recargar las noticias desde el repositorio
+      final noticias = await noticiaRepository.obtenerNoticias();
+
+      emit(NoticiasLoadedAfterEdit(noticias, DateTime.now()));
+    } catch (error) {
+      emit(
+        NoticiaErrorState(
+          error: error,
+          noticias: state.noticias,
+          tieneMas: state.tieneMas,
+          ultimaActualizacion: state.ultimaActualizacion,
+        ),
+      );
+    }
+  }
+
+  // Handler para eliminación de noticia
+  void _onNoticiaDeleted(
+    NoticiaDeletedEvent event,
+    Emitter<NoticiaState> emit,
+  ) async {
+    try {
+      emit(state.copyWith(isLoading: true));
+
+      // Recargar las noticias desde el repositorio
+      final noticias = await noticiaRepository.obtenerNoticias();
+
+      emit(NoticiasLoadedAfterDelete(noticias, DateTime.now()));
+    } catch (error) {
+      emit(
+        NoticiaErrorState(
+          error: error,
+          noticias: state.noticias,
+          tieneMas: state.tieneMas,
+          ultimaActualizacion: state.ultimaActualizacion,
+        ),
+      );
+    }
   }
 
   Future<void> _onCargarNoticias(
@@ -82,9 +156,10 @@ class NoticiaBloc extends Bloc<NoticiaEvent, NoticiaState> {
 
       emit(
         state.copyWith(
-          noticias: resetear
-              ? nuevasNoticias
-              : [...state.noticias, ...nuevasNoticias],
+          noticias:
+              resetear
+                  ? nuevasNoticias
+                  : [...state.noticias, ...nuevasNoticias],
           tieneMas: tieneMas,
           ultimaActualizacion: DateTime.now(),
           isLoading: false,
@@ -122,17 +197,18 @@ class NoticiaBloc extends Bloc<NoticiaEvent, NoticiaState> {
       );
 
       final allNoticias = await noticiaRepository.obtenerNoticias();
-      
+
       // Actualizar caché con todas las noticias obtenidas
       for (final noticia in allNoticias) {
         await _cacheService.updateNoticia(noticia);
       }
 
-      final filteredNoticias = allNoticias
-          .where(
-            (noticia) => event.categoriasIds.contains(noticia.categoryId),
-          )
-          .toList();
+      final filteredNoticias =
+          allNoticias
+              .where(
+                (noticia) => event.categoriasIds.contains(noticia.categoryId),
+              )
+              .toList();
 
       emit(
         state.copyWith(

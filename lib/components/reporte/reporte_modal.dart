@@ -88,7 +88,7 @@ class _ReporteModalState extends State<ReporteModal> {
         ),
         FilledButton(
           style: FilledButton.styleFrom(
-            backgroundColor:Theme.of(context).primaryColor,
+            backgroundColor: Theme.of(context).primaryColor,
             foregroundColor: Colors.white,
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             shape: RoundedRectangleBorder(
@@ -101,7 +101,6 @@ class _ReporteModalState extends State<ReporteModal> {
                   : () {
                     setState(() => _isSubmitting = true);
                     _submitReporte();
-                    
                   },
           child:
               _isSubmitting

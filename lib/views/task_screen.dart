@@ -313,7 +313,7 @@ class TasksScreenState extends State<TasksScreen> {
                     CommonWidgetsHelper.buildSpacing(),
                     CommonWidgetsHelper.buildInfoLines(
                       line1: task.descripcion ?? 'Sin descripción',
-                      line2: task.descripcion ?? '',
+                      line2: '',
                       line3: task.fechaLimite != null
                           ? DateFormat('dd/MM/yyyy').format(task.fechaLimite!)
                           : 'Sin fecha límite',

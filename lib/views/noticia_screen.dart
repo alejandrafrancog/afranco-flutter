@@ -1,9 +1,10 @@
 import 'package:afranco/bloc/preferencia_bloc/preferencia_bloc.dart';
-import 'package:afranco/bloc/reporte_bloc/reporte_bloc.dart'; // Nuevo import
+import 'package:afranco/bloc/reporte_bloc/reporte_bloc.dart';
 import 'package:afranco/bloc/reporte_bloc/reporte_state.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:afranco/exceptions/api_exception.dart';
 import 'package:afranco/helpers/error_helper.dart';
+import 'package:afranco/helpers/snackbar_helper.dart';
 import 'package:afranco/views/categoria_screen.dart';
 import 'package:afranco/views/preferencia_screen.dart';
 import 'package:flutter/material.dart';
@@ -32,7 +33,7 @@ class NoticiaScreen extends StatefulWidget {
 
 class NoticiaScreenState extends State<NoticiaScreen> {
   final ScrollController _scrollController = ScrollController();
-  late final NoticiaBloc _noticiaBloc = context.read<NoticiaBloc>();
+  // NO usar late final aquí, usar el bloc del contexto directamente
   bool _showFab = true;
   double _lastScrollOffset = 0;
 
@@ -40,7 +41,10 @@ class NoticiaScreenState extends State<NoticiaScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<NoticiaBloc>().add(NoticiaCargadaEvent());
+      // Asegurar que el widget esté montado antes de disparar eventos
+      if (mounted) {
+        context.read<NoticiaBloc>().add(NoticiaCargadaEvent());
+      }
     });
     _scrollController.addListener(_scrollListener);
   }
@@ -49,40 +53,40 @@ class NoticiaScreenState extends State<NoticiaScreen> {
     final currentOffset = _scrollController.position.pixels;
 
     if (currentOffset > _lastScrollOffset + 20) {
-      if (_showFab) setState(() => _showFab = false);
+      if (_showFab && mounted) setState(() => _showFab = false);
     } else if (currentOffset < _lastScrollOffset - 20) {
-      if (!_showFab) setState(() => _showFab = true);
+      if (!_showFab && mounted) setState(() => _showFab = true);
     }
 
-    // Actualizar el último offset después de la comparación
     _lastScrollOffset = currentOffset;
   }
 
   void _abrirModalEdicion(Noticia noticia) {
     showDialog(
       context: context,
-      builder:
-          (context) => NoticiaEditModal(
-            noticia: noticia,
-            id: noticia.id,
-            onNoticiaUpdated: () {
-              if (mounted) _noticiaBloc.add(NoticiaRecargarEvent());
-            },
-          ),
+      builder: (context) => NoticiaEditModal(
+        noticia: noticia,
+        id: noticia.id,
+        onNoticiaUpdated: () {
+          if (mounted) {
+            context.read<NoticiaBloc>().add(NoticiaEditedEvent());
+          }
+        },
+      ),
     );
   }
 
   void _mostrarModalCreacion() {
     showDialog(
       context: context,
-      builder:
-          (context) => NoticiaCreationModal(
-            service: widget.repository,
-            onNoticiaCreated: (_) {
-              if (!mounted) return;
-              _noticiaBloc.add(NoticiaRecargarEvent());
-            },
-          ),
+      builder: (context) => NoticiaCreationModal(
+        service: widget.repository,
+        onNoticiaCreated: (_) {
+          if (mounted) {
+            context.read<NoticiaBloc>().add(NoticiaCreatedEvent());
+          }
+        },
+      ),
     );
   }
 
@@ -93,8 +97,9 @@ class NoticiaScreenState extends State<NoticiaScreen> {
 
     return MultiBlocProvider(
       providers: [
-        BlocProvider.value(value: _noticiaBloc),
-        BlocProvider(create: (_) => ReporteBloc()), // Proveedor de ReporteBloc
+        // Usar BlocProvider.value para reutilizar el bloc existente
+        BlocProvider.value(value: context.read<NoticiaBloc>()),
+        BlocProvider(create: (_) => ReporteBloc()),
       ],
       child: Scaffold(
         backgroundColor: Colors.grey[200],
@@ -130,7 +135,7 @@ class NoticiaScreenState extends State<NoticiaScreen> {
                     builder: (context) => const PreferenciasScreen(),
                   ),
                 ).then((categoriasSeleccionadas) {
-                  if (!context.mounted) return;
+                  if (!mounted) return;
                   if (categoriasSeleccionadas != null) {
                     if (categoriasSeleccionadas.isNotEmpty) {
                       context.read<NoticiaBloc>().add(
@@ -148,12 +153,8 @@ class NoticiaScreenState extends State<NoticiaScreen> {
               tooltip: 'Refrescar',
               color: Colors.white,
               onPressed: () {
-                // Al refrescar, aplicar los filtros actuales si existen
                 final categoriasSeleccionadas =
-                    context
-                        .read<PreferenciaBloc>()
-                        .state
-                        .categoriasSeleccionadas;
+                    context.read<PreferenciaBloc>().state.categoriasSeleccionadas;
                 if (categoriasSeleccionadas.isNotEmpty) {
                   context.read<NoticiaBloc>().add(
                     FilterNoticiasByPreferencias(categoriasSeleccionadas),
@@ -168,16 +169,12 @@ class NoticiaScreenState extends State<NoticiaScreen> {
         body: BlocListener<ReporteBloc, ReporteState>(
           listener: (context, state) {
             if (state is ReporteLoadedWithMessage) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(state.message),
-                  duration: const Duration(seconds: 2),
-                ),
-              );
+              SnackBarHelper.showSuccess(context, state.message);
             }
           },
           child: BlocConsumer<NoticiaBloc, NoticiaState>(
             listener: (context, state) {
+              // Manejo de errores
               if (state is NoticiaErrorState) {
                 final error = state.error;
                 if (error is ApiException) {
@@ -185,18 +182,35 @@ class NoticiaScreenState extends State<NoticiaScreen> {
                     error.statusCode,
                   );
                   final message = errorData['message'] ?? 'Error desconocido.';
-                  final color = errorData['color'] ?? Colors.grey;
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(message), backgroundColor: color),
+                  SnackBarHelper.showSnackBar(
+                    context,
+                    message,
+                    statusCode: error.statusCode,
                   );
                 } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Ocurrió un error inesperado.'),
-                      backgroundColor: Colors.grey,
-                    ),
+                  SnackBarHelper.showClientError(
+                    context,
+                    'Ocurrió un error inesperado.',
                   );
                 }
+                return;
+              }
+
+              // Manejo específico por tipo de operación
+              if (state is NoticiasLoadedAfterCreate) {
+                SnackBarHelper.showCreateSuccess(context);
+              } else if (state is NoticiasLoadedAfterEdit) {
+                SnackBarHelper.showEditSuccess(context);
+              } else if (state is NoticiasLoadedAfterDelete) {
+                SnackBarHelper.showDeleteSuccess(context);
+              } else if (state is NoticiasLoadedAfterRefresh) {
+                SnackBarHelper.showRefreshSuccess(
+                  context,
+                  state.noticias.length,
+                );
+              } else if (state is NoticiasLoaded && !state.isLoading) {
+                // Para carga inicial o casos no específicos
+                SnackBarHelper.showLoadSuccess(context, state.noticias.length);
               }
             },
             builder: (context, state) {
@@ -209,17 +223,16 @@ class NoticiaScreenState extends State<NoticiaScreen> {
                       horizontal: 16,
                     ),
                     color: Colors.grey[300],
-                    child:
-                        state.ultimaActualizacion != null
-                            ? Text(
-                              'Última actualización: ${DateFormat('dd/MM/yyyy HH:mm').format(state.ultimaActualizacion!)}',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey[700],
-                                fontStyle: FontStyle.italic,
-                              ),
-                            )
-                            : const SizedBox.shrink(),
+                    child: state.ultimaActualizacion != null
+                        ? Text(
+                            'Última actualización: ${DateFormat('dd/MM/yyyy HH:mm').format(state.ultimaActualizacion!)}',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey[700],
+                              fontStyle: FontStyle.italic,
+                            ),
+                          )
+                        : const SizedBox.shrink(),
                   ),
                   Expanded(child: _buildBodyContent(state)),
                 ],
@@ -227,15 +240,14 @@ class NoticiaScreenState extends State<NoticiaScreen> {
             },
           ),
         ),
-        floatingActionButton:
-            _showFab
-                ? FloatingActionButton(
-                  backgroundColor: Theme.of(context).primaryColor,
-                  tooltip: 'Agregar noticia',
-                  onPressed: _mostrarModalCreacion,
-                  child: const Icon(Icons.add),
-                )
-                : null,
+        floatingActionButton: _showFab
+            ? FloatingActionButton(
+                backgroundColor: Theme.of(context).primaryColor,
+                tooltip: 'Agregar noticia',
+                onPressed: _mostrarModalCreacion,
+                child: const Icon(Icons.add),
+              )
+            : null,
       ),
     );
   }
@@ -256,8 +268,7 @@ class NoticiaScreenState extends State<NoticiaScreen> {
     return ListView.separated(
       controller: _scrollController,
       itemCount: state.noticias.length + (state.tieneMas ? 1 : 0),
-      separatorBuilder:
-          (_, __) => const SizedBox(height: NoticiaEstilos.espaciadoAlto),
+      separatorBuilder: (_, __) => const SizedBox(height: NoticiaEstilos.espaciadoAlto),
       itemBuilder: (context, index) {
         if (index >= state.noticias.length) {
           return _buildLoadingIndicator(state.isLoading);
@@ -266,8 +277,9 @@ class NoticiaScreenState extends State<NoticiaScreen> {
           noticia: state.noticias[index],
           imageUrl: state.noticias[index].urlImagen,
           onEditPressed: _abrirModalEdicion,
-          onDelete:
-              () => context.read<NoticiaBloc>().add(NoticiaRecargarEvent()),
+          onDelete: () {
+            context.read<NoticiaBloc>().add(NoticiaDeletedEvent());
+          },
         );
       },
     );
@@ -286,7 +298,6 @@ class NoticiaScreenState extends State<NoticiaScreen> {
   @override
   void dispose() {
     _scrollController.dispose();
-    _noticiaBloc.close();
     super.dispose();
   }
 }

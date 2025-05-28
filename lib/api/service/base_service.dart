@@ -12,12 +12,17 @@ class BaseService {
   late final Dio _dio;
   final SecureStorageService _secureStorage = di<SecureStorageService>();
 
-  
   /// Constructor que inicializa la configuración de Dio con los parámetros base
   BaseService() {
-        // Asegúrate que las variables se cargaron correctamente
-    assert(ApiConfig.beeceptorBaseUrl.isNotEmpty, "Falta BEECEPTOR_BASE_URL en .env");
-    assert(ApiConfig.beeceptorApiKey.isNotEmpty, "Falta BEECEPTOR_API_KEY en .env");
+    // Asegúrate que las variables se cargaron correctamente
+    assert(
+      ApiConfig.beeceptorBaseUrl.isNotEmpty,
+      "Falta BEECEPTOR_BASE_URL en .env",
+    );
+    assert(
+      ApiConfig.beeceptorApiKey.isNotEmpty,
+      "Falta BEECEPTOR_API_KEY en .env",
+    );
     print("Holaaaa \n ${ApiConfig.beeceptorBaseUrl}\n\n");
     _dio = Dio(
       BaseOptions(
@@ -40,7 +45,7 @@ class BaseService {
     // Manejo de errores de timeout
     if (e.type == DioExceptionType.connectionTimeout ||
         e.type == DioExceptionType.receiveTimeout) {
-      throw ApiException(message:AppConstantes.errorTimeOut,statusCode:null );
+      throw ApiException(message: AppConstantes.errorTimeOut, statusCode: null);
     }
 
     // Personalización de errores según el endpoint
@@ -59,7 +64,7 @@ class BaseService {
       errorUnauthorized = NoticiaConstants.errorUnauthorized;
       errorBadRequest = NoticiaConstants.errorInvalidData;
       errorServer = NoticiaConstants.errorServer;
-    }else if (endpoint.contains(ApiConstantes.preferenciasEndpoint)) {
+    } else if (endpoint.contains(ApiConstantes.preferenciasEndpoint)) {
       errorNotFound = PreferenciaConstantes.errorNotFound;
       errorUnauthorized = PreferenciaConstantes.errorUnauthorized;
       errorBadRequest = PreferenciaConstantes.errorInvalidData;
@@ -77,30 +82,42 @@ class BaseService {
     }
     // falta los otros endpoints
     final statusCode = e.response?.statusCode;
-    
+
     // Aplicar código de estado al tipo de recurso
     switch (statusCode) {
       case 400:
-        return ApiException(message:errorBadRequest, statusCode: 400);
+        return ApiException(message: errorBadRequest, statusCode: 400);
       case 401:
-        return ApiException(message:errorUnauthorized, statusCode: 401);
+        return ApiException(message: errorUnauthorized, statusCode: 401);
       case 403:
         // Error de autorización - Problemas con API key o IP no autorizada
-        return ApiException(message:AppConstantes.errorAccesoDenegado, statusCode: 403);
+        return ApiException(
+          message: AppConstantes.errorAccesoDenegado,
+          statusCode: 403,
+        );
       case 404:
         // Personalización para recurso no encontrado
-        return ApiException(message:errorNotFound, statusCode: 404);
+        return ApiException(message: errorNotFound, statusCode: 404);
       case 429:
         // Límite de tasa alcanzado en Beeceptor
-        return ApiException(message:AppConstantes.limiteAlcanzado, statusCode: 429);
+        return ApiException(
+          message: AppConstantes.limiteAlcanzado,
+          statusCode: 429,
+        );
       case 500:
-        return ApiException(message:errorServer, statusCode: 500);
+        return ApiException(message: errorServer, statusCode: 500);
       case 561:
         // Error en la plantilla de respuesta de Beeceptor
-        return ApiException(message:AppConstantes.errorServidorMock, statusCode: 561);
+        return ApiException(
+          message: AppConstantes.errorServidorMock,
+          statusCode: 561,
+        );
       case 562:
         // Necesita autorización en Beeceptor (x-beeceptor-auth)
-        return ApiException(message:AppConstantes.errorUnauthorized, statusCode: 562);
+        return ApiException(
+          message: AppConstantes.errorUnauthorized,
+          statusCode: 562,
+        );
       case 571:
       case 572:
       case 573:
@@ -110,39 +127,73 @@ class BaseService {
       case 577:
       case 578:
         // Errores de conexión proxy de Beeceptor
-        return ApiException(message:AppConstantes.errorConexionProxy, statusCode: statusCode);
+        return ApiException(
+          message: AppConstantes.errorConexionProxy,
+          statusCode: statusCode,
+        );
       case 580:
         // Cliente desconectado (socket hang up)
-        return ApiException(message:AppConstantes.conexionInterrumpida, statusCode: 580);
+        return ApiException(
+          message: AppConstantes.conexionInterrumpida,
+          statusCode: 580,
+        );
       case 581:
         // Error al recuperar archivo en Beeceptor
-        return ApiException(message:AppConstantes.errorRecuperarRecursos, statusCode: 581);
+        return ApiException(
+          message: AppConstantes.errorRecuperarRecursos,
+          statusCode: 581,
+        );
       case 599:
         // Error crítico en Beeceptor
-        return ApiException(message:AppConstantes.errorCriticoServidor, statusCode: 599);
+        return ApiException(
+          message: AppConstantes.errorCriticoServidor,
+          statusCode: 599,
+        );
       default:
-        return ApiException(message:'Error desconocido en $endpoint', statusCode: statusCode);
+        return ApiException(
+          message: 'Error desconocido en $endpoint',
+          statusCode: statusCode,
+        );
     }
   }
 
-    /// Método privado que ejecuta una petición HTTP y maneja los errores de forma centralizada
+  /// Método privado que ejecuta una petición HTTP y maneja los errores de forma centralizada
+  /// Método genérico para realizar solicitudes POST sin token de autorización
+  Future<dynamic> postUnauthorized(
+    String endpoint, {
+    required dynamic data,
+    Map<String, dynamic>? queryParameters,
+    String errorMessage = AppConstantes.errorCreateDefault,
+  }) async {
+    final options = await _getRequestOptions(requireAuthToken: false);
+    return _executeRequest<dynamic>(
+      () => _dio.post(
+        endpoint,
+        data: data,
+        queryParameters: queryParameters,
+        options: options,
+      ),
+      errorMessage,
+    );
+  }
+
   Future<T> _executeRequest<T>(
     Future<Response<dynamic>> Function() requestFn,
     String errorMessage,
   ) async {
     try {
       final connectivityService = di<ConnectivityService>();
-      // Verificar la conectividad antes de realizar la solicitud HTTP 
+      // Verificar la conectividad antes de realizar la solicitud HTTP
       await connectivityService.checkConnectivity();
-      
+
       // Proceder con la solicitud HTTP si hay conectividad
       final response = await requestFn();
-      
+
       if (response.statusCode == 200) {
         return response.data as T;
       } else {
-        throw ApiException(message:
-          errorMessage,
+        throw ApiException(
+          message: errorMessage,
           statusCode: response.statusCode,
         );
       }
@@ -155,9 +206,13 @@ class BaseService {
         rethrow;
       }
       // Manejo de cualquier otro tipo de error
-      throw ApiException(message:'Error inesperado: ${e.toString()}',statusCode: null);
+      throw ApiException(
+        message: 'Error inesperado: ${e.toString()}',
+        statusCode: null,
+      );
     }
   }
+
   /// Método genérico para realizar solicitudes GET
   Future<T> get<T>(
     String endpoint, {
@@ -165,7 +220,9 @@ class BaseService {
     String errorMessage = AppConstantes.errorGetDefault,
     bool requireAuthToken = false,
   }) async {
-    final options = await _getRequestOptions(requireAuthToken: requireAuthToken);
+    final options = await _getRequestOptions(
+      requireAuthToken: requireAuthToken,
+    );
     return _executeRequest<T>(
       () => _dio.get(
         endpoint,
@@ -175,6 +232,7 @@ class BaseService {
       errorMessage,
     );
   }
+
   /// Método genérico para realizar solicitudes POST
   Future<dynamic> post(
     String endpoint, {
@@ -183,7 +241,9 @@ class BaseService {
     String errorMessage = AppConstantes.errorCreateDefault,
     bool requireAuthToken = false,
   }) async {
-    final options = await _getRequestOptions(requireAuthToken: requireAuthToken);
+    final options = await _getRequestOptions(
+      requireAuthToken: requireAuthToken,
+    );
     return _executeRequest<dynamic>(
       () => _dio.post(
         endpoint,
@@ -194,6 +254,7 @@ class BaseService {
       errorMessage,
     );
   }
+
   /// Método genérico para realizar solicitudes PUT
   Future<dynamic> put(
     String endpoint, {
@@ -202,7 +263,9 @@ class BaseService {
     String errorMessage = AppConstantes.errorUpdateDefault,
     bool requireAuthToken = false,
   }) async {
-    final options = await _getRequestOptions(requireAuthToken: requireAuthToken);
+    final options = await _getRequestOptions(
+      requireAuthToken: requireAuthToken,
+    );
     return _executeRequest<dynamic>(
       () => _dio.put(
         endpoint,
@@ -221,7 +284,9 @@ class BaseService {
     String errorMessage = AppConstantes.errorDeleteDefault,
     bool requireAuthToken = false,
   }) async {
-    final options = await _getRequestOptions(requireAuthToken: requireAuthToken);
+    final options = await _getRequestOptions(
+      requireAuthToken: requireAuthToken,
+    );
     return _executeRequest<dynamic>(
       () => _dio.delete(
         endpoint,
@@ -235,22 +300,19 @@ class BaseService {
   /// Obtiene opciones de solicitud con token de autenticación si es requerido
   Future<Options> _getRequestOptions({bool requireAuthToken = false}) async {
     final options = Options();
-    
+
     if (requireAuthToken) {
       final jwt = await _secureStorage.getJwt();
       if (jwt != null && jwt.isNotEmpty) {
-        options.headers = {
-          ...(options.headers ?? {}),
-          'X-Auth-Token': jwt,
-        };
+        options.headers = {...(options.headers ?? {}), 'X-Auth-Token': jwt};
       } else {
-        throw ApiException(message:
-          AppConstantes.tokenNoEncontrado,
+        throw ApiException(
+          message: AppConstantes.tokenNoEncontrado,
           statusCode: 401,
         );
       }
     }
-    
+
     return options;
   }
 }

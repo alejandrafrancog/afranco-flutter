@@ -230,17 +230,15 @@ class NoticiaCard extends StatelessWidget {
                           );
                         },
                       ),
-                      
+
+                      // CONTADOR DE REPORTES CON STREAM BUILDER
                       IconButton(
                         icon: Row(
                           children: [
-                            FutureBuilder<int>(
-                              future: di<ReporteCacheService>()
-                                  .getNumeroReportesPorNoticia(
-                                    noticia.id,
-                                    (id) => reporteRepository
-                                        .obtenerReportesPorNoticia(id),
-                                  ),
+                            StreamBuilder<int>(
+                              stream: di<ReporteCacheService>()
+                                  .getReportesCountStream(noticia.id),
+                              initialData: 0,
                               builder: (context, snapshot) {
                                 final count = snapshot.data ?? 0;
                                 return Text(
@@ -272,15 +270,11 @@ class NoticiaCard extends StatelessWidget {
                                           motivo: motivo,
                                         ),
                                       );
-                                      Future.delayed(
-                                        const Duration(milliseconds: 500),
-                                        () {
-                                          bloc.add(ReporteRefreshEvent());
-                                        },
-                                      );
+                                      // Ya no necesitamos el refresh manual
+                                      // El stream se actualizará automáticamente
                                     },
                                   ),
-                            ), // Puedes añadir lógica adicional aquí
+                            ),
                       ),
 
                       PopupMenuButton<String>(
