@@ -26,7 +26,7 @@ class ProgresoWidget extends StatelessWidget {
         borderRadius: BorderRadius.circular(15),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.3),
+            color: Colors.grey.withAlpha(128),
             spreadRadius: 2,
             blurRadius: 5,
             offset: const Offset(0, 3),
@@ -47,7 +47,10 @@ class ProgresoWidget extends StatelessWidget {
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.blue.shade600,
                   borderRadius: BorderRadius.circular(20),
