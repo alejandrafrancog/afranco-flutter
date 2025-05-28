@@ -1,6 +1,7 @@
 import 'package:afranco/bloc/counter_bloc/counter_bloc.dart';
 import 'package:afranco/bloc/categoria_bloc/categoria_bloc.dart';
 import 'package:afranco/components/connectivity/connectivity_wrapper.dart';
+import 'package:afranco/views/acerca_de_screen.dart';
 import 'package:afranco/views/categoria_screen.dart';
 import 'package:afranco/views/noticia_screen.dart';
 import 'package:afranco/views/pantalla_interactiva.dart';
@@ -122,7 +123,16 @@ class WelcomeScreen extends StatelessWidget {
                 );
               },
             ),
-
+            ListTile(
+              leading: const Icon(Icons.info),
+              title: const Text('Acerca de'),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const AcercaDeScreen()),
+                );
+              },
+            ),
             ListTile(
               leading: const Icon(Icons.exit_to_app),
               title: const Text('Salir'),
