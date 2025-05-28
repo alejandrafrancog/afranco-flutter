@@ -16,6 +16,5 @@ Debes crear un archivo llamado `.env` en la raíz del proyecto.
 Ejemplo de `.env`:
 
 ```env
-# News API Configuration
-BASE_URL=https://<yourApiKey>.proxy.beeceptor.com/api
-BEECEPTOR_API_KEY=your_beeceptor_api_key_here
+BEECEPTOR_BASE_URL=https://<yourApiKey>.proxy.beeceptor.com/api
+BEECEPTOR_API_KEY=your_api_key_here
