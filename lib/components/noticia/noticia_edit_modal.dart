@@ -95,6 +95,8 @@ class _NoticiaEditModalState extends State<NoticiaEditModal> {
         urlImagen: imagenUrl,
         publicadaEl: widget.noticia.publicadaEl,
         descripcion: _descripcionController.text,
+        contadorComentarios: widget.noticia.contadorComentarios,
+        contadorReportes: widget.noticia.contadorReportes,
       );
 
       await widget.service.actualizarNoticia(noticiaActualizada);
