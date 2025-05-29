@@ -27,7 +27,7 @@ class _NoticiaCreationModalState extends State<NoticiaCreationModal> {
   final _descripcionController = TextEditingController();
   final _fuenteController = TextEditingController();
   final _imagenController = TextEditingController();
-  final _urlController = TextEditingController();
+  //final _urlController = TextEditingController();
   bool _isSubmitting = false;
   final CategoriaRepository _categoriaRepo = di<CategoriaRepository>();
   Categoria? _categoriaSeleccionada;
@@ -69,13 +69,12 @@ class _NoticiaCreationModalState extends State<NoticiaCreationModal> {
 
       final nuevaNoticia = Noticia(
         id: '',
-        categoryId: _categoriaSeleccionada?.id ?? '',
+        categoriaId: _categoriaSeleccionada?.id ?? '',
         titulo: _tituloController.text,
         fuente: _fuenteController.text,
         urlImagen: imagenUrl,
         publicadaEl: DateTime.now(),
         descripcion: _descripcionController.text,
-        url: _urlController.text,
       );
 
       await widget.service.crearNoticia(nuevaNoticia);
@@ -160,11 +159,11 @@ class _NoticiaCreationModalState extends State<NoticiaCreationModal> {
                 validator: (_) => null,
               ),
 
-              TextFormField(
+              /*TextFormField(
                 controller: _urlController,
                 decoration: const InputDecoration(labelText: 'URL Noticia'),
                 keyboardType: TextInputType.url,
-              ),
+              ),*/
             ],
           ),
         ),

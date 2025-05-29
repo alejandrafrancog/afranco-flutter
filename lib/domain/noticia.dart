@@ -6,53 +6,48 @@ part 'noticia.mapper.dart';
 
 @MappableClass()
 class Noticia with NoticiaMappable {
-  final String id;
-  
-  // Fix: Map categoryId to categoriaId from JSON
-  @MappableField(key: 'categoriaId')
-  final String categoryId;
-  
+  final String? id;
   final String titulo;
-  final String fuente;
-  @MappableField(key: 'urlImagen')
-  final String urlImagen;
-  final DateTime publicadaEl;
   final String descripcion;
-  final int tiempoLectura;
-  final String? url;
-  final String? autor;
-  final String? contenido;
+  final String fuente;
+  final DateTime publicadaEl;
+  final String urlImagen;
+  final String? categoriaId;
+  final int? contadorReportes;
+  final int? contadorComentarios;
+  final int tiempoLectura =
+      _generarTiempoLectura(); // Tiempo de lectura en minutos
 
   Noticia({
-    required this.id,
-    String? categoryId,
+    this.id,
     required this.titulo,
-    required this.fuente,
-    required this.urlImagen,
-    required this.publicadaEl,
     required this.descripcion,
-    this.url,
-    this.autor,
-    this.contenido,
-    int? tiempoLectura,
-  })  : categoryId = categoryId ?? "",
-        tiempoLectura = tiempoLectura ?? _generarTiempoLectura();
+    required this.fuente,
+    required this.publicadaEl,
+    required this.urlImagen,
+    this.categoriaId,
+    this.contadorReportes,
+    this.contadorComentarios,
+  });
 
   static int _generarTiempoLectura() {
     final random = Random();
     return random.nextInt(10) + 1;
   }
 
-  Future<String> obtenerNombreCategoria(Future<List<Categoria>> categorias, String catID) async {
+  Future<String> obtenerNombreCategoria(
+    Future<List<Categoria>> categorias,
+    String catID,
+  ) async {
     if (catID.isEmpty || catID == "sin_categoria") return 'Sin categoría';
-    
+
     List<Categoria> categoriasList = await categorias;
     for (Categoria cat in categoriasList) {
       if (cat.id == catID) return cat.nombre;
     }
     return 'Sin categoría';
   }
-  
+
   String fechaCorta() {
     return '${publicadaEl.day}/${publicadaEl.month}/${publicadaEl.year}';
   }
@@ -60,5 +55,4 @@ class Noticia with NoticiaMappable {
   String tiempoLecturaFormateado() {
     return '$tiempoLectura min${tiempoLectura > 1 ? 's' : ''}';
   }
-  
 }

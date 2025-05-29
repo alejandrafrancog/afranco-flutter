@@ -66,7 +66,7 @@ class NoticiaScreenState extends State<NoticiaScreen> {
       context: context,
       builder: (context) => NoticiaEditModal(
         noticia: noticia,
-        id: noticia.id,
+        id: noticia.id ?? '',
         onNoticiaUpdated: () {
           if (mounted) {
             context.read<NoticiaBloc>().add(NoticiaEditedEvent());

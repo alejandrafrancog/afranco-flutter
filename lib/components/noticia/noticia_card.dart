@@ -73,7 +73,9 @@ class NoticiaCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(82),
                 ),
                 child: FutureBuilder<String>(
-                  future: CategoryHelper.getCategoryName(noticia.categoryId),
+                  future: CategoryHelper.getCategoryName(
+                    noticia.categoriaId ?? '',
+                  ),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return const CircularProgressIndicator(
@@ -202,7 +204,7 @@ class NoticiaCard extends StatelessWidget {
                           children: [
                             FutureBuilder<int>(
                               future: di<ComentarioCacheService>()
-                                  .getNumeroComentarios(noticia.id),
+                                  .getNumeroComentarios(noticia.id ?? ''),
                               builder: (context, snapshot) {
                                 final count = snapshot.data ?? 0;
                                 return Text(
@@ -218,14 +220,15 @@ class NoticiaCard extends StatelessWidget {
                         tooltip: 'Comentarios',
                         onPressed: () {
                           context.read<ComentarioBloc>().add(
-                            LoadComentarios(noticiaId: noticia.id),
+                            LoadComentarios(noticiaId: noticia.id ?? ''),
                           );
                           Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder:
-                                  (context) =>
-                                      ComentarioScreen(noticiaId: noticia.id),
+                                  (context) => ComentarioScreen(
+                                    noticiaId: noticia.id ?? '',
+                                  ),
                             ),
                           );
                         },
@@ -237,7 +240,7 @@ class NoticiaCard extends StatelessWidget {
                           children: [
                             StreamBuilder<int>(
                               stream: di<ReporteCacheService>()
-                                  .getReportesCountStream(noticia.id),
+                                  .getReportesCountStream(noticia.id ?? ''),
                               initialData: 0,
                               builder: (context, snapshot) {
                                 final count = snapshot.data ?? 0;
@@ -261,12 +264,12 @@ class NoticiaCard extends StatelessWidget {
                               context: context,
                               builder:
                                   (context) => ReporteModal(
-                                    noticiaId: noticia.id,
+                                    noticiaId: noticia.id ?? '',
                                     onSubmit: (motivo) {
                                       final bloc = context.read<ReporteBloc>();
                                       bloc.add(
                                         ReporteCreateEvent(
-                                          noticiaId: noticia.id,
+                                          noticiaId: noticia.id ?? '',
                                           motivo: motivo,
                                         ),
                                       );
@@ -289,7 +292,7 @@ class NoticiaCard extends StatelessWidget {
                                 builder:
                                     (c) => NoticiaDeleteModal(
                                       noticia: noticia,
-                                      id: noticia.id,
+                                      id: noticia.id ?? '',
                                     ),
                               ).then((resultado) {
                                 if (resultado == true) {

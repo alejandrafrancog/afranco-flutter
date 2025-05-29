@@ -189,7 +189,7 @@ class NoticiaBloc extends Bloc<NoticiaEvent, NoticiaState> {
   ) async {
     try {
       emit(
-        NoticiaLoadingState(
+        const NoticiaLoadingState(
           noticias: [],
           tieneMas: true,
           ultimaActualizacion: null,
@@ -206,7 +206,7 @@ class NoticiaBloc extends Bloc<NoticiaEvent, NoticiaState> {
       final filteredNoticias =
           allNoticias
               .where(
-                (noticia) => event.categoriasIds.contains(noticia.categoryId),
+                (noticia) => event.categoriasIds.contains(noticia.categoriaId),
               )
               .toList();
 

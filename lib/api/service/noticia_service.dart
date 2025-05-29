@@ -59,7 +59,6 @@ class NoticiaService extends BaseService {
       urlImagen: '',
       publicadaEl: DateTime.now().subtract(Duration(days: diasAleatorios)),
       descripcion: _generarContenidoAleatorio(),
-      url: '',
     );
   }
 
@@ -106,13 +105,12 @@ class NoticiaService extends BaseService {
     await post(
       _baseUrl,
       data: {
-        'categoriaId': noticia.categoryId,
+        'categoriaId': noticia.categoriaId,
         'titulo': noticia.titulo,
         'descripcion': noticia.descripcion,
         'fuente': noticia.fuente,
         'publicadaEl': noticia.publicadaEl.toIso8601String(),
         'urlImagen': noticia.urlImagen,
-        'url': noticia.url,
       },
       errorMessage: NoticiaConstants.errorCrearNoticia,
       requireAuthToken: true,
@@ -144,7 +142,7 @@ Future<Noticia> getNoticiaById(String id) async {
       '$_baseUrl/${noticia.id}',
       data: {
         'titulo': titulo ?? noticia.titulo,
-        'categoriaId': categoriaId ?? noticia.categoryId,
+        'categoriaId': categoriaId ?? noticia.categoriaId,
         'descripcion': descripcion ?? noticia.descripcion,
         'fuente': fuente ?? noticia.fuente,
         'publicadaEl': noticia.publicadaEl.toIso8601String(),
