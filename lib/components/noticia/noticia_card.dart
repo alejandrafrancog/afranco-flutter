@@ -73,9 +73,7 @@ class NoticiaCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(82),
                 ),
                 child: FutureBuilder<String>(
-                  future: CategoryHelper.getCategoryName(
-                    noticia.categoriaId ?? '',
-                  ),
+                  future: CategoryHelper.getCategoryName(noticia.categoriaId ?? ''),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return const CircularProgressIndicator(
@@ -226,9 +224,8 @@ class NoticiaCard extends StatelessWidget {
                             context,
                             MaterialPageRoute(
                               builder:
-                                  (context) => ComentarioScreen(
-                                    noticiaId: noticia.id ?? '',
-                                  ),
+                                  (context) =>
+                                      ComentarioScreen(noticiaId: noticia.id ?? ''),
                             ),
                           );
                         },

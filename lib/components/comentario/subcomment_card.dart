@@ -86,10 +86,11 @@ class SubcommentCard extends StatelessWidget {
   }
 
   void _handleReaction(BuildContext context, String tipoReaccion) {
+    // Ahora usamos el evento específico para subcomentarios
     context.read<ComentarioBloc>().add(
-      AddReaccion(
+      AddReaccionSubcomentario(
         noticiaId: noticiaId,
-        comentarioId: subcomentario.idSubComentario ?? subcomentario.id ?? '',
+        subcomentarioId: subcomentario.id ?? '',
         tipoReaccion: tipoReaccion,
       ),
     );
