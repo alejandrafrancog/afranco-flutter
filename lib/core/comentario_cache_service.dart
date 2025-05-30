@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:afranco/api/service/comentario_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:watch_it/watch_it.dart';
@@ -10,6 +11,7 @@ class ComentarioCacheService {
   static final ComentarioCacheService _instance =
       ComentarioCacheService._internal();
   ComentarioService get _service => di<ComentarioService>();
+  
   // Lazy initialization del repositorio de comentarios
   ComentarioRepository? _comentarioRepository;
 
@@ -31,6 +33,9 @@ class ComentarioCacheService {
   // Timestamp de la última actualización por noticia ID
   final Map<String, DateTime> _lastRefreshedByNoticiaId = {};
 
+  // NUEVO: StreamControllers para el contador de comentarios
+  final Map<String, StreamController<int>> _comentariosCountControllers = {};
+
   // Constructor factory que retorna la misma instancia
   factory ComentarioCacheService() => _instance;
 
@@ -39,6 +44,73 @@ class ComentarioCacheService {
 
   // Tiempo máximo de validez de la cache en minutos
   final int _cacheValidityMinutes = 5;
+
+  /// NUEVO: Obtiene un Stream del contador de comentarios para una noticia
+    Stream<int> getNumeroComentariosStream(String noticiaId) async* {
+    // Emitir valor inicial desde la API
+    try {
+      final count = await _repository.obtenerNumeroComentarios(noticiaId);
+      _conteoCache[noticiaId] = count;
+      yield count;
+    } catch (e) {
+      debugPrint('❌ Error obteniendo contador inicial: $e');
+      yield _conteoCache[noticiaId] ?? 0;
+    }
+
+    // Luego escuchar actualizaciones
+    if (!_comentariosCountControllers.containsKey(noticiaId)) {
+      _comentariosCountControllers[noticiaId] = StreamController<int>.broadcast();
+    }
+    yield* _comentariosCountControllers[noticiaId]!.stream;
+  }
+
+  Future<void> refreshComentarios(String noticiaId) async {
+    try {
+      final comentarios = await _repository.obtenerComentariosPorNoticia(noticiaId);
+      _comentariosPorNoticia[noticiaId] = comentarios;
+      
+      // Actualizar contador
+      final totalComentarios = _calcularTotalComentarios(comentarios);
+      _conteoCache[noticiaId] = totalComentarios;
+      _updateCounterStream(noticiaId, totalComentarios);
+      
+      debugPrint('✅ Comentarios actualizados: $totalComentarios para noticia $noticiaId');
+    } catch (e) {
+      debugPrint('❌ Error refreshing comentarios: $e');
+      rethrow;
+    }
+  }
+
+  /// Inicializa el stream con el valor actual
+  Future<void> _initializeCounterStream(String noticiaId) async {
+    try {
+      final count = await getNumeroComentarios(noticiaId);
+      _comentariosCountControllers[noticiaId]?.add(count);
+    } catch (e) {
+      debugPrint('❌ Error al inicializar stream para $noticiaId: $e');
+      _comentariosCountControllers[noticiaId]?.add(0);
+    }
+  }
+
+  /// Actualiza el stream del contador para una noticia específica
+  void _updateCounterStream(String noticiaId, int count) {
+    _conteoCache[noticiaId] = count;
+    _comentariosCountControllers[noticiaId]?.add(count);
+  }
+
+  /// NUEVA FUNCIÓN: Calcula el total de comentarios incluyendo subcomentarios
+  int _calcularTotalComentarios(List<Comentario> comentarios) {
+    int total = comentarios.length; // Comentarios principales
+    
+    // Sumar subcomentarios de cada comentario principal
+    for (final comentario in comentarios) {
+      if (comentario.subcomentarios != null) {
+        total += comentario.subcomentarios!.length;
+      }
+    }
+    
+    return total;
+  }
 
   /// Retorna la lista de comentarios para una noticia específica
   /// Si no hay comentarios en cache o ha expirado, realiza una carga desde la API
@@ -59,7 +131,7 @@ class ComentarioCacheService {
   }
 
   /// Refresca los comentarios desde la API para una noticia específica
-  Future<void> refreshComentarios(String noticiaId) async {
+ /* Future<void> refreshComentarios(String noticiaId) async {
     try {
       debugPrint('🔄 Refrescando comentarios para noticia: $noticiaId');
       final comentarios = await _repository.obtenerComentariosPorNoticia(
@@ -68,18 +140,22 @@ class ComentarioCacheService {
       _comentariosPorNoticia[noticiaId] = comentarios;
       _lastRefreshedByNoticiaId[noticiaId] = DateTime.now();
 
-      // Actualizamos también el número de comentarios
-      _numeroComentariosPorNoticia[noticiaId] = comentarios.length;
+      // CORREGIDO: Calculamos el total incluyendo subcomentarios
+      final totalComentarios = _calcularTotalComentarios(comentarios);
+      _numeroComentariosPorNoticia[noticiaId] = totalComentarios;
+      
+      // CORREGIDO: Actualizar el stream del contador con el total correcto
+      _updateCounterStream(noticiaId, totalComentarios);
 
       debugPrint(
-        '✅ Comentarios actualizados: ${comentarios.length} items para noticia $noticiaId',
+        '✅ Comentarios actualizados: ${comentarios.length} principales + subcomentarios = $totalComentarios total para noticia $noticiaId',
       );
     } catch (e) {
       debugPrint('❌ Error al refrescar comentarios: ${e.toString()}');
       // No modificamos cache si hay error para mantener datos anteriores
       rethrow;
     }
-  }
+  }*/
 
   /// Obtiene el número de comentarios para una noticia específica
   /// Si no hay datos en cache o ha expirado, realiza una carga desde la API
@@ -89,8 +165,9 @@ class ComentarioCacheService {
       return _conteoCache[noticiaId]!;
     }
 
+    // CORREGIDO: Obtener el total desde el repositorio
     final count = await _repository.obtenerNumeroComentarios(noticiaId);
-    _conteoCache[noticiaId] = count;
+    _updateCounterStream(noticiaId, count);
     return count;
   }
 
@@ -106,14 +183,12 @@ class ComentarioCacheService {
       id: '', // Se asignará en el backend
       noticiaId: noticiaId,
       texto: texto,
-      autor:
-          autor, // Se sobrescribirá en el repositorio con el email del usuario
+      autor: autor, // Se sobrescribirá en el repositorio con el email del usuario
       fecha: fecha,
       likes: 0,
       dislikes: 0,
       subcomentarios: [],
       isSubComentario: false,
-      
     );
 
     await _repository.agregarComentario(comentario);
@@ -133,7 +208,6 @@ class ComentarioCacheService {
     // Refrescamos la cache después de reaccionar
     await refreshComentarios(noticiaId);
   }
-  
 
   /// Agrega un subcomentario y actualiza la cache
   Future<Map<String, dynamic>> agregarSubcomentario({
@@ -148,8 +222,7 @@ class ComentarioCacheService {
         id: '', // Se asignará automáticamente en el repositorio
         noticiaId: noticiaId,
         texto: texto,
-        autor:
-            autor, // Se sobrescribirá en el repositorio con el email del usuario
+        autor: autor, // Se sobrescribirá en el repositorio con el email del usuario
         fecha: DateTime.now().toIso8601String(),
         likes: 0,
         dislikes: 0,
@@ -160,7 +233,8 @@ class ComentarioCacheService {
 
       final result = await _repository.agregarSubcomentario(subcomentario);
 
-      // Refrescamos la cache después de agregar el subcomentario
+      // IMPORTANTE: Refrescamos la cache después de agregar el subcomentario
+      // Esto actualizará automáticamente el contador en la NoticiaCard
       await refreshComentarios(noticiaId);
 
       return {
@@ -209,6 +283,9 @@ class ComentarioCacheService {
     _numeroComentariosPorNoticia.remove(noticiaId);
     _lastRefreshedByNoticiaId.remove(noticiaId);
     _conteoCache.remove(noticiaId);
+    
+    // NUEVO: También actualizamos el stream cuando invalidamos
+    _initializeCounterStream(noticiaId);
   }
 
   Future<void> reaccionarSubcomentario({
@@ -237,6 +314,13 @@ class ComentarioCacheService {
     _numeroComentariosPorNoticia.clear();
     _lastRefreshedByNoticiaId.clear();
     _conteoCache.clear();
+    
+    // NUEVO: Cerrar todos los StreamControllers
+    for (final controller in _comentariosCountControllers.values) {
+      controller.close();
+    }
+    _comentariosCountControllers.clear();
+    
     debugPrint('🗑️ Cache de comentarios limpiado completamente');
   }
 }
