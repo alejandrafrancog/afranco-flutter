@@ -10,12 +10,11 @@ import 'package:afranco/bloc/tarea_bloc/tareas_bloc.dart';
 import 'package:afranco/bloc/tarea_contador_bloc/tarea_contador_bloc.dart';
 import 'package:afranco/di/locator.dart';
 import 'package:afranco/domain/comentario.dart';
+import 'package:afranco/theme/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:afranco/views/login_screen.dart';
-import 'package:afranco/constants/constants.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -54,24 +53,8 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        brightness: Brightness.light,
-        textTheme: GoogleFonts.merriweatherSansTextTheme(),
-        colorScheme: const ColorScheme.light(
-          primary: Colors.teal,
-          secondary: Colors.white,
-        ),
-      ),
-      darkTheme: ThemeData.dark().copyWith(
-        appBarTheme: AppBarTheme(
-          backgroundColor: Colors.grey[900],
-          foregroundColor: Colors.white,
-        ),
-        textTheme: ThemeData.dark().textTheme.copyWith(
-          bodyLarge: const TextStyle(color: Colors.white),
-          bodyMedium: TextStyle(color: Colors.grey[300]),
-        ),
-      ),
+      theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
 
       themeMode: ThemeMode.light,
       home: const LoginScreen(),
@@ -88,7 +71,7 @@ class MyHomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        backgroundColor: Theme.of(context).colorScheme.primary,
         title: Text(title),
       ),
       body: Center(
@@ -111,7 +94,7 @@ class MyHomePage extends StatelessWidget {
                   ),
                 ),
                 ElevatedButton(
-                  style: AppStyles.elevatedButtonStyle,
+                  style: AppTheme.lightTheme.elevatedButtonTheme.style,
                   onPressed: () {
                     showDialog(
                       context: context,

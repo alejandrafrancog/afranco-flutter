@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'colors.dart';
-import 'text_style.dart';
+import 'package:google_fonts/google_fonts.dart';
+
+import 'package:afranco/theme/colors.dart';
+import 'package:afranco/theme/text_style.dart';
 
 class AppTheme {
   static ThemeData get lightTheme {
@@ -17,8 +19,6 @@ class AppTheme {
         onSecondary: AppColors.white,
         surface: AppColors.surface,
         onSurface: AppColors.textPrimary,
-        background: AppColors.background,
-        onBackground: AppColors.textPrimary,
         error: AppColors.error,
         onError: AppColors.white,
       ),
@@ -61,6 +61,7 @@ class AppTheme {
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
           foregroundColor: AppColors.primary,
+
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           textStyle: AppTextStyles.button.copyWith(color: AppColors.primary),
@@ -121,7 +122,7 @@ class AppTheme {
       iconTheme: const IconThemeData(color: AppColors.textSecondary, size: 24),
 
       // Text Theme
-      textTheme: const TextTheme(
+      textTheme: GoogleFonts.merriweatherSansTextTheme().copyWith(
         headlineLarge: AppTextStyles.h1,
         headlineMedium: AppTextStyles.h2,
         headlineSmall: AppTextStyles.h3,
@@ -156,6 +157,11 @@ class AppTheme {
       ),
     );
   }
+
+  static const BoxDecoration drawerHeaderDecoration = BoxDecoration(
+    color: AppColors.primary,
+  
+  );
 
   static ThemeData get darkTheme {
     return ThemeData(
