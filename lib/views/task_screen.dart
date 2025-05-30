@@ -150,22 +150,22 @@ class TasksScreenState extends State<TasksScreen> {
 
                 // Mostrar mensaje de lista vacía
                 if (state.tareas.isEmpty && state.status != TareasStatus.loading) {
-                  return Center(
+                  return const Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(Icons.task_alt, size: 64, color: Colors.grey),
-                        const SizedBox(height: 16),
-                        const Text(
+                        Icon(Icons.task_alt, size: 64, color: Colors.grey),
+                        SizedBox(height: 16),
+                        Text(
                           AppConstants.emptyList,
                           style: TextStyle(fontSize: 18, color: Colors.grey),
                         ),
-                        const SizedBox(height: 16),
-                        FloatingActionButton(
+                        SizedBox(height: 16),
+                        /*FloatingActionButton(
                           heroTag: 'emptyListAddButton',
                           onPressed: () => _showAddTaskModal(context),
                           child: const Icon(Icons.add),
-                        ),
+                        ),*/
                       ],
                     ),
                   );
