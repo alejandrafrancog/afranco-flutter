@@ -4,11 +4,14 @@ import 'package:afranco/constants/constants.dart';
 import 'package:afranco/domain/noticia.dart';
 import 'package:afranco/exceptions/api_exception.dart';
 import 'package:afranco/api/service/base_service.dart';
+import 'package:afranco/api/service/comentario_service.dart'; // Agregar esta importación
 import 'package:flutter/foundation.dart';
+import 'package:watch_it/watch_it.dart';
 
 class NoticiaService extends BaseService {
   static final Random _random = Random();
   final String _baseUrl = ApiConstants.urlNoticias;
+  final ComentarioService _comentarioService = di<ComentarioService>(); // Instancia del servicio de comentarios
 
   final _titulosPosibles = [
     "Se reeligió al presidente en una ajustada votación",
@@ -120,16 +123,18 @@ class NoticiaService extends BaseService {
 
     debugPrint('✅ Noticia creada con éxito');
   }
-Future<Noticia> getNoticiaById(String id) async {
-  debugPrint('🔍 Obteniendo noticia con ID: $id');
 
-  final data = await get<Map<String, dynamic>>(
-    '$_baseUrl/$id',
-    errorMessage: NoticiaConstants.errorObtenerNoticia,
-  );
+  Future<Noticia> getNoticiaById(String id) async {
+    debugPrint('🔍 Obteniendo noticia con ID: $id');
 
-  return NoticiaMapper.fromMap(data);
-}
+    final data = await get<Map<String, dynamic>>(
+      '$_baseUrl/$id',
+      errorMessage: NoticiaConstants.errorObtenerNoticia,
+    );
+
+    return NoticiaMapper.fromMap(data);
+  }
+
   /// Actualiza una noticia existente
   Future<void> updateNoticia(
     Noticia noticia, {
@@ -171,17 +176,28 @@ Future<Noticia> getNoticiaById(String id) async {
     return data.map((json) => NoticiaMapper.fromMap(json)).toList();
   }
 
-  /// Elimina una noticia por su ID
+  /// Elimina una noticia por su ID y todos sus comentarios asociados
   Future<void> eliminarNoticia(String id) async {
     debugPrint('🗑️ Eliminando noticia con ID: $id');
 
-    await delete(
-      '$_baseUrl/$id',
-      errorMessage: NoticiaConstants.errorEliminarNoticia,
-      requireAuthToken: true,
-    );
+    try {
+      // 1. Primero eliminar todos los comentarios asociados a la noticia
+      debugPrint('🗑️ Eliminando comentarios de la noticia...');
+      await _comentarioService.eliminarComentariosPorNoticia(id);
+      debugPrint('✅ Comentarios eliminados correctamente');
 
-    debugPrint('✅ Noticia eliminada correctamente');
+      // 2. Luego eliminar la noticia
+      await delete(
+        '$_baseUrl/$id',
+        errorMessage: NoticiaConstants.errorEliminarNoticia,
+        requireAuthToken: true,
+      );
+
+      debugPrint('✅ Noticia eliminada correctamente');
+    } catch (e) {
+      debugPrint('❌ Error al eliminar la noticia: $e');
+      rethrow;
+    }
   }
 
   /// Actualiza una noticia y retorna el objeto actualizado
@@ -199,16 +215,27 @@ Future<Noticia> getNoticiaById(String id) async {
     return NoticiaMapper.fromMap(data);
   }
 
-  /// Elimina una noticia y retorna la respuesta completa
+  /// Elimina una noticia y todos sus comentarios asociados, retorna la respuesta completa
   Future<void> deleteNoticia(String id) async {
     debugPrint('🗑️ Eliminando noticia con ID: $id');
 
-    await delete(
-      '$_baseUrl/$id',
-      errorMessage: NoticiaConstants.errorEliminarNoticia,
-      requireAuthToken: true,
-    );
+    try {
+      // 1. Primero eliminar todos los comentarios asociados a la noticia
+      debugPrint('🗑️ Eliminando comentarios de la noticia...');
+      await _comentarioService.eliminarComentariosPorNoticia(id);
+      debugPrint('✅ Comentarios eliminados correctamente');
 
-    debugPrint('✅ Noticia eliminada correctamente');
+      // 2. Luego eliminar la noticia
+      await delete(
+        '$_baseUrl/$id',
+        errorMessage: NoticiaConstants.errorEliminarNoticia,
+        requireAuthToken: true,
+      );
+
+      debugPrint('✅ Noticia eliminada correctamente');
+    } catch (e) {
+      debugPrint('❌ Error al eliminar la noticia: $e');
+      rethrow;
+    }
   }
 }
