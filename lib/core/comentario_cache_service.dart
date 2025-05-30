@@ -1,3 +1,4 @@
+import 'package:afranco/api/service/comentario_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:watch_it/watch_it.dart';
 import 'package:afranco/data/comentario_repository.dart';
@@ -8,16 +9,15 @@ class ComentarioCacheService {
   // Instancia singleton private
   static final ComentarioCacheService _instance =
       ComentarioCacheService._internal();
-    final Map<String, int> _conteoCache = {};
+  ComentarioService get _service => di<ComentarioService>();
+  // Lazy initialization del repositorio de comentarios
+  ComentarioRepository? _comentarioRepository;
 
-  // Constructor factory que retorna la misma instancia
-  factory ComentarioCacheService() => _instance;
-
-  // Constructor privado
-  ComentarioCacheService._internal();
-
-  // Inyectamos el repositorio de comentarios usando di
-  final ComentarioRepository _comentarioRepository = di<ComentarioRepository>();
+  // Getter para obtener el repositorio con lazy initialization
+  ComentarioRepository get _repository {
+    _comentarioRepository ??= di<ComentarioRepository>();
+    return _comentarioRepository!;
+  }
 
   // Cache de comentarios por noticia ID
   final Map<String, List<Comentario>> _comentariosPorNoticia = {};
@@ -25,8 +25,17 @@ class ComentarioCacheService {
   // Cache de números de comentarios por noticia ID
   final Map<String, int> _numeroComentariosPorNoticia = {};
 
+  // Cache de conteo de comentarios por noticia ID
+  final Map<String, int> _conteoCache = {};
+
   // Timestamp de la última actualización por noticia ID
   final Map<String, DateTime> _lastRefreshedByNoticiaId = {};
+
+  // Constructor factory que retorna la misma instancia
+  factory ComentarioCacheService() => _instance;
+
+  // Constructor privado
+  ComentarioCacheService._internal();
 
   // Tiempo máximo de validez de la cache en minutos
   final int _cacheValidityMinutes = 5;
@@ -53,8 +62,9 @@ class ComentarioCacheService {
   Future<void> refreshComentarios(String noticiaId) async {
     try {
       debugPrint('🔄 Refrescando comentarios para noticia: $noticiaId');
-      final comentarios = await _comentarioRepository
-          .obtenerComentariosPorNoticia(noticiaId);
+      final comentarios = await _repository.obtenerComentariosPorNoticia(
+        noticiaId,
+      );
       _comentariosPorNoticia[noticiaId] = comentarios;
       _lastRefreshedByNoticiaId[noticiaId] = DateTime.now();
 
@@ -79,13 +89,10 @@ class ComentarioCacheService {
       return _conteoCache[noticiaId]!;
     }
 
-    final count = await _comentarioRepository.obtenerNumeroComentarios(
-      noticiaId,
-    );
+    final count = await _repository.obtenerNumeroComentarios(noticiaId);
     _conteoCache[noticiaId] = count;
     return count;
   }
-
 
   /// Agrega un comentario y actualiza la cache
   Future<void> agregarComentario(
@@ -94,12 +101,22 @@ class ComentarioCacheService {
     String autor,
     String fecha,
   ) async {
-    await _comentarioRepository.agregarComentario(
-      noticiaId,
-      texto,
-      autor,
-      fecha,
+    // Crear objeto Comentario con los datos proporcionados
+    final comentario = Comentario(
+      id: '', // Se asignará en el backend
+      noticiaId: noticiaId,
+      texto: texto,
+      autor:
+          autor, // Se sobrescribirá en el repositorio con el email del usuario
+      fecha: fecha,
+      likes: 0,
+      dislikes: 0,
+      subcomentarios: [],
+      isSubComentario: false,
+      
     );
+
+    await _repository.agregarComentario(comentario);
 
     // Refrescamos la cache después de agregar
     await refreshComentarios(noticiaId);
@@ -111,14 +128,12 @@ class ComentarioCacheService {
     required String comentarioId,
     required String tipoReaccion,
   }) async {
-    await _comentarioRepository.reaccionarComentario(
-      comentarioId: comentarioId,
-      tipoReaccion: tipoReaccion,
-    );
+    await _repository.reaccionarComentario(comentarioId, tipoReaccion);
 
     // Refrescamos la cache después de reaccionar
     await refreshComentarios(noticiaId);
   }
+  
 
   /// Agrega un subcomentario y actualiza la cache
   Future<Map<String, dynamic>> agregarSubcomentario({
@@ -127,18 +142,39 @@ class ComentarioCacheService {
     required String texto,
     required String autor,
   }) async {
-    final result = await _comentarioRepository.agregarSubcomentario(
-      comentarioId: comentarioId,
-      texto: texto,
-      autor: autor,
-    );
+    try {
+      // Crear objeto Comentario para el subcomentario
+      final subcomentario = Comentario(
+        id: '', // Se asignará automáticamente en el repositorio
+        noticiaId: noticiaId,
+        texto: texto,
+        autor:
+            autor, // Se sobrescribirá en el repositorio con el email del usuario
+        fecha: DateTime.now().toIso8601String(),
+        likes: 0,
+        dislikes: 0,
+        subcomentarios: [],
+        isSubComentario: true,
+        idSubComentario: comentarioId, // ID del comentario padre
+      );
 
-    // Refrescamos la cache si fue exitoso
-    if (result['success'] == true) {
+      final result = await _repository.agregarSubcomentario(subcomentario);
+
+      // Refrescamos la cache después de agregar el subcomentario
       await refreshComentarios(noticiaId);
-    }
 
-    return result;
+      return {
+        'success': true,
+        'message': 'Subcomentario agregado correctamente',
+        'data': result,
+      };
+    } catch (e) {
+      debugPrint('❌ Error al agregar subcomentario: ${e.toString()}');
+      return {
+        'success': false,
+        'message': 'Error al agregar subcomentario: ${e.toString()}',
+      };
+    }
   }
 
   /// Verifica si los comentarios para una noticia específica necesitan actualizarse
@@ -172,6 +208,27 @@ class ComentarioCacheService {
     _comentariosPorNoticia.remove(noticiaId);
     _numeroComentariosPorNoticia.remove(noticiaId);
     _lastRefreshedByNoticiaId.remove(noticiaId);
+    _conteoCache.remove(noticiaId);
+  }
+
+  Future<void> reaccionarSubcomentario({
+    required String noticiaId,
+    required String subcomentarioId,
+    required String tipoReaccion,
+  }) async {
+    try {
+      // Llamamos al servicio para reaccionar al subcomentario
+      await _service.reaccionarSubComentario(
+        subComentarioId: subcomentarioId,
+        tipoReaccion: tipoReaccion,
+      );
+
+      // Invalidamos la cache para que se actualice con los datos más recientes
+      invalidateCache(noticiaId);
+    } catch (e) {
+      debugPrint('❌ Error al reaccionar al subcomentario: $e');
+      rethrow;
+    }
   }
 
   /// Limpia toda la cache de comentarios
@@ -179,6 +236,7 @@ class ComentarioCacheService {
     _comentariosPorNoticia.clear();
     _numeroComentariosPorNoticia.clear();
     _lastRefreshedByNoticiaId.clear();
+    _conteoCache.clear();
     debugPrint('🗑️ Cache de comentarios limpiado completamente');
   }
 }

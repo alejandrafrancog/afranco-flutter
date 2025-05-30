@@ -61,3 +61,8 @@ import 'package:equatable/equatable.dart';
   @override
   List<Object?> get props => [mensaje, ...super.props];
 }
+
+// Agregar esta clase al archivo de states
+class PreferenciaLoading extends PreferenciaState {
+  const PreferenciaLoading() : super();
+}
