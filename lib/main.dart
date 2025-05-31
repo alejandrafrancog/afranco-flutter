@@ -8,6 +8,7 @@ import 'package:afranco/bloc/preferencia_bloc/preferencia_bloc.dart';
 import 'package:afranco/bloc/reporte_bloc/reporte_bloc.dart';
 import 'package:afranco/bloc/tarea_bloc/tareas_bloc.dart';
 import 'package:afranco/bloc/tarea_contador_bloc/tarea_contador_bloc.dart';
+import 'package:afranco/components/connectivity/connectivity_wrapper.dart';
 import 'package:afranco/di/locator.dart';
 import 'package:afranco/domain/comentario.dart';
 import 'package:afranco/theme/theme.dart';
@@ -67,7 +68,7 @@ class MyApp extends StatelessWidget {
         Locale('es', 'ES'),
         Locale('en', 'US'),
       ],
-      home: const LoginScreen(),
+      home: const ConnectivityWrapper(child:LoginScreen()),
     );
   }
 }
