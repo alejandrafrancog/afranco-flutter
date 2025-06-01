@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 
 class SnackBarHelper {
-  static void showSnackBar(BuildContext context, String message, {int? statusCode}) {
+  static void showSnackBar(
+    BuildContext context,
+    String message, {
+    int? statusCode,
+  }) {
     final color = _getSnackBarColor(statusCode);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -20,7 +24,7 @@ class SnackBarHelper {
   static void showClientError(BuildContext context, String message) {
     showSnackBar(context, message, statusCode: 400);
   }
-     
+
   // Nuevo método para errores del servidor (500+)
   static void showServerError(BuildContext context, String message) {
     showSnackBar(context, message, statusCode: 500);
@@ -45,6 +49,50 @@ class SnackBarHelper {
 
   static void showRefreshSuccess(BuildContext context, int count) {
     showSuccess(context, 'Lista actualizada - $count noticias');
+  }
+
+  static void showError(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            const Icon(Icons.error_outline, color: Colors.white),
+            const SizedBox(width: 8),
+            Expanded(child: Text(message)),
+          ],
+        ),
+        backgroundColor: Colors.red[600],
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        margin: const EdgeInsets.all(16),
+      ),
+    );
+  }
+
+  // Nuevo método para mostrar progreso de login
+  static void showLoginProgress(BuildContext context) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Row(
+          children: [
+            SizedBox(
+              width: 16,
+              height: 16,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+              ),
+            ),
+            SizedBox(width: 12),
+            Text('Iniciando sesión...'),
+          ],
+        ),
+        backgroundColor: Theme.of(context).primaryColor,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        margin: const EdgeInsets.all(16),
+      ),
+    );
   }
 
   static Color _getSnackBarColor(int? statusCode) {
