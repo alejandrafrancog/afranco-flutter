@@ -11,7 +11,6 @@ class NoticiaEditModal extends StatefulWidget {
   final Noticia noticia;
   final String id;
   final Function()? onNoticiaUpdated;
-
   final service = di<NoticiaRepository>();
 
   NoticiaEditModal({
@@ -31,8 +30,9 @@ class _NoticiaEditModalState extends State<NoticiaEditModal> {
   late TextEditingController _descripcionController;
   late TextEditingController _fuenteController;
   late TextEditingController _imagenController;
-  late TextEditingController _urlController;
   final CategoriaRepository _categoriaRepo = CategoriaRepository();
+  final double? sizedBoxHeight = 20.5;
+
 
   late String _selectedCategoryId;
   List<Categoria> _categorias = [];
@@ -49,10 +49,10 @@ class _NoticiaEditModalState extends State<NoticiaEditModal> {
     );
     _fuenteController = TextEditingController(text: widget.noticia.fuente);
     _imagenController = TextEditingController(text: widget.noticia.urlImagen);
-    _urlController = TextEditingController(text: widget.noticia.url);
+    //_urlController = TextEditingController(text: widget.noticia.url);
     _originalImagen = widget.noticia.urlImagen;
     _selectedCategoryId =
-        widget.noticia.categoryId; // Inicializar con la categoría actual
+        widget.noticia.categoriaId ?? ''; // Inicializar con la categoría actual
     _cargarCategorias();
   }
 
@@ -90,13 +90,14 @@ class _NoticiaEditModalState extends State<NoticiaEditModal> {
 
       final noticiaActualizada = Noticia(
         id: widget.noticia.id,
-        categoryId: _selectedCategoryId, // Usar la categoría seleccionada
+        categoriaId: _selectedCategoryId, // Usar la categoría seleccionada
         titulo: _tituloController.text,
         fuente: _fuenteController.text,
         urlImagen: imagenUrl,
         publicadaEl: widget.noticia.publicadaEl,
         descripcion: _descripcionController.text,
-        url: _urlController.text,
+        contadorComentarios: widget.noticia.contadorComentarios,
+        contadorReportes: widget.noticia.contadorReportes,
       );
 
       await widget.service.actualizarNoticia(noticiaActualizada);
@@ -130,16 +131,19 @@ class _NoticiaEditModalState extends State<NoticiaEditModal> {
                 decoration: const InputDecoration(labelText: 'Título'),
                 validator: (value) => value!.isEmpty ? 'Requerido' : null,
               ),
+              SizedBox(height:sizedBoxHeight),
               TextFormField(
                 controller: _descripcionController,
                 decoration: const InputDecoration(labelText: 'Descripción'),
                 validator: (value) => value!.isEmpty ? 'Requerido' : null,
               ),
+              SizedBox(height: sizedBoxHeight),
               TextFormField(
                 controller: _fuenteController,
                 decoration: const InputDecoration(labelText: 'Fuente'),
                 validator: (value) => value!.isEmpty ? 'Requerido' : null,
               ),
+              SizedBox(height: sizedBoxHeight),
               TextFormField(
                 controller: _imagenController,
                 decoration: const InputDecoration(
@@ -148,14 +152,17 @@ class _NoticiaEditModalState extends State<NoticiaEditModal> {
                 ),
                 keyboardType: TextInputType.url,
               ),
-              TextFormField(
+              SizedBox(height: sizedBoxHeight),
+
+              /*TextFormField(
                 controller: _urlController,
                 decoration: const InputDecoration(labelText: 'URL Noticia'),
                 keyboardType: TextInputType.url,
-              ),
+              ),*/
 
               // Dropdown para seleccionar categoría (sin validación)
               DropdownButtonFormField<String>(
+                isExpanded: true,
                 decoration: const InputDecoration(
                   labelText: 'Categoría',
                   hintText: 'Seleccionar categoría (opcional)',
@@ -188,7 +195,7 @@ class _NoticiaEditModalState extends State<NoticiaEditModal> {
                 // Sin validador para que no sea obligatorio
               ),
 
-              const SizedBox(height: 16),
+              const SizedBox(height: 6),
             ],
           ),
         ),

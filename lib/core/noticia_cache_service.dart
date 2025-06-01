@@ -10,7 +10,7 @@ class NoticiaCacheService {
 
   Future<void> updateNoticia(Noticia noticia) async {
     debugPrint('🔄 Actualizando caché para noticia: ${noticia.id}');
-    _noticiasCache[noticia.id] = noticia;
+    _noticiasCache[noticia.id ?? ''] = noticia;
   }
 
   Future<void> deleteNoticia(String id) async {
@@ -20,7 +20,7 @@ class NoticiaCacheService {
 
   Future<void> addNoticia(Noticia noticia) async {
     debugPrint('➕ Agregando noticia al caché: ${noticia.id}');
-    _noticiasCache[noticia.id] = noticia;
+    _noticiasCache[noticia.id ?? ''] = noticia;
   }
 
   Future<Noticia?> getNoticia(String id) async {

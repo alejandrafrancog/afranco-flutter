@@ -66,6 +66,7 @@ class TareasConstantes {
   static const String errorActualizarTarea = 'Error al actualizar tarea';
   static const String tituloVacio = 'El título no puede estar vacío';
 }
+
 class ValidacionConstantes {
   // Mensajes genéricos
   static const String campoVacio = ' no puede estar vacío';
@@ -73,7 +74,7 @@ class ValidacionConstantes {
   // static const String campoInvalido = 'no es válido';
   // static const String campoMuyCorto = 'es demasiado corto';
   // static const String campoMuyLargo = 'es demasiado largo';
-  
+
   // Campos comunes
   static const String imagenUrl = 'URL de la imagen';
 
@@ -164,6 +165,7 @@ class ReporteConstantes {
   static const String reporteCreado = 'Reporte enviado con éxito';
   static const String noticiaNoExiste = 'La noticia reportada no existe';
   static const String errorCrearReporte = 'Error al crear el reporte';
+  static const String errorObtenerReporte = 'Error al obtener el reporte';
   static const String errorObtenerReportes = 'Error al obtener reportes';
   static const String listaVacia = 'No hay reportes disponibles';
   static const String mensajeCargando = 'Cargando reportes...';
@@ -176,6 +178,7 @@ class ReporteConstantes {
   static const String errorInvalidData = 'Datos inválidos en reporte';
   static const String errorServer = 'Error del servidor en reporte';
   static const errorEliminarReporte = 'Error al eliminar el reporte';
+  static const errorEliminarReportes = 'Error al eliminar el reporte';
 
   static const String errorNotFound = 'Reporte no encontrado';
 }

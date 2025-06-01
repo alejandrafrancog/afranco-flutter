@@ -1,10 +1,13 @@
-import 'package:afranco/noticias_estilos.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:afranco/bloc/auth_bloc/auth_bloc.dart';
 import 'package:afranco/bloc/auth_bloc/auth_event.dart';
 import 'package:afranco/bloc/auth_bloc/auth_state.dart';
 import 'package:afranco/views/welcome_screen.dart';
+import 'package:afranco/components/auth/login_header.dart';
+import 'package:afranco/components/auth/login_form.dart';
+import 'package:afranco/components/auth/login_button.dart';
+import 'package:afranco/helpers/snackbar_helper.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -18,125 +21,82 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _passwordController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
+  void _handleLogin() {
+    if (_formKey.currentState?.validate() ?? false) {
+      SnackBarHelper.showLoginProgress(context);
+      
+      final username = _usernameController.text.trim();
+      final password = _passwordController.text.trim();
+
+      context.read<AuthBloc>().add(
+        AuthLoginRequested(
+          email: username,
+          password: password,
+        ),
+      );
+    }
+  }
+
+  void _navigateToWelcome() {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const WelcomeScreen(),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    
     return Scaffold(
+      backgroundColor: Colors.grey[50],
       appBar: AppBar(
         title: const Text(''),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
       ),
       body: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is AuthAuthenticated) {
-            // Navegación a la pantalla de bienvenida cuando el usuario está autenticado
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const WelcomeScreen(
-                ),
-              ),
-            );
+            _navigateToWelcome();
           } else if (state is AuthFailure) {
-            // Mostrar mensaje de error en caso de fallo
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(state.error),
-                backgroundColor: Colors.red,
-              ),
-            );
+            SnackBarHelper.showError(context, state.error);
           }
         },
         builder: (context, state) {
-          return Padding(
-            padding: const EdgeInsets.all(22.0),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  
-                  const Center(
-                    child: Icon(
-                      Icons.person,
-                      size: 50,
-                      color: Color.fromARGB(255, 3, 65, 65),
-                    ),
-                  ),
-                  const Text(
-                    "Iniciar Sesión",
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 45,
-                      color:  Color.fromARGB(255, 8, 71, 71),
-                    ),
-                  ),
-                  const SizedBox(height: 26),
-                  
-                  // Campo de Usuario
-                  TextFormField(
-                    controller: _usernameController,
-                    decoration: const InputDecoration(
-                      labelText: 'Usuario',
-                      border:OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(20)),
+          return SafeArea(
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    children: [
+                      SizedBox(height: size.height * 0.08),
+                      
+                      const LoginHeader(),
+                      
+                      SizedBox(height: size.height * 0.06),
+                      
+                      LoginForm(
+                        usernameController: _usernameController,
+                        passwordController: _passwordController,
                       ),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return 'El campo Usuario es obligatorio';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 26),
-
-                  // Campo de Contraseña
-                  TextFormField(
-                    controller: _passwordController,
-                    decoration: const InputDecoration(
-                      labelText: 'Contraseña',
-                      border:OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(20)),
+                      
+                      const SizedBox(height: 32),
+                      
+                      LoginButton(
+                        onPressed: _handleLogin,
+                        isLoading: state is AuthLoading,
+                        width: size.width * 0.8,
                       ),
-                    ),
-                    obscureText: true,
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return 'El campo Contraseña es obligatorio';
-                      }
-                      return null;
-                    },
+                      
+                      SizedBox(height: size.height * 0.1),
+                    ],
                   ),
-                  const SizedBox(height: 16),
-                  
-                  // Botón de Iniciar Sesión con estado de carga
-                  state is AuthLoading
-                      ? const CircularProgressIndicator()
-                      : ElevatedButton(
-                        style: NoticiaEstilos.estiloBotonInicioSesion(context),
-                        //clipBehavior: Clip.antiAlias,
-                          onPressed: () {
-                            // Validar el formulario
-                            if (_formKey.currentState?.validate() ?? false) {
-                              // Mostrar snackbar de "Iniciando sesión..."
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('Iniciando sesión...')),
-                              );
-                              
-                              final username = _usernameController.text.trim();
-                              final password = _passwordController.text.trim();
-
-                              // Dispara el evento de login al BLoC
-                              context.read<AuthBloc>().add(
-                                    AuthLoginRequested(
-                                      email: username,
-                                      password: password,
-                                    ),
-                                  );
-                            }
-                          },
-                          child: const Text('Iniciar Sesión'),
-                        ),
-                ],
+                ),
               ),
             ),
           );

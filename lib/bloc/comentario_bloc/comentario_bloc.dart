@@ -16,9 +16,10 @@ class ComentarioBloc extends Bloc<ComentarioEvent, ComentarioState> {
   ComentarioBloc({
     ComentarioRepository? comentarioRepository,
     ComentarioCacheService? cacheService,
-  })  : comentarioRepository = comentarioRepository ?? di<ComentarioRepository>(),
-        _cacheService = cacheService ?? ComentarioCacheService(),
-        super(ComentarioInitial()) {
+  }) : comentarioRepository =
+           comentarioRepository ?? di<ComentarioRepository>(),
+       _cacheService = cacheService ?? di<ComentarioCacheService>(),
+       super(ComentarioInitial()) {
     on<LoadComentarios>(_onLoadComentarios);
     on<AddComentario>(_onAddComentario);
     on<GetNumeroComentarios>(_onGetNumeroComentarios);
@@ -27,6 +28,7 @@ class ComentarioBloc extends Bloc<ComentarioEvent, ComentarioState> {
     on<AddReaccion>(_onAddReaccion);
     on<AddSubcomentario>(_onAddSubcomentario);
     on<InvalidateCache>(_onInvalidateCache);
+    on<AddReaccionSubcomentario>(_onAddReaccionSubcomentario);
   }
 
   Future<void> _onLoadComentarios(
@@ -37,9 +39,13 @@ class ComentarioBloc extends Bloc<ComentarioEvent, ComentarioState> {
       emit(ComentarioLoading());
 
       // Usamos el servicio de cache para obtener los comentarios
-      final comentarios = await _cacheService.getComentariosPorNoticia(event.noticiaId);
+      final comentarios = await _cacheService.getComentariosPorNoticia(
+        event.noticiaId,
+      );
 
-      debugPrint('📝 Cargados ${comentarios.length} comentarios para la noticia ${event.noticiaId}');
+      debugPrint(
+        '📝 Cargados ${comentarios.length} comentarios para la noticia ${event.noticiaId}',
+      );
       emit(ComentarioLoaded(comentariosList: comentarios));
     } on ApiException catch (e) {
       emit(
@@ -50,8 +56,7 @@ class ComentarioBloc extends Bloc<ComentarioEvent, ComentarioState> {
     } catch (e) {
       emit(
         ComentarioError(
-          errorMessage:
-              'Error al cargar comentarios: ${e.toString()}',
+          errorMessage: 'Error al cargar comentarios: ${e.toString()}',
         ),
       );
     }
@@ -75,11 +80,15 @@ class ComentarioBloc extends Bloc<ComentarioEvent, ComentarioState> {
       );
 
       // Obtenemos los comentarios actualizados desde el cache
-      final comentarios = await _cacheService.getComentariosPorNoticia(event.noticiaId);
+      final comentarios = await _cacheService.getComentariosPorNoticia(
+        event.noticiaId,
+      );
       emit(ComentarioLoaded(comentariosList: comentarios));
 
       // Actualizar también el número de comentarios
-      final numeroComentarios = await _cacheService.getNumeroComentarios(event.noticiaId);
+      final numeroComentarios = await _cacheService.getNumeroComentarios(
+        event.noticiaId,
+      );
 
       // Emitimos el nuevo estado con el número de comentarios actualizado
       emit(
@@ -95,7 +104,9 @@ class ComentarioBloc extends Bloc<ComentarioEvent, ComentarioState> {
       }
     } catch (e) {
       emit(
-        ComentarioError(errorMessage: 'Error al agregar el comentario: ${e.toString()}'),
+        ComentarioError(
+          errorMessage: 'Error al agregar el comentario: ${e.toString()}',
+        ),
       );
     }
   }
@@ -108,7 +119,9 @@ class ComentarioBloc extends Bloc<ComentarioEvent, ComentarioState> {
       emit(ComentarioLoading());
 
       // Utilizamos el servicio de cache para obtener el número de comentarios
-      final numeroComentarios = await _cacheService.getNumeroComentarios(event.noticiaId);
+      final numeroComentarios = await _cacheService.getNumeroComentarios(
+        event.noticiaId,
+      );
 
       emit(
         NumeroComentariosLoaded(
@@ -136,7 +149,9 @@ class ComentarioBloc extends Bloc<ComentarioEvent, ComentarioState> {
       emit(ComentarioLoading());
 
       // Obtenemos los comentarios desde el cache
-      final comentarios = await _cacheService.getComentariosPorNoticia(event.noticiaId);
+      final comentarios = await _cacheService.getComentariosPorNoticia(
+        event.noticiaId,
+      );
 
       // Filtrar los comentarios según el criterio
       final comentariosFiltrados =
@@ -240,18 +255,22 @@ class ComentarioBloc extends Bloc<ComentarioEvent, ComentarioState> {
       );
 
       // Recargamos los comentarios para asegurar los datos más recientes
-      final comentariosActualizados = await _cacheService.getComentariosPorNoticia(event.noticiaId);
+      final comentariosActualizados = await _cacheService
+          .getComentariosPorNoticia(event.noticiaId);
       emit(ComentarioLoaded(comentariosList: comentariosActualizados));
     } catch (e) {
       // Si ocurre un error, intentamos recargar los comentarios para restaurar el estado
       try {
-        final comentarios = await _cacheService.getComentariosPorNoticia(event.noticiaId);
+        final comentarios = await _cacheService.getComentariosPorNoticia(
+          event.noticiaId,
+        );
         emit(ComentarioLoaded(comentariosList: comentarios));
       } catch (_) {
         // Si incluso la recarga falla, mostramos el error
         emit(
           ComentarioError(
-            errorMessage: 'Error al agregar reacción. Intenta de nuevo: ${e.toString()}',
+            errorMessage:
+                'Error al agregar reacción. Intenta de nuevo: ${e.toString()}',
           ),
         );
       }
@@ -276,7 +295,9 @@ class ComentarioBloc extends Bloc<ComentarioEvent, ComentarioState> {
 
       if (resultado['success'] == true) {
         // Recargar comentarios usando el servicio de cache
-        final comentarios = await _cacheService.getComentariosPorNoticia(event.noticiaId);
+        final comentarios = await _cacheService.getComentariosPorNoticia(
+          event.noticiaId,
+        );
         emit(ComentarioLoaded(comentariosList: comentarios));
       } else {
         // Si hubo un error, mostrar el mensaje de error
@@ -298,10 +319,12 @@ class ComentarioBloc extends Bloc<ComentarioEvent, ComentarioState> {
     try {
       // Invalidamos la cache para la noticia específica
       _cacheService.invalidateCache(event.noticiaId);
-      
+
       // Recargamos los comentarios desde la API
       emit(ComentarioLoading());
-      final comentarios = await _cacheService.getComentariosPorNoticia(event.noticiaId);
+      final comentarios = await _cacheService.getComentariosPorNoticia(
+        event.noticiaId,
+      );
       emit(ComentarioLoaded(comentariosList: comentarios));
     } catch (e) {
       emit(
@@ -309,6 +332,102 @@ class ComentarioBloc extends Bloc<ComentarioEvent, ComentarioState> {
           errorMessage: 'Error al invalidar cache: ${e.toString()}',
         ),
       );
+    }
+  }
+  // Agregar este handler al constructor del ComentarioBloc
+
+  Future<void> _onAddReaccionSubcomentario(
+    AddReaccionSubcomentario event,
+    Emitter<ComentarioState> emit,
+  ) async {
+    try {
+      // Guardamos el estado actual
+      final currentState = state;
+
+      // Emitimos un estado de carga optimista mostrando la reacción
+      if (currentState is ComentarioLoaded) {
+        final comentarios = List<Comentario>.from(currentState.comentariosList);
+        bool comentarioActualizado = false;
+
+        // Buscamos el comentario que contiene el subcomentario
+        for (int i = 0; i < comentarios.length && !comentarioActualizado; i++) {
+          final comentario = comentarios[i];
+          if (comentario.subcomentarios?.isNotEmpty == true) {
+            final subcomentarios = List<Comentario>.from(
+              comentario.subcomentarios!,
+            );
+
+            // Buscamos el subcomentario específico
+            for (int j = 0; j < subcomentarios.length; j++) {
+              if (subcomentarios[j].id == event.subcomentarioId) {
+                final subcomentario = subcomentarios[j];
+
+                // Actualizamos el subcomentario optimistamente
+                final subcomentarioActualizado = Comentario(
+                  id: subcomentario.id,
+                  noticiaId: subcomentario.noticiaId,
+                  texto: subcomentario.texto,
+                  autor: subcomentario.autor,
+                  fecha: subcomentario.fecha,
+                  likes:
+                      event.tipoReaccion == 'like'
+                          ? subcomentario.likes + 1
+                          : subcomentario.likes,
+                  dislikes:
+                      event.tipoReaccion == 'dislike'
+                          ? subcomentario.dislikes + 1
+                          : subcomentario.dislikes,
+                  subcomentarios: subcomentario.subcomentarios,
+                  isSubComentario: subcomentario.isSubComentario,
+                  idSubComentario: subcomentario.idSubComentario,
+                );
+
+                // Reemplazamos el subcomentario en la lista
+                subcomentarios[j] = subcomentarioActualizado;
+
+                // Actualizamos el comentario principal con los subcomentarios modificados
+                comentarios[i] = comentario.copyWith(
+                  subcomentarios: subcomentarios,
+                );
+                comentarioActualizado = true;
+                break;
+              }
+            }
+          }
+        }
+
+        if (comentarioActualizado) {
+          emit(ComentarioLoaded(comentariosList: comentarios));
+        }
+      }
+
+      // Llamamos al servicio de cache para persistir el cambio usando el método específico para subcomentarios
+      await _cacheService.reaccionarSubcomentario(
+        noticiaId: event.noticiaId,
+        subcomentarioId: event.subcomentarioId,
+        tipoReaccion: event.tipoReaccion,
+      );
+
+      // Recargamos los comentarios para asegurar los datos más recientes
+      final comentariosActualizados = await _cacheService
+          .getComentariosPorNoticia(event.noticiaId);
+      emit(ComentarioLoaded(comentariosList: comentariosActualizados));
+    } catch (e) {
+      // Si ocurre un error, intentamos recargar los comentarios para restaurar el estado
+      try {
+        final comentarios = await _cacheService.getComentariosPorNoticia(
+          event.noticiaId,
+        );
+        emit(ComentarioLoaded(comentariosList: comentarios));
+      } catch (_) {
+        // Si incluso la recarga falla, mostramos el error
+        emit(
+          ComentarioError(
+            errorMessage:
+                'Error al agregar reacción al subcomentario. Intenta de nuevo: ${e.toString()}',
+          ),
+        );
+      }
     }
   }
 }

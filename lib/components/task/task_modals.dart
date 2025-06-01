@@ -9,8 +9,8 @@ import 'package:watch_it/watch_it.dart';
 
 Future<void> showEditTaskModal(
   BuildContext context,
-  Task task, 
-  Function(Task) onEditTask, 
+  Task task,
+  Function(Task) onEditTask,
   Function() onDeleteTask,
 ) async {
   await showDialog(
@@ -49,56 +49,58 @@ Future<void> showEditTaskModal(
     },
   );
 }
+
 // Remover el guión bajo para hacerlo público
 void showAddTaskModal(BuildContext context) {
   final secureStorage = di<SecureStorageService>();
-  
+
   showModalBottomSheet(
     context: context,
     isScrollControlled: true,
-    builder: (context) => Padding(
-      padding: EdgeInsets.only(
-        bottom: MediaQuery.of(context).viewInsets.bottom,
-        left: 16,
-        right: 16,
-        top: 16,
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Text(
-            'Nueva Tarea',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+    builder:
+        (context) => Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+            left: 16,
+            right: 16,
+            top: 16,
           ),
-          const SizedBox(height: 16),
-          FutureBuilder<String?>(
-            future: secureStorage.getUserEmail(),
-            builder: (context, snapshot) {
-              if (snapshot.hasError) {
-                return const Text('Error obteniendo usuario');
-              }
-              
-              if (!snapshot.hasData) {
-                return const CircularProgressIndicator();
-              }
-              
-              return TaskForm(
-                onSave: (newTask) {
-                  // Asegurar que la tarea tenga el usuario correcto
-                  final taskWithUser = newTask.copyWith(
-                    usuario: snapshot.data,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                'Nueva Tarea',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 16),
+              FutureBuilder<String?>(
+                future: secureStorage.getUserEmail(),
+                builder: (context, snapshot) {
+                  if (snapshot.hasError) {
+                    return const Text('Error obteniendo usuario');
+                  }
+
+                  if (!snapshot.hasData) {
+                    return const CircularProgressIndicator();
+                  }
+
+                  return TaskForm(
+                    onSave: (newTask) {
+                      // Asegurar que la tarea tenga el usuario correcto
+                      final taskWithUser = newTask.copyWith(
+                        usuario: snapshot.data,
+                      );
+
+                      context.read<TareasBloc>().add(
+                        TareasAddEvent(tarea: taskWithUser),
+                      );
+                      Navigator.of(context).pop();
+                    },
                   );
-                  
-                  context.read<TareasBloc>().add(
-                    TareasAddEvent(tarea: taskWithUser),
-                  );
-                  Navigator.of(context).pop();
                 },
-              );
-            },
+              ),
+            ],
           ),
-        ],
-      ),
-    ),
+        ),
   );
 }

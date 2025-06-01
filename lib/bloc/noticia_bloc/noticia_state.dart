@@ -34,29 +34,21 @@ class NoticiaState extends Equatable {
 
 class NoticiaLoadingState extends NoticiaState {
   const NoticiaLoadingState({
-    required List<Noticia> noticias,
-    required bool tieneMas,
-    required DateTime? ultimaActualizacion,
+    required super.noticias,
+    required super.tieneMas,
+    required super.ultimaActualizacion,
   }) : super(
-          noticias: noticias,
-          tieneMas: tieneMas,
-          ultimaActualizacion: ultimaActualizacion,
           isLoading: true,
         );
 }
 
 class NoticiasLoaded extends NoticiaState {
   const NoticiasLoaded({
-    required List<Noticia> noticias,
-    required bool tieneMas,
-    required DateTime ultimaActualizacion,
-    bool isLoading = false,
-  }) : super(
-          noticias: noticias,
-          tieneMas: tieneMas,
-          ultimaActualizacion: ultimaActualizacion,
-          isLoading: isLoading,
-        );
+    required super.noticias,
+    required super.tieneMas,
+    required DateTime super.ultimaActualizacion,
+    super.isLoading,
+  });
 }
 
 // Estados específicos para operaciones CRUD
@@ -64,13 +56,11 @@ class NoticiasLoadedAfterCreate extends NoticiasLoaded {
   const NoticiasLoadedAfterCreate(
     List<Noticia> noticias,
     DateTime ultimaActualizacion, {
-    bool tieneMas = false,
-    bool isLoading = false,
+    super.tieneMas = false,
+    super.isLoading,
   }) : super(
           noticias: noticias,
-          tieneMas: tieneMas,
           ultimaActualizacion: ultimaActualizacion,
-          isLoading: isLoading,
         );
 }
 
@@ -78,13 +68,11 @@ class NoticiasLoadedAfterEdit extends NoticiasLoaded {
   const NoticiasLoadedAfterEdit(
     List<Noticia> noticias,
     DateTime ultimaActualizacion, {
-    bool tieneMas = false,
-    bool isLoading = false,
+    super.tieneMas = false,
+    super.isLoading,
   }) : super(
           noticias: noticias,
-          tieneMas: tieneMas,
           ultimaActualizacion: ultimaActualizacion,
-          isLoading: isLoading,
         );
 }
 
@@ -92,13 +80,11 @@ class NoticiasLoadedAfterDelete extends NoticiasLoaded {
   const NoticiasLoadedAfterDelete(
     List<Noticia> noticias,
     DateTime ultimaActualizacion, {
-    bool tieneMas = false,
-    bool isLoading = false,
+    super.tieneMas = false,
+    super.isLoading,
   }) : super(
           noticias: noticias,
-          tieneMas: tieneMas,
           ultimaActualizacion: ultimaActualizacion,
-          isLoading: isLoading,
         );
 }
 
@@ -106,13 +92,11 @@ class NoticiasLoadedAfterRefresh extends NoticiasLoaded {
   const NoticiasLoadedAfterRefresh(
     List<Noticia> noticias,
     DateTime ultimaActualizacion, {
-    bool tieneMas = false,
-    bool isLoading = false,
+    super.tieneMas = false,
+    super.isLoading,
   }) : super(
           noticias: noticias,
-          tieneMas: tieneMas,
           ultimaActualizacion: ultimaActualizacion,
-          isLoading: isLoading,
         );
 }
 
@@ -121,13 +105,10 @@ class NoticiaErrorState extends NoticiaState {
 
    const NoticiaErrorState({
     required this.error,
-    required List<Noticia> noticias,
-    required bool tieneMas,
-    required DateTime? ultimaActualizacion,
+    required super.noticias,
+    required super.tieneMas,
+    required super.ultimaActualizacion,
   }) : super(
-          noticias: noticias,
-          tieneMas: tieneMas,
-          ultimaActualizacion: ultimaActualizacion,
           isLoading: false,
         );
 

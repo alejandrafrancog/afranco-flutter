@@ -46,3 +46,8 @@ class NoticiaDeletedEvent extends NoticiaEvent {
   final String? noticiaId; // Opcional, por si necesitas el ID de la noticia eliminada
   NoticiaDeletedEvent({this.noticiaId});
 }
+class CargarNoticiasConPreferenciasEvent extends NoticiaEvent {
+  CargarNoticiasConPreferenciasEvent();
+  
+
+}

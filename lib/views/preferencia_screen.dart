@@ -11,16 +11,15 @@ import 'package:afranco/domain/categoria.dart';
 import 'package:afranco/helpers/snackbar_helper.dart';
 
 class PreferenciasScreen extends StatelessWidget {
-
   const PreferenciasScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-
     return MultiBlocProvider(
       providers: [
         BlocProvider(
-          create: (context) => PreferenciaBloc()..add(const CargarPreferencias()),
+          create:
+              (context) => PreferenciaBloc()..add(const CargarPreferencias()),
         ),
         BlocProvider(
           create: (context) => CategoriaBloc()..add(CategoriaInitEvent()),
@@ -34,7 +33,10 @@ class PreferenciasScreen extends StatelessWidget {
           actions: [
             IconButton(
               icon: const Icon(Icons.refresh),
-              onPressed: () => context.read<PreferenciaBloc>().add(const ReiniciarFiltros()),
+              onPressed:
+                  () => context.read<PreferenciaBloc>().add(
+                    const ReiniciarFiltros(),
+                  ),
               tooltip: 'Restablecer filtros',
             ),
           ],
@@ -47,16 +49,32 @@ class PreferenciasScreen extends StatelessWidget {
               return _buildErrorWidget(
                 context,
                 'Error al cargar categorías: ${categoriaState.message}',
-                () => context.read<CategoriaBloc>().add(CategoriaInitEvent())
+                () => context.read<CategoriaBloc>().add(CategoriaInitEvent()),
               );
             } else if (categoriaState is CategoriaLoaded) {
               return BlocBuilder<PreferenciaBloc, PreferenciaState>(
                 builder: (context, preferenciasState) {
+                  // ✅ Mostrar loading mientras cargan las preferencias
+                  if (preferenciasState is PreferenciaLoading) {
+                    return const Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          CircularProgressIndicator(),
+                          SizedBox(height: 16),
+                          Text('Cargando preferencias...'),
+                        ],
+                      ),
+                    );
+                  }
+
                   if (preferenciasState is PreferenciaError) {
                     return _buildErrorWidget(
                       context,
                       'Error de preferencias: ${preferenciasState.mensaje}',
-                      () => context.read<PreferenciaBloc>().add(const CargarPreferencias())
+                      () => context.read<PreferenciaBloc>().add(
+                        const CargarPreferencias(),
+                      ),
                     );
                   }
 
@@ -79,21 +97,27 @@ class PreferenciasScreen extends StatelessWidget {
 
             return BottomAppBar(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16.0,
+                  vertical: 8.0,
+                ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
                       state is PreferenciaError
-                        ? 'Error al cargar preferencias'
-                        : 'Categorías seleccionadas: ${state.categoriasSeleccionadas.length}',
+                          ? 'Error al cargar preferencias'
+                          : 'Categorías seleccionadas: ${state.categoriasSeleccionadas.length}',
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: state is PreferenciaError ? Colors.red : null,
                       ),
                     ),
                     ElevatedButton(
-                      style:NoticiaEstilos.estiloBotonPrimario(context),
-                      onPressed: isEnabled ? () => _aplicarFiltros(context, state) : null,
+                      style: NoticiaEstilos.estiloBotonPrimario(context),
+                      onPressed:
+                          isEnabled
+                              ? () => _aplicarFiltros(context, state)
+                              : null,
                       child: const Text('Aplicar filtros'),
                     ),
                   ],
@@ -129,7 +153,12 @@ class PreferenciasScreen extends StatelessWidget {
             style: Theme.of(context).textTheme.bodySmall,
           ),
           value: isSelected,
-          onChanged: (_) => _toggleCategoria(context, categoria.id ?? '', isSelected),
+          // ✅ Deshabilitar si está cargando
+          onChanged:
+              state is PreferenciaLoading
+                  ? null
+                  : (_) =>
+                      _toggleCategoria(context, categoria.id ?? '', isSelected),
           controlAffinity: ListTileControlAffinity.leading,
           activeColor: Theme.of(context).colorScheme.primary,
         );
@@ -137,19 +166,23 @@ class PreferenciasScreen extends StatelessWidget {
     );
   }
 
-  void _toggleCategoria(BuildContext context, String categoriaId, bool isSelected) {
+  void _toggleCategoria(
+    BuildContext context,
+    String categoriaId,
+    bool isSelected,
+  ) {
     context.read<PreferenciaBloc>().add(
-      CambiarCategoria(
-        categoria: categoriaId,
-        seleccionada: !isSelected,
-      ),
+      CambiarCategoria(categoria: categoriaId, seleccionada: !isSelected),
     );
   }
 
   void _aplicarFiltros(BuildContext context, PreferenciaState state) {
     // Verificar que no sea un estado de error
     if (state is PreferenciaError) {
-      SnackBarHelper.showSnackBar(context, 'No se pueden aplicar los filtros debido a un error');
+      SnackBarHelper.showSnackBar(
+        context,
+        'No se pueden aplicar los filtros debido a un error',
+      );
       return;
     }
 
@@ -161,14 +194,18 @@ class PreferenciasScreen extends StatelessWidget {
     SnackBarHelper.showSuccess(
       context,
       state.categoriasSeleccionadas.isEmpty
-        ? 'Mostrando todas las noticias'
-        : 'Filtros aplicados correctamente'
+          ? 'Mostrando todas las noticias'
+          : 'Filtros aplicados correctamente',
     );
 
     Navigator.pop(context, state.categoriasSeleccionadas);
   }
 
-  Widget _buildErrorWidget(BuildContext context, String message, VoidCallback onRetry) {
+  Widget _buildErrorWidget(
+    BuildContext context,
+    String message,
+    VoidCallback onRetry,
+  ) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,

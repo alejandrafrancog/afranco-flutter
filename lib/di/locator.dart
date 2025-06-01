@@ -1,3 +1,4 @@
+import 'package:afranco/api/service/comentario_service.dart';
 import 'package:afranco/api/service/noticia_service.dart';
 import 'package:afranco/api/service/preferencia_service.dart';
 import 'package:afranco/api/service/reporte_service.dart';
@@ -38,6 +39,8 @@ Future<void> initLocator() async {
 
   // 3. Servicios que dependen de los repositorios
   di.registerSingleton<ComentarioCacheService>(ComentarioCacheService());
+    di.registerLazySingleton<ComentarioService>(() => ComentarioService());
+
   di.registerSingleton<CategoryCacheService>(CategoryCacheService());
   di.registerSingleton<ReporteCacheService>(ReporteCacheService());
   di.registerSingleton<ConnectivityService>(ConnectivityService());

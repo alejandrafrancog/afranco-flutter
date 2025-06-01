@@ -10,8 +10,8 @@ class Quote {
     lastUpdated,
   });
 
-  @override
+  /*@override
   String toString() {
     return 'Quote{companyName: $companyName, stockPrice: $stockPrice, changePercentage: $changePercentage, $lastUpdated}';
-  }
+  }*/
 }

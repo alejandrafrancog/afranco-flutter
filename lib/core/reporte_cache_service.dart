@@ -1,7 +1,9 @@
 import 'dart:async';
 
+import 'package:afranco/data/reporte_repository.dart';
 import 'package:afranco/domain/reporte.dart';
 import 'package:flutter/foundation.dart';
+import 'package:watch_it/watch_it.dart';
 
 /// Servicio para cachear reportes y minimizar llamadas a la API
 class ReporteCacheService {
@@ -69,72 +71,81 @@ class ReporteCacheService {
     }
   }
 
-  Stream<int> getReportesCountStream(String noticiaId) {
-    // Crear controller si no existe
-    if (!_countStreamControllers.containsKey(noticiaId)) {
-      _countStreamControllers[noticiaId] = StreamController<int>.broadcast();
-
-      // Emitir valor inicial si existe en caché
-      if (_reportesCountCache.containsKey(noticiaId)) {
-        _countStreamControllers[noticiaId]!.add(
-          _reportesCountCache[noticiaId]!,
-        );
-      } else {
-        _countStreamControllers[noticiaId]!.add(0);
-      }
+  Stream<int> getReportesCountStream(String noticiaId) async* {
+    ReporteRepository noticiaRepository = di<ReporteRepository>();
+    // Emitir valor inicial desde API
+    try {
+      final reportes = await getReportesPorNoticia(
+        noticiaId,
+        (id) => noticiaRepository.obtenerReportesPorNoticia(id),
+      );
+      final count = reportes.length;
+      _reportesCountCache[noticiaId] = count;
+      yield count;
+    } catch (e) {
+      debugPrint('❌ Error obteniendo contador inicial de reportes: $e');
+      yield _reportesCountCache[noticiaId] ?? 0;
     }
 
-    return _countStreamControllers[noticiaId]!.stream;
+    // Luego escuchar actualizaciones
+    if (!_countStreamControllers.containsKey(noticiaId)) {
+      _countStreamControllers[noticiaId] = StreamController<int>.broadcast();
+    }
+    yield* _countStreamControllers[noticiaId]!.stream;
   }
+
   void addReporte(Reporte reporte) {
     final noticiaId = reporte.noticiaId;
-    
+
     // Actualizar caché de reportes
     if (_reportesPorNoticiaCache.containsKey(noticiaId)) {
       _reportesPorNoticiaCache[noticiaId]!.add(reporte);
     } else {
       _reportesPorNoticiaCache[noticiaId] = [reporte];
     }
-    
+
     // Actualizar contador
     final newCount = _reportesPorNoticiaCache[noticiaId]!.length;
     _reportesCountCache[noticiaId] = newCount;
-    
+
     // Notificar cambio
     _notifyCountChanged(noticiaId, newCount);
   }
-  
+
   // Método para remover reporte (llamado desde el BLoC)
   void removeReporte(String reporteId, String noticiaId) {
     // Remover de la lista de reportes
     if (_reportesPorNoticiaCache.containsKey(noticiaId)) {
-      _reportesPorNoticiaCache[noticiaId]!.removeWhere((r) => r.id == reporteId);
-      
+      _reportesPorNoticiaCache[noticiaId]!.removeWhere(
+        (r) => r.id == reporteId,
+      );
+
       // Actualizar contador
       final newCount = _reportesPorNoticiaCache[noticiaId]!.length;
       _reportesCountCache[noticiaId] = newCount;
-      
+
       // Notificar cambio
       _notifyCountChanged(noticiaId, newCount);
     }
   }
-  
+
   // Método para invalidar caché de una noticia específica
   void invalidateNoticiaCache(String noticiaId) {
     _reportesPorNoticiaCache.remove(noticiaId);
     _reportesCountCache.remove(noticiaId);
   }
-  
+
   // Método para invalidar toda la caché
   void invalidateAllCache() {
     _reportesPorNoticiaCache.clear();
     _reportesCountCache.clear();
-    
+
     // Resetear todos los streams a 0
     for (final controller in _countStreamControllers.values) {
       controller.add(0);
     }
   }
+
   // Método para limpiar recursos
   void dispose() {
     for (final controller in _countStreamControllers.values) {

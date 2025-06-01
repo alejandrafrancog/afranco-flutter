@@ -1,6 +1,6 @@
 import 'package:afranco/bloc/counter_bloc/counter_bloc.dart';
-import 'package:afranco/bloc/categoria_bloc/categoria_bloc.dart';
 import 'package:afranco/components/connectivity/connectivity_wrapper.dart';
+import 'package:afranco/theme/theme.dart';
 import 'package:afranco/views/acerca_de_screen.dart';
 import 'package:afranco/views/categoria_screen.dart';
 import 'package:afranco/views/noticia_screen.dart';
@@ -25,16 +25,25 @@ class WelcomeScreen extends StatelessWidget {
         automaticallyImplyLeading: true, // Muestra el botón de menú hamburguesa
       ),
       drawer: Drawer(
+        
         child: ListView(
+          
           padding: EdgeInsets.zero,
           children: [
-            const DrawerHeader(
-              decoration: BoxDecoration(color: Colors.teal),
+            const SizedBox(
+              width: 20,
+              height: 120,
+              child:DrawerHeader(
+              decoration:AppTheme.drawerHeaderDecoration,
+              
               child: Text(
-                'Menú de Navegación',
+                'Menú',
                 style: TextStyle(color: Colors.white, fontSize: 24),
               ),
             ),
+            ),
+
+            
             ListTile(
               leading: const Icon(Icons.task),
               title: const Text(AppConstants.titleAppBarT),
@@ -115,10 +124,8 @@ class WelcomeScreen extends StatelessWidget {
                 Navigator.of(context).push(
                   MaterialPageRoute(
                     builder:
-                        (context) => BlocProvider<CategoriaBloc>(
-                          create: (context) => CategoriaBloc(),
-                          child: const CategoriaScreen(),
-                        ),
+                        (context) =>
+                            const ConnectivityWrapper(child: CategoriaScreen()),
                   ),
                 );
               },
@@ -139,7 +146,7 @@ class WelcomeScreen extends StatelessWidget {
               onTap: () {
                 Navigator.pushAndRemoveUntil(
                   context,
-                  MaterialPageRoute(builder: (context) => const LoginScreen()),
+                  MaterialPageRoute(builder: (context) => const ConnectivityWrapper(child: LoginScreen())),
                   (Route<dynamic> route) => false,
                 );
               },

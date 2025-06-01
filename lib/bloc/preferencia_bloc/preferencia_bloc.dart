@@ -10,7 +10,7 @@ class PreferenciaBloc extends Bloc<PreferenciaEvent, PreferenciaState> {
   final PreferenciaRepository _preferenciasRepository =
       di<PreferenciaRepository>(); // Obtenemos el repositorio del locator
 
-  PreferenciaBloc() : super(const PreferenciaState()) {
+  PreferenciaBloc() : super(const PreferenciaLoading()) {
     on<CargarPreferencias>(_onCargarPreferencias);
     on<CambiarCategoria>(_onCambiarCategoria);
     on<CambiarMostrarFavoritos>(_onCambiarMostrarFavoritos);
@@ -25,16 +25,19 @@ class PreferenciaBloc extends Bloc<PreferenciaEvent, PreferenciaState> {
     CargarPreferencias event,
     Emitter<PreferenciaState> emit,
   ) async {
+    // ✅ Emitir loading solo si no estamos ya en un estado válido
+    if (state is PreferenciaLoading) {
+      emit(const PreferenciaLoading());
+    }
+
     try {
-      // Obtener solo las categorías seleccionadas del repositorio existente
       final categoriasSeleccionadas =
           await _preferenciasRepository.obtenerCategoriasSeleccionadas();
 
-      // Como el repositorio original solo almacena categorías, el resto de valores serían por defecto
+      // ✅ Crear el estado completo después de cargar
       emit(
         PreferenciaState(
           categoriasSeleccionadas: categoriasSeleccionadas,
-          // Valores por defecto para el resto de propiedades
           mostrarFavoritos: false,
           palabraClave: '',
           fechaDesde: null,
@@ -52,13 +55,16 @@ class PreferenciaBloc extends Bloc<PreferenciaEvent, PreferenciaState> {
     CambiarCategoria event,
     Emitter<PreferenciaState> emit,
   ) async {
+    // ✅ Prevenir cambios mientras está cargando
+    if (state is PreferenciaLoading) {
+      return;
+    }
+
     try {
-      // 1. Crear una copia de las categorías actuales para modificar
       final List<String> categoriasActualizadas = [
         ...state.categoriasSeleccionadas,
       ];
 
-      // 2. Actualizar localmente primero para feedback inmediato
       if (event.seleccionada) {
         if (!categoriasActualizadas.contains(event.categoria)) {
           categoriasActualizadas.add(event.categoria);
@@ -81,7 +87,6 @@ class PreferenciaBloc extends Bloc<PreferenciaEvent, PreferenciaState> {
         debugPrint('Error al persistir cambio de categoría: $e');
       }
     } catch (e) {
-      // Este catch solo atraparía errores graves en la lógica del bloc
       emit(PreferenciaError('Error al cambiar categoría: ${e.toString()}'));
     }
   }

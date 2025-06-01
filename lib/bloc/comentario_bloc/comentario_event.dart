@@ -76,3 +76,17 @@ class InvalidateCache extends ComentarioEvent {
 
   InvalidateCache({required this.noticiaId});
 }
+
+class AddReaccionSubcomentario extends ComentarioEvent {
+  final String noticiaId;
+  final String subcomentarioId;
+  final String tipoReaccion; // 'like' o 'dislike'
+
+  AddReaccionSubcomentario({
+    required this.noticiaId,
+    required this.subcomentarioId,
+    required this.tipoReaccion,
+  });
+
+  List<Object> get props => [noticiaId, subcomentarioId, tipoReaccion];
+}

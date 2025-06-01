@@ -1,3 +1,5 @@
+import 'package:afranco/constants/constants.dart';
+import 'package:afranco/helpers/snackbar_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:afranco/domain/categoria.dart';
 import 'package:afranco/data/categoria_repository.dart';
@@ -8,23 +10,32 @@ Future<void> showEditCategoryDialog({
   required Categoria categoria,
   required VoidCallback onCategoriaActualizada,
 }) async {
-  final TextEditingController nombreController = TextEditingController(text: categoria.nombre);
-  final TextEditingController descriptionController = TextEditingController(text: categoria.descripcion);
-  final TextEditingController imagenUrlController = TextEditingController(text: categoria.imagenUrl);
+  final TextEditingController nombreController = TextEditingController(
+    text: categoria.nombre,
+  );
+  final TextEditingController descriptionController = TextEditingController(
+    text: categoria.descripcion,
+  );
+  final TextEditingController imagenUrlController = TextEditingController(
+    text: categoria.imagenUrl,
+  );
 
   final formKey = GlobalKey<FormState>();
   final categoriaService = CategoriaRepository();
 
   bool updated = false;
   Categoria? nuevaCategoria;
-
+  final double sizedBoxHeight = 20.5;
   await showDialog(
     context: context,
     builder: (BuildContext dialogContext) {
       return StatefulBuilder(
         builder: (BuildContext context, StateSetter setState) {
           return AlertDialog(
-            title: const Text('Editar Categoría', style: NoticiaEstilos.tituloModal),
+            title: const Text(
+              'Editar Categoría',
+              style: NoticiaEstilos.tituloModal,
+            ),
             content: Form(
               key: formKey,
               child: Column(
@@ -33,18 +44,28 @@ Future<void> showEditCategoryDialog({
                   TextFormField(
                     controller: nombreController,
                     decoration: const InputDecoration(labelText: 'Nombre'),
-                    validator: (value) => value == null || value.isEmpty ? 'Ingrese un nombre' : null,
+                    validator:
+                        (value) =>
+                            value == null || value.isEmpty
+                                ? 'Ingrese un nombre'
+                                : null,
                   ),
-                  const SizedBox(height: 10),
+                  SizedBox(height: sizedBoxHeight),
                   TextFormField(
                     controller: descriptionController,
                     decoration: const InputDecoration(labelText: 'Descripción'),
-                    validator: (value) => value == null || value.isEmpty ? 'Ingrese una descripción' : null,
+                    validator:
+                        (value) =>
+                            value == null || value.isEmpty
+                                ? 'Ingrese una descripción'
+                                : null,
                   ),
-                  const SizedBox(height: 10),
+                  SizedBox(height: sizedBoxHeight),
                   TextFormField(
                     controller: imagenUrlController,
-                    decoration: const InputDecoration(labelText: 'URL de imagen'),
+                    decoration: const InputDecoration(
+                      labelText: 'URL de imagen',
+                    ),
                   ),
                 ],
               ),
@@ -66,7 +87,6 @@ Future<void> showEditCategoryDialog({
                     );
                     updated = true;
                     Navigator.of(dialogContext).pop();
-                    
                   }
                 },
                 child: const Text('Guardar'),
@@ -82,16 +102,14 @@ Future<void> showEditCategoryDialog({
     try {
       await categoriaService.editarCategoria(categoria.id!, nuevaCategoria!);
       onCategoriaActualizada();
-      if(context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Categoría actualizada')),
-        );
+      if (context.mounted) {
+        SnackBarHelper.showSuccess(context, CategoriaConstants.successUpdated);
       }
     } catch (e) {
-      if(context.mounted) {
-        // Verificamos si el widget aún está montado antes de usar el contexto
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error al actualizar: $e')),
+      if (context.mounted) {
+        SnackBarHelper.showClientError(
+          context,
+          CategoriaConstants.errorUpdated,
         );
       }
     }
