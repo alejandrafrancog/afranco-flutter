@@ -136,7 +136,6 @@ class ApiConstants {
   static String urlTareas = '$baseUrl/$tareasEndpoint';
   static var serverError = 'Error del servidor!';
   static int timeoutSeconds = 10;
-  static var errorTimeout = 'Tiempo de espera agotado';
   static String errorNoInternet = 'No hay conexión a Internet';
   static var errorUnauthorized = "No autorizado";
 }
@@ -185,7 +184,6 @@ class ComentarioConstantes {
 }
 
 class CategoriaConstants {
-  static String errorTimeout = 'Tiempo de espera agotado';
   static String errorNoCategory = 'Categoría no encontrada';
   static String defaultCategoryId = 'sin_categoria';
   static String sinCategoria = 'Sin categoría';
