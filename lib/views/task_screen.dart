@@ -426,7 +426,6 @@ class TasksScreenState extends State<TasksScreen> {
   }
 
   void _showAddTaskModal(BuildContext context) {
-    print('Abriendo modal para agregar tarea'); // Debug
 
     showModalBottomSheet(
       context: context,
@@ -452,7 +451,6 @@ class TasksScreenState extends State<TasksScreen> {
                 const SizedBox(height: 16),
                 TaskForm(
                   onSave: (newTask) {
-                    print('Guardando nueva tarea: ${newTask.titulo}'); // Debug
 
                     // MEJORA 6: Validación adicional antes de enviar
                     if (newTask.titulo.trim().isEmpty) {

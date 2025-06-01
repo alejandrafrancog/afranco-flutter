@@ -23,7 +23,6 @@ class BaseService {
       ApiConfig.beeceptorApiKey.isNotEmpty,
       "Falta BEECEPTOR_API_KEY en .env",
     );
-    print("Holaaaa \n ${ApiConfig.beeceptorBaseUrl}\n\n");
     _dio = Dio(
       BaseOptions(
         baseUrl: ApiConfig.beeceptorBaseUrl,

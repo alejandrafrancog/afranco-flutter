@@ -7,9 +7,9 @@ class NoticiaEmptyStateEnhanced extends StatelessWidget {
   final bool tienesFiltrosActivos;
 
   const NoticiaEmptyStateEnhanced({
-    Key? key,
+    super.key,
     required this.tienesFiltrosActivos,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

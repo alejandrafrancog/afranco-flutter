@@ -34,6 +34,7 @@ class NoticiaFilterHelper {
       ),
     ).then((categoriasSeleccionadas) {
       if (categoriasSeleccionadas != null) {
+        if(!(context.mounted)) return;
         context.read<NoticiaBloc>().add(
           FilterNoticiasByPreferencias(categoriasSeleccionadas),
         );

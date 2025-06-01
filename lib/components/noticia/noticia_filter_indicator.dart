@@ -4,9 +4,9 @@ class NoticiaFilterIndicator extends StatelessWidget {
   final int cantidadNoticias;
 
   const NoticiaFilterIndicator({
-    Key? key,
+    super.key,
     required this.cantidadNoticias,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

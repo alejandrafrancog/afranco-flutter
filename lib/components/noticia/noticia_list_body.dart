@@ -16,11 +16,11 @@ class NoticiaListBody extends StatelessWidget {
   final VoidCallback onDelete;
 
   const NoticiaListBody({
-    Key? key,
+    super.key,
     required this.scrollController,
     required this.onEditPressed,
     required this.onDelete,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

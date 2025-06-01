@@ -119,7 +119,6 @@ class TaskService extends BaseService {
 
       return TaskMapper.fromMap(response);
     } catch (e) {
-      print('Error en actualizarTarea: $e'); // Para debugging
       if (e is ApiException) {
         rethrow;
       }

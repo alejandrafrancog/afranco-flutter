@@ -379,7 +379,7 @@ class NoticiaCard extends StatelessWidget {
   Widget _buildHeroImage() {
     return Hero(
       tag: 'noticia-image-${noticia.id}',
-      child: Container(
+      child: SizedBox(
         height: 0, // Altura 0 para que no ocupe espacio visual
         width: double.infinity,
         child: imageUrl.isNotEmpty

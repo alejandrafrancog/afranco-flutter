@@ -11,9 +11,9 @@ class NoticiaAppBar extends StatelessWidget implements PreferredSizeWidget {
   final bool filtrosActivos;
 
   const NoticiaAppBar({
-    Key? key,
+    super.key,
     required this.filtrosActivos,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -48,7 +48,6 @@ class TareasBloc extends Bloc<TareasEvent, TareasState> {
         ),
       );
     } catch (e) {
-      print('Error en _onLoadTareas: $e'); // Debug logging
       String mensaje = 'Error al cargar las tareas';
       if (e is ApiException) {
         mensaje = e.message ?? 'Error al cargar las tareas';
@@ -65,8 +64,6 @@ class TareasBloc extends Bloc<TareasEvent, TareasState> {
     emit(state.copyWith(status: TareasStatus.loading, errorMessage: null));
 
     try {
-      print('Intentando agregar tarea: ${event.tarea.titulo}'); // Debug
-
       // CORRECCIÓN 2: Validar que la tarea tenga datos mínimos requeridos
       if (event.tarea.titulo.isEmpty) {
         throw ApiException(
@@ -77,8 +74,6 @@ class TareasBloc extends Bloc<TareasEvent, TareasState> {
 
       final nuevaTarea = await _taskRepository.agregarTarea(event.tarea);
 
-      print('Tarea agregada exitosamente: ${nuevaTarea.id}'); // Debug
-
       // CORRECCIÓN 3: Asegurar que el estado se emita correctamente
       emit(
         state.copyWith(
@@ -88,9 +83,6 @@ class TareasBloc extends Bloc<TareasEvent, TareasState> {
         ),
       );
     } catch (e) {
-      print('Error detallado en _onAddTarea: $e'); // Debug detallado
-      print('Stack trace: ${StackTrace.current}'); // Stack trace para debugging
-
       String mensaje = 'Error al crear la tarea';
       if (e is ApiException) {
         mensaje = e.message ?? 'Error desconocido en la API';
@@ -110,8 +102,6 @@ class TareasBloc extends Bloc<TareasEvent, TareasState> {
     emit(state.copyWith(status: TareasStatus.loading, errorMessage: null));
 
     try {
-      print('Actualizando tarea en índice: ${event.index}'); // Debug
-
       final tareaActualizada = await _taskRepository.actualizarTarea(
         event.tarea,
       );
@@ -128,8 +118,6 @@ class TareasBloc extends Bloc<TareasEvent, TareasState> {
             errorMessage: null,
           ),
         );
-
-        print('Tarea actualizada exitosamente'); // Debug
       } else {
         throw ApiException(
           message: 'Índice de tarea inválido',
@@ -137,7 +125,6 @@ class TareasBloc extends Bloc<TareasEvent, TareasState> {
         );
       }
     } catch (e) {
-      print('Error en _onUpdateTarea: $e'); // Debug
       String mensaje = 'Error al actualizar la tarea';
       if (e is ApiException) {
         mensaje = e.message ?? 'Error genérico';
@@ -151,8 +138,6 @@ class TareasBloc extends Bloc<TareasEvent, TareasState> {
     Emitter<TareasState> emit,
   ) async {
     try {
-      print('Eliminando tarea en índice: ${event.index}'); // Debug
-
       // Validar índice
       if (event.index < 0 || event.index >= state.tareas.length) {
         throw ApiException(
@@ -178,8 +163,6 @@ class TareasBloc extends Bloc<TareasEvent, TareasState> {
             errorMessage: null,
           ),
         );
-
-        print('Tarea eliminada exitosamente'); // Debug
       } else {
         throw ApiException(
           message: 'No se puede eliminar una tarea sin ID',
@@ -187,7 +170,6 @@ class TareasBloc extends Bloc<TareasEvent, TareasState> {
         );
       }
     } catch (e) {
-      print('Error en _onDeleteTarea: $e'); // Debug
       String mensaje = 'Error al eliminar la tarea';
       if (e is ApiException) {
         mensaje = e.message ?? 'Error genérico';
@@ -205,9 +187,7 @@ class TareasBloc extends Bloc<TareasEvent, TareasState> {
     emit(state.copyWith(status: TareasStatus.completando, errorMessage: null));
 
     try {
-      print(
-        'Completando tarea en índice: ${event.index} - Estado: ${event.completada}',
-      ); // Debug
+      // Debug
 
       // Validar índice
       if (event.index < 0 || event.index >= state.tareas.length) {
@@ -245,10 +225,6 @@ class TareasBloc extends Bloc<TareasEvent, TareasState> {
         ),
       );
 
-      print(
-        'Tarea ${event.completada ? 'completada' : 'marcada como pendiente'} exitosamente',
-      ); // Debug
-
       // Después de un breve momento, volver al estado normal loaded
       await Future.delayed(const Duration(milliseconds: 500));
       emit(
@@ -259,7 +235,6 @@ class TareasBloc extends Bloc<TareasEvent, TareasState> {
         ),
       );
     } catch (e) {
-      print('Error en _onCompletarTarea: $e'); // Debug
       String mensaje =
           'Error al ${event.completada ? 'completar' : 'descompletar'} la tarea';
       if (e is ApiException) {

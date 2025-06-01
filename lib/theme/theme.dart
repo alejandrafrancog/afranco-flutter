@@ -40,7 +40,7 @@ class AppTheme {
       cardTheme: CardTheme(
         color: AppColors.surface,
         elevation: 2,
-        shadowColor: AppColors.grey300.withOpacity(0.5),
+        shadowColor: AppColors.grey300.withAlpha(60),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       ),
