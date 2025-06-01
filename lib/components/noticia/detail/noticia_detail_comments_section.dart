@@ -143,6 +143,7 @@ class NoticiaDetailCommentsSection extends StatelessWidget {
           }
 
           return Container(
+            padding: const EdgeInsets.only(bottom: 20),
             child: CommentList(
               noticiaId: noticia.id ?? '',
               onResponderComentario: onResponderComentario,

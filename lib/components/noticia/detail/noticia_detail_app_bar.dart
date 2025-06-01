@@ -14,7 +14,7 @@ class NoticiaDetailAppBar extends StatelessWidget {
     required this.isImageExpanded,
   });
 
-  void _shareNoticia() {
+  void _shareNoticia() async {
     final String shareText = '''
 ${noticia.titulo}
 
@@ -23,7 +23,9 @@ ${noticia.descripcion}
 📱 Compartido desde la app de noticias
 ''';
 
-    Share.share(shareText, subject: noticia.titulo);
+    await SharePlus.instance.share(
+      ShareParams(text: shareText, subject: noticia.titulo),
+    );
   }
 
   Widget _buildImagePlaceholder() {
@@ -80,21 +82,20 @@ ${noticia.descripcion}
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  colors: [
-                    Colors.transparent,
-                    Colors.black.withAlpha(127),
-                  ],
+                  colors: [Colors.transparent, Colors.black.withAlpha(127)],
                 ),
               ),
-              child: noticia.urlImagen.isNotEmpty
-                  ? Image.network(
-                      noticia.urlImagen,
-                      fit: BoxFit.cover,
-                      width: double.infinity,
-                      errorBuilder: (context, error, stackTrace) =>
-                          _buildImagePlaceholder(),
-                    )
-                  : _buildImagePlaceholder(),
+              child:
+                  noticia.urlImagen.isNotEmpty
+                      ? Image.network(
+                        noticia.urlImagen,
+                        fit: BoxFit.cover,
+                        width: double.infinity,
+                        errorBuilder:
+                            (context, error, stackTrace) =>
+                                _buildImagePlaceholder(),
+                      )
+                      : _buildImagePlaceholder(),
             ),
           ),
         ),
