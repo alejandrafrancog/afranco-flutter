@@ -11,7 +11,8 @@ import 'package:watch_it/watch_it.dart';
 class NoticiaService extends BaseService {
   static final Random _random = Random();
   final String _baseUrl = ApiConstants.urlNoticias;
-  final ComentarioService _comentarioService = di<ComentarioService>(); // Instancia del servicio de comentarios
+  final ComentarioService _comentarioService =
+      di<ComentarioService>(); // Instancia del servicio de comentarios
 
   final _titulosPosibles = [
     "Se reeligió al presidente en una ajustada votación",
@@ -165,7 +166,7 @@ class NoticiaService extends BaseService {
   }
 
   /// Obtiene todas las noticias tecnológicas
-  Future<List<Noticia>> getTechNews({required int page}) async {
+  Future<List<Noticia>> getTechNews({required int page,List<String> categoriasSeleccionadas = const[]}) async {
     debugPrint('📋 Obteniendo noticias de tecnología');
 
     final data = await get<List<dynamic>>(
@@ -175,6 +176,7 @@ class NoticiaService extends BaseService {
 
     return data.map((json) => NoticiaMapper.fromMap(json)).toList();
   }
+  
 
   /// Elimina una noticia por su ID y todos sus comentarios asociados
   Future<void> eliminarNoticia(String id) async {
@@ -199,7 +201,8 @@ class NoticiaService extends BaseService {
       rethrow;
     }
   }
-
+ 
+     
   /// Actualiza una noticia y retorna el objeto actualizado
   Future<Noticia> actualizarNoticia(Noticia noticia) async {
     debugPrint('🔄 Actualizando noticia completa con ID: ${noticia.id}');

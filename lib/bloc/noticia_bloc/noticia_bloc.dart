@@ -1,20 +1,25 @@
 import 'dart:async';
 import 'package:afranco/bloc/noticia_bloc/noticia_event.dart';
 import 'package:afranco/bloc/noticia_bloc/noticia_state.dart';
+import 'package:afranco/domain/noticia.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:afranco/data/noticia_repository.dart';
+import 'package:afranco/data/preferencia_repository.dart'; 
 import 'package:afranco/constants/constants.dart';
 import 'package:watch_it/watch_it.dart';
-import 'package:afranco/core/noticia_cache_service.dart'; // Asegúrate de importar el servicio
+import 'package:afranco/core/noticia_cache_service.dart';
+import 'package:flutter/foundation.dart';
 
 class NoticiaBloc extends Bloc<NoticiaEvent, NoticiaState> {
   final NoticiaRepository noticiaRepository = di<NoticiaRepository>();
-  final NoticiaCacheService _cacheService =
-      NoticiaCacheService(); // Instancia del caché
+  final PreferenciaRepository _preferenciaRepository = di<PreferenciaRepository>(); // ✅ Añadir repositorio de preferencias
+  final NoticiaCacheService _cacheService = NoticiaCacheService();
+  
   int _currentPage = 1;
   final bool _ordenarPorFecha = true;
+  List<String> _categoriasActivas = []; 
 
-  NoticiaBloc() : super(NoticiaState()) {
+  NoticiaBloc() : super(const NoticiaState()) {
     on<NoticiaCargadaEvent>(_onCargarNoticias);
     on<NoticiaCargarMasEvent>(_onCargarMasNoticias);
     on<NoticiaRecargarEvent>(_onRecargarNoticias);
@@ -22,7 +27,39 @@ class NoticiaBloc extends Bloc<NoticiaEvent, NoticiaState> {
     on<NoticiaCreatedEvent>(_onNoticiaCreated);
     on<NoticiaEditedEvent>(_onNoticiaEdited);
     on<NoticiaDeletedEvent>(_onNoticiaDeleted);
+    on<CargarNoticiasConPreferenciasEvent>(_onCargarNoticiasConPreferencias); // Nuevo evento
   }
+
+  // ✅ Nuevo handler para cargar noticias con preferencias automáticamente
+  Future<void> _onCargarNoticiasConPreferencias(
+    CargarNoticiasConPreferenciasEvent event,
+    Emitter<NoticiaState> emit,
+  ) async {
+    try {
+      debugPrint('🔄 Cargando noticias con preferencias del usuario');
+      
+      // Obtener preferencias del usuario
+      final categoriasSeleccionadas = await _preferenciaRepository.obtenerCategoriasSeleccionadas();
+      _categoriasActivas = categoriasSeleccionadas;
+      
+      debugPrint('📋 Categorías encontradas: $_categoriasActivas');
+      
+      if (_categoriasActivas.isEmpty) {
+        // Si no hay preferencias, cargar todas las noticias
+        debugPrint('📰 No hay preferencias, cargando todas las noticias');
+        await _cargarNoticias(emit, resetear: true);
+      } else {
+        // Si hay preferencias, aplicar filtro automáticamente
+        debugPrint('🎯 Aplicando filtro automático con ${_categoriasActivas.length} categorías');
+        await _aplicarFiltroPreferencias(_categoriasActivas, emit);
+      }
+    } catch (e) {
+      debugPrint('❌ Error al cargar preferencias: $e');
+      // En caso de error, cargar todas las noticias
+      await _cargarNoticias(emit, resetear: true);
+    }
+  }
+
   void _onNoticiaCreated(
     NoticiaCreatedEvent event,
     Emitter<NoticiaState> emit,
@@ -30,10 +67,13 @@ class NoticiaBloc extends Bloc<NoticiaEvent, NoticiaState> {
     try {
       emit(state.copyWith(isLoading: true));
 
-      // Recargar las noticias desde el repositorio
-      final noticias = await noticiaRepository.obtenerNoticias();
-
-      emit(NoticiasLoadedAfterCreate(noticias, DateTime.now()));
+      // ✅ Recargar respetando filtros activos
+      if (_categoriasActivas.isNotEmpty) {
+        await _aplicarFiltroPreferencias(_categoriasActivas, emit);
+      } else {
+        final noticias = await noticiaRepository.obtenerNoticias();
+        emit(NoticiasLoadedAfterCreate(noticias, DateTime.now()));
+      }
     } catch (error) {
       emit(
         NoticiaErrorState(
@@ -46,7 +86,6 @@ class NoticiaBloc extends Bloc<NoticiaEvent, NoticiaState> {
     }
   }
 
-  // Handler para edición de noticia
   void _onNoticiaEdited(
     NoticiaEditedEvent event,
     Emitter<NoticiaState> emit,
@@ -54,10 +93,13 @@ class NoticiaBloc extends Bloc<NoticiaEvent, NoticiaState> {
     try {
       emit(state.copyWith(isLoading: true));
 
-      // Recargar las noticias desde el repositorio
-      final noticias = await noticiaRepository.obtenerNoticias();
-
-      emit(NoticiasLoadedAfterEdit(noticias, DateTime.now()));
+      // ✅ Recargar respetando filtros activos
+      if (_categoriasActivas.isNotEmpty) {
+        await _aplicarFiltroPreferencias(_categoriasActivas, emit);
+      } else {
+        final noticias = await noticiaRepository.obtenerNoticias();
+        emit(NoticiasLoadedAfterEdit(noticias, DateTime.now()));
+      }
     } catch (error) {
       emit(
         NoticiaErrorState(
@@ -70,7 +112,6 @@ class NoticiaBloc extends Bloc<NoticiaEvent, NoticiaState> {
     }
   }
 
-  // Handler para eliminación de noticia
   void _onNoticiaDeleted(
     NoticiaDeletedEvent event,
     Emitter<NoticiaState> emit,
@@ -78,10 +119,13 @@ class NoticiaBloc extends Bloc<NoticiaEvent, NoticiaState> {
     try {
       emit(state.copyWith(isLoading: true));
 
-      // Recargar las noticias desde el repositorio
-      final noticias = await noticiaRepository.obtenerNoticias();
-
-      emit(NoticiasLoadedAfterDelete(noticias, DateTime.now()));
+      // ✅ Recargar respetando filtros activos
+      if (_categoriasActivas.isNotEmpty) {
+        await _aplicarFiltroPreferencias(_categoriasActivas, emit);
+      } else {
+        final noticias = await noticiaRepository.obtenerNoticias();
+        emit(NoticiasLoadedAfterDelete(noticias, DateTime.now()));
+      }
     } catch (error) {
       emit(
         NoticiaErrorState(
@@ -113,7 +157,12 @@ class NoticiaBloc extends Bloc<NoticiaEvent, NoticiaState> {
     NoticiaRecargarEvent event,
     Emitter<NoticiaState> emit,
   ) async {
-    await _cargarNoticias(emit, resetear: true);
+    // Al recargar, mantener filtros activos
+    if (_categoriasActivas.isNotEmpty) {
+      await _aplicarFiltroPreferencias(_categoriasActivas, emit);
+    } else {
+      await _cargarNoticias(emit, resetear: true);
+    }
   }
 
   Future<void> _cargarNoticias(
@@ -124,7 +173,7 @@ class NoticiaBloc extends Bloc<NoticiaEvent, NoticiaState> {
       if (resetear) {
         _currentPage = 1;
         emit(
-          NoticiaLoadingState(
+          const NoticiaLoadingState(
             noticias: [],
             tieneMas: true,
             ultimaActualizacion: null,
@@ -187,6 +236,16 @@ class NoticiaBloc extends Bloc<NoticiaEvent, NoticiaState> {
     FilterNoticiasByPreferencias event,
     Emitter<NoticiaState> emit,
   ) async {
+    // ✅ Actualizar categorías activas
+    _categoriasActivas = event.categoriasIds;
+    await _aplicarFiltroPreferencias(event.categoriasIds, emit);
+  }
+
+  // ✅ Método centralizado para aplicar filtros de preferencias
+  Future<void> _aplicarFiltroPreferencias(
+    List<String> categoriasIds,
+    Emitter<NoticiaState> emit,
+  ) async {
     try {
       emit(
         const NoticiaLoadingState(
@@ -196,6 +255,8 @@ class NoticiaBloc extends Bloc<NoticiaEvent, NoticiaState> {
         ),
       );
 
+      debugPrint('🎯 Aplicando filtro con categorías: $categoriasIds');
+
       final allNoticias = await noticiaRepository.obtenerNoticias();
 
       // Actualizar caché con todas las noticias obtenidas
@@ -203,22 +264,30 @@ class NoticiaBloc extends Bloc<NoticiaEvent, NoticiaState> {
         await _cacheService.updateNoticia(noticia);
       }
 
-      final filteredNoticias =
-          allNoticias
-              .where(
-                (noticia) => event.categoriasIds.contains(noticia.categoriaId),
-              )
-              .toList();
+      List<Noticia> filteredNoticias;
+      
+      if (categoriasIds.isEmpty) {
+        // Si no hay categorías seleccionadas, mostrar todas
+        filteredNoticias = allNoticias;
+        debugPrint('📰 Mostrando todas las noticias: ${filteredNoticias.length}');
+      } else {
+        // Filtrar por categorías seleccionadas
+        filteredNoticias = allNoticias
+            .where((noticia) => categoriasIds.contains(noticia.categoriaId))
+            .toList();
+        debugPrint('📋 Noticias filtradas: ${filteredNoticias.length} de ${allNoticias.length}');
+      }
 
       emit(
         state.copyWith(
           noticias: filteredNoticias,
-          tieneMas: false,
+          tieneMas: false, // Los filtros no usan paginación
           ultimaActualizacion: DateTime.now(),
           isLoading: false,
         ),
       );
     } catch (e) {
+      debugPrint('❌ Error al aplicar filtro: $e');
       emit(
         NoticiaErrorState(
           error: e,
@@ -229,4 +298,10 @@ class NoticiaBloc extends Bloc<NoticiaEvent, NoticiaState> {
       );
     }
   }
+
+  // ✅ Getter para saber si hay filtros activos
+  bool get tienesFiltrosActivos => _categoriasActivas.isNotEmpty;
+  
+  // ✅ Getter para obtener categorías activas
+  List<String> get categoriasActivas => List.unmodifiable(_categoriasActivas);
 }

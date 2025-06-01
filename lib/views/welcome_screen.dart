@@ -1,5 +1,4 @@
 import 'package:afranco/bloc/counter_bloc/counter_bloc.dart';
-import 'package:afranco/bloc/categoria_bloc/categoria_bloc.dart';
 import 'package:afranco/components/connectivity/connectivity_wrapper.dart';
 import 'package:afranco/theme/theme.dart';
 import 'package:afranco/views/acerca_de_screen.dart';
@@ -125,10 +124,8 @@ class WelcomeScreen extends StatelessWidget {
                 Navigator.of(context).push(
                   MaterialPageRoute(
                     builder:
-                        (context) => BlocProvider<CategoriaBloc>(
-                          create: (context) => CategoriaBloc(),
-                          child: const CategoriaScreen(),
-                        ),
+                        (context) =>
+                            const ConnectivityWrapper(child: CategoriaScreen()),
                   ),
                 );
               },
@@ -149,7 +146,7 @@ class WelcomeScreen extends StatelessWidget {
               onTap: () {
                 Navigator.pushAndRemoveUntil(
                   context,
-                  MaterialPageRoute(builder: (context) => const LoginScreen()),
+                  MaterialPageRoute(builder: (context) => const ConnectivityWrapper(child: LoginScreen())),
                   (Route<dynamic> route) => false,
                 );
               },

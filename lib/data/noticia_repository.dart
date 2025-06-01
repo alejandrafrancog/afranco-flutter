@@ -18,6 +18,7 @@ class NoticiaRepository extends BaseRepository {
     });
   }
 
+
   Future<List<Noticia>> obtenerNoticias() async {
     return handleApiCall(() => _service.getTechNews(page: 1));
   }

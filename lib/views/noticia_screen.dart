@@ -14,7 +14,6 @@ import 'package:afranco/noticias_estilos.dart';
 import 'package:afranco/components/noticia/noticia_error.dart';
 import 'package:afranco/components/noticia/noticia_card.dart';
 import 'package:afranco/components/noticia/noticia_loading.dart';
-import 'package:afranco/components/noticia/noticia_empty_state.dart';
 import 'package:afranco/constants/constants.dart';
 import 'package:afranco/components/noticia/noticia_creation_modal.dart';
 import 'package:intl/intl.dart';
@@ -33,7 +32,6 @@ class NoticiaScreen extends StatefulWidget {
 
 class NoticiaScreenState extends State<NoticiaScreen> {
   final ScrollController _scrollController = ScrollController();
-  // NO usar late final aquí, usar el bloc del contexto directamente
   bool _showFab = true;
   double _lastScrollOffset = 0;
 
@@ -41,9 +39,9 @@ class NoticiaScreenState extends State<NoticiaScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      // Asegurar que el widget esté montado antes de disparar eventos
+      // ✅ Usar el nuevo evento que carga automáticamente las preferencias
       if (mounted) {
-        context.read<NoticiaBloc>().add(NoticiaCargadaEvent());
+        context.read<NoticiaBloc>().add(CargarNoticiasConPreferenciasEvent());
       }
     });
     _scrollController.addListener(_scrollListener);
@@ -64,43 +62,45 @@ class NoticiaScreenState extends State<NoticiaScreen> {
   void _abrirModalEdicion(Noticia noticia) {
     showDialog(
       context: context,
-      builder: (context) => NoticiaEditModal(
-        noticia: noticia,
-        id: noticia.id ?? '',
-        onNoticiaUpdated: () {
-          if (mounted) {
-            context.read<NoticiaBloc>().add(NoticiaEditedEvent());
-          }
-        },
-      ),
+      builder:
+          (context) => NoticiaEditModal(
+            noticia: noticia,
+            id: noticia.id ?? '',
+            onNoticiaUpdated: () {
+              if (mounted) {
+                context.read<NoticiaBloc>().add(NoticiaEditedEvent());
+              }
+            },
+          ),
     );
   }
 
   void _mostrarModalCreacion() {
     showDialog(
       context: context,
-      builder: (context) => NoticiaCreationModal(
-        service: widget.repository,
-        onNoticiaCreated: (_) {
-          if (mounted) {
-            context.read<NoticiaBloc>().add(NoticiaCreatedEvent());
-          }
-        },
-      ),
+      builder:
+          (context) => NoticiaCreationModal(
+            service: widget.repository,
+            onNoticiaCreated: (_) {
+              if (mounted) {
+                context.read<NoticiaBloc>().add(NoticiaCreatedEvent());
+              }
+            },
+          ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     final preferenciaState = context.watch<PreferenciaBloc>().state;
-    final filtrosActivos = preferenciaState.categoriasSeleccionadas.isNotEmpty;
+    // ✅ Revisar si hay filtros activos tanto en preferencias como en el bloc de noticias
+    final noticiaBloc = context.read<NoticiaBloc>();
+    final filtrosActivos =
+        preferenciaState.categoriasSeleccionadas.isNotEmpty ||
+        noticiaBloc.tienesFiltrosActivos;
 
     return MultiBlocProvider(
-      providers: [
-        // Usar BlocProvider.value para reutilizar el bloc existente
-        BlocProvider.value(value: context.read<NoticiaBloc>()),
-        BlocProvider(create: (_) => ReporteBloc()),
-      ],
+      providers: [BlocProvider(create: (_) => ReporteBloc())],
       child: Scaffold(
         backgroundColor: Colors.grey[200],
         appBar: AppBar(
@@ -125,9 +125,10 @@ class NoticiaScreenState extends State<NoticiaScreen> {
             IconButton(
               icon: Icon(
                 Icons.filter_list,
-                color: filtrosActivos ? Colors.white : Colors.white,
+                // ✅ Cambiar color visual cuando hay filtros activos
+                color: filtrosActivos ? Colors.amber : Colors.white,
               ),
-              tooltip: 'Preferencias',
+              tooltip: filtrosActivos ? 'Filtros activos' : 'Preferencias',
               onPressed: () {
                 Navigator.push<List<String>>(
                   context,
@@ -137,13 +138,10 @@ class NoticiaScreenState extends State<NoticiaScreen> {
                 ).then((categoriasSeleccionadas) {
                   if (!mounted) return;
                   if (categoriasSeleccionadas != null) {
-                    if (categoriasSeleccionadas.isNotEmpty) {
-                      context.read<NoticiaBloc>().add(
-                        FilterNoticiasByPreferencias(categoriasSeleccionadas),
-                      );
-                    } else {
-                      context.read<NoticiaBloc>().add(NoticiaCargadaEvent());
-                    }
+                    // ✅ Siempre aplicar el filtro, incluso si está vacío
+                    context.read<NoticiaBloc>().add(
+                      FilterNoticiasByPreferencias(categoriasSeleccionadas),
+                    );
                   }
                 });
               },
@@ -153,17 +151,31 @@ class NoticiaScreenState extends State<NoticiaScreen> {
               tooltip: 'Refrescar',
               color: Colors.white,
               onPressed: () {
-                final categoriasSeleccionadas =
-                    context.read<PreferenciaBloc>().state.categoriasSeleccionadas;
-                if (categoriasSeleccionadas.isNotEmpty) {
-                  context.read<NoticiaBloc>().add(
-                    FilterNoticiasByPreferencias(categoriasSeleccionadas),
-                  );
-                } else {
-                  context.read<NoticiaBloc>().add(NoticiaCargadaEvent());
-                }
+                // ✅ Usar el evento de recarga que respeta filtros
+                context.read<NoticiaBloc>().add(NoticiaRecargarEvent());
               },
             ),
+            // ✅ Botón adicional para limpiar filtros
+            if (filtrosActivos)
+              IconButton(
+                icon: const Icon(Icons.clear),
+                tooltip: 'Limpiar filtros',
+                color: Colors.white,
+                onPressed: () {
+                  // Limpiar filtros y cargar todas las noticias
+                  context.read<NoticiaBloc>().add(
+                    FilterNoticiasByPreferencias([]),
+                  );
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text(
+                        'Filtros limpiados - Mostrando todas las noticias',
+                      ),
+                      backgroundColor: Colors.green,
+                    ),
+                  );
+                },
+              ),
           ],
         ),
         body: BlocListener<ReporteBloc, ReporteState>(
@@ -210,12 +222,52 @@ class NoticiaScreenState extends State<NoticiaScreen> {
                 );
               } else if (state is NoticiasLoaded && !state.isLoading) {
                 // Para carga inicial o casos no específicos
-                SnackBarHelper.showLoadSuccess(context, state.noticias.length);
+                final noticiaBloc = context.read<NoticiaBloc>();
+                final mensaje =
+                    noticiaBloc.tienesFiltrosActivos
+                        ? 'Filtros aplicados: ${state.noticias.length} noticias'
+                        : 'Cargadas ${state.noticias.length} noticias';
+
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(mensaje),
+                    backgroundColor: Colors.green,
+                    duration: const Duration(seconds: 2),
+                  ),
+                );
               }
             },
             builder: (context, state) {
               return Column(
                 children: [
+                  // ✅ Indicador visual de filtros activos
+                  if (filtrosActivos)
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 8,
+                        horizontal: 16,
+                      ),
+                      color: Colors.amber.shade100,
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.filter_list,
+                            color: Colors.amber.shade700,
+                            size: 16,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Filtros activos - ${state.noticias.length} noticias',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.amber.shade700,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.symmetric(
@@ -223,16 +275,17 @@ class NoticiaScreenState extends State<NoticiaScreen> {
                       horizontal: 16,
                     ),
                     color: Colors.grey[300],
-                    child: state.ultimaActualizacion != null
-                        ? Text(
-                            'Última actualización: ${DateFormat('dd/MM/yyyy HH:mm').format(state.ultimaActualizacion!)}',
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.grey[700],
-                              fontStyle: FontStyle.italic,
-                            ),
-                          )
-                        : const SizedBox.shrink(),
+                    child:
+                        state.ultimaActualizacion != null
+                            ? Text(
+                              'Última actualización: ${DateFormat('dd/MM/yyyy HH:mm').format(state.ultimaActualizacion!)}',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.grey[700],
+                                fontStyle: FontStyle.italic,
+                              ),
+                            )
+                            : const SizedBox.shrink(),
                   ),
                   Expanded(child: _buildBodyContent(state)),
                 ],
@@ -240,14 +293,15 @@ class NoticiaScreenState extends State<NoticiaScreen> {
             },
           ),
         ),
-        floatingActionButton: _showFab
-            ? FloatingActionButton(
-                backgroundColor: Theme.of(context).primaryColor,
-                tooltip: 'Agregar noticia',
-                onPressed: _mostrarModalCreacion,
-                child: const Icon(Icons.add),
-              )
-            : null,
+        floatingActionButton:
+            _showFab
+                ? FloatingActionButton(
+                  backgroundColor: Theme.of(context).primaryColor,
+                  tooltip: 'Agregar noticia',
+                  onPressed: _mostrarModalCreacion,
+                  child: const Icon(Icons.add),
+                )
+                : null,
       ),
     );
   }
@@ -259,16 +313,60 @@ class NoticiaScreenState extends State<NoticiaScreen> {
     if (state is NoticiaErrorState) {
       return ErrorMessage(
         message: state.error.toString(),
-        onRetry: () => context.read<NoticiaBloc>().add(NoticiaRecargarEvent()),
+        onRetry:
+            () => context.read<NoticiaBloc>().add(
+              CargarNoticiasConPreferenciasEvent(),
+            ),
       );
     }
     if (state.noticias.isEmpty) {
-      return const EmptyState();
+      // ✅ Mensaje diferente si hay filtros activos pero no hay resultados
+      final noticiaBloc = context.read<NoticiaBloc>();
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Icon(
+              noticiaBloc.tienesFiltrosActivos
+                  ? Icons.filter_list_off
+                  : Icons.article_outlined,
+              size: 64,
+              color: Colors.grey[400],
+            ),
+            const SizedBox(height: 16),
+            Padding(
+              padding: const EdgeInsets.only(left:79,right:35,top: 15,bottom: 29),
+              child: Text(
+                noticiaBloc.tienesFiltrosActivos
+                    ? 'No hay noticias que coincidan con los filtros seleccionados.'
+                    : 'No hay noticias disponibles en este momento.',
+                style: Theme.of(
+                  context,
+                ).textTheme.headlineSmall?.copyWith(color: Colors.grey[600]),
+              ),
+            ),
+            if (noticiaBloc.tienesFiltrosActivos) ...[
+              const SizedBox(height: 8),
+              TextButton.icon(
+                onPressed: () {
+                  context.read<NoticiaBloc>().add(
+                    FilterNoticiasByPreferencias([]),
+                  );
+                },
+                icon: const Icon(Icons.clear),
+                label: const Text('Limpiar filtros'),
+              ),
+            ],
+          ],
+        ),
+      );
     }
     return ListView.separated(
       controller: _scrollController,
       itemCount: state.noticias.length + (state.tieneMas ? 1 : 0),
-      separatorBuilder: (_, __) => const SizedBox(height: NoticiaEstilos.espaciadoAlto),
+      separatorBuilder:
+          (_, __) => const SizedBox(height: NoticiaEstilos.espaciadoAlto),
       itemBuilder: (context, index) {
         if (index >= state.noticias.length) {
           return _buildLoadingIndicator(state.isLoading);
