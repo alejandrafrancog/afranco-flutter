@@ -23,7 +23,6 @@ class TasksScreen extends StatefulWidget {
   TasksScreenState createState() => TasksScreenState();
 }
 
-
 class TasksScreenState extends State<TasksScreen> {
   ScrollController _scrollController = ScrollController();
   bool _showFab = true;
@@ -33,11 +32,10 @@ class TasksScreenState extends State<TasksScreen> {
     super.initState();
     // Cargar las tareas al inicializar
     context.read<TareasBloc>().add(const TareasLoadEvent());
-    
+
     // Listener para el scroll
     _scrollController.addListener(_onScroll);
   }
-  
 
   void _actualizarContadores(List<Task> tareas) {
     final total = tareas.length;
@@ -47,6 +45,7 @@ class TasksScreenState extends State<TasksScreen> {
       ActualizarContadores(completadas, total),
     );
   }
+
   @override
   void dispose() {
     _scrollController.removeListener(_onScroll);
@@ -57,13 +56,15 @@ class TasksScreenState extends State<TasksScreen> {
   void _onScroll() {
     // Mostrar FAB cuando está en el top o scrolling hacia arriba
     // Ocultar FAB cuando scrolling hacia abajo
-    if (_scrollController.position.userScrollDirection == ScrollDirection.forward) {
+    if (_scrollController.position.userScrollDirection ==
+        ScrollDirection.forward) {
       if (!_showFab) {
         setState(() {
           _showFab = true;
         });
       }
-    } else if (_scrollController.position.userScrollDirection == ScrollDirection.reverse) {
+    } else if (_scrollController.position.userScrollDirection ==
+        ScrollDirection.reverse) {
       if (_showFab) {
         setState(() {
           _showFab = false;
@@ -311,9 +312,16 @@ class TasksScreenState extends State<TasksScreen> {
                 ),
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(true),
-                  child: const Text(
-                    'Eliminar',
-                    style: TextStyle(color: Colors.red),
+                  child:Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).primaryColor,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Text(
+                      'Eliminar',
+                      style: TextStyle(color:Colors.white),
+                    ),
                   ),
                 ),
               ],
