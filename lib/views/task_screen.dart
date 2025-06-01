@@ -24,7 +24,7 @@ class TasksScreen extends StatefulWidget {
 }
 
 class TasksScreenState extends State<TasksScreen> {
-  ScrollController _scrollController = ScrollController();
+  final ScrollController _scrollController = ScrollController();
   bool _showFab = true;
 
   @override
