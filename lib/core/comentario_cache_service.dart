@@ -130,33 +130,6 @@ class ComentarioCacheService {
     }
   }
 
-  /// Refresca los comentarios desde la API para una noticia específica
- /* Future<void> refreshComentarios(String noticiaId) async {
-    try {
-      debugPrint('🔄 Refrescando comentarios para noticia: $noticiaId');
-      final comentarios = await _repository.obtenerComentariosPorNoticia(
-        noticiaId,
-      );
-      _comentariosPorNoticia[noticiaId] = comentarios;
-      _lastRefreshedByNoticiaId[noticiaId] = DateTime.now();
-
-      // CORREGIDO: Calculamos el total incluyendo subcomentarios
-      final totalComentarios = _calcularTotalComentarios(comentarios);
-      _numeroComentariosPorNoticia[noticiaId] = totalComentarios;
-      
-      // CORREGIDO: Actualizar el stream del contador con el total correcto
-      _updateCounterStream(noticiaId, totalComentarios);
-
-      debugPrint(
-        '✅ Comentarios actualizados: ${comentarios.length} principales + subcomentarios = $totalComentarios total para noticia $noticiaId',
-      );
-    } catch (e) {
-      debugPrint('❌ Error al refrescar comentarios: ${e.toString()}');
-      // No modificamos cache si hay error para mantener datos anteriores
-      rethrow;
-    }
-  }*/
-
   /// Obtiene el número de comentarios para una noticia específica
   /// Si no hay datos en cache o ha expirado, realiza una carga desde la API
   Future<int> getNumeroComentarios(String noticiaId) async {
