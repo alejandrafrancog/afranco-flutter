@@ -1,7 +1,5 @@
-import 'package:afranco/core/category_cache_service.dart';
 import 'package:afranco/domain/categoria.dart';
 import 'package:afranco/data/categoria_repository.dart';
-import 'package:afranco/components/categoria/delete_category_modal.dart';
 import 'package:flutter/material.dart';
 import 'package:afranco/components/categoria/edit_category_modal.dart';
 import 'package:watch_it/watch_it.dart';
@@ -15,25 +13,6 @@ class CategoryCard extends StatelessWidget {
     required this.category,
     required this.onCategoriaEliminada,
   });
-
-  void _eliminarCategoria(BuildContext context) async {
-    try {
-      await repository.eliminarCategoria(category.id!);
-      await di<CategoryCacheService>().refreshCategories(); // Nuevo
-      onCategoriaEliminada();
-
-      if (!context.mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Categoría eliminada')));
-    } catch (e) {
-      if (!context.mounted) return;
-
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Error al eliminar: $e')));
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -73,14 +52,7 @@ class CategoryCard extends StatelessWidget {
                 );
               },
             ),
-            IconButton(
-              icon: const Icon(Icons.delete, color: Colors.red),
-              onPressed: () {
-                showDeleteConfirmationDialog(context, () {
-                  _eliminarCategoria(context);
-                });
-              },
-            ),
+            
           ],
         ),
       ),
