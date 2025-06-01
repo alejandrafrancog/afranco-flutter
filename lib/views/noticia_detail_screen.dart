@@ -1,10 +1,11 @@
+import 'package:afranco/helpers/category_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:afranco/domain/noticia.dart';
 import 'package:afranco/bloc/comentario_bloc/comentario_bloc.dart';
 import 'package:afranco/bloc/comentario_bloc/comentario_event.dart';
 import 'package:afranco/bloc/comentario_bloc/comentario_state.dart';
-import 'package:afranco/components/comentario/comment_list.dart';
+import 'package:afranco/components/comentario/comment_list_detail.dart';
 import 'package:afranco/components/comentario/comment_input_form.dart';
 import 'package:afranco/components/comentario/comment_search_bar.dart';
 import 'package:intl/intl.dart';
@@ -13,10 +14,7 @@ import 'package:share_plus/share_plus.dart';
 class NoticiaDetailScreen extends StatefulWidget {
   final Noticia noticia;
 
-  const NoticiaDetailScreen({
-    super.key,
-    required this.noticia,
-  });
+  const NoticiaDetailScreen({super.key, required this.noticia});
 
   @override
   State<NoticiaDetailScreen> createState() => _NoticiaDetailScreenState();
@@ -27,12 +25,12 @@ class _NoticiaDetailScreenState extends State<NoticiaDetailScreen>
   final TextEditingController _comentarioController = TextEditingController();
   final TextEditingController _busquedaController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
-  
+
   late AnimationController _heroAnimationController;
   late AnimationController _contentAnimationController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
-  
+
   bool _ordenAscendente = true;
   String? _respondingToId;
   String? _respondingToAutor;
@@ -42,33 +40,34 @@ class _NoticiaDetailScreenState extends State<NoticiaDetailScreen>
   @override
   void initState() {
     super.initState();
-    
+
     // Inicializar animaciones
     _heroAnimationController = AnimationController(
       duration: const Duration(milliseconds: 800),
       vsync: this,
     );
-    
+
     _contentAnimationController = AnimationController(
       duration: const Duration(milliseconds: 600),
       vsync: this,
     );
-    
-    _fadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _contentAnimationController,
-      curve: Curves.easeInOut,
-    ));
-    
+
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _contentAnimationController,
+        curve: Curves.easeInOut,
+      ),
+    );
+
     _slideAnimation = Tween<Offset>(
       begin: const Offset(0, 0.3),
       end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _contentAnimationController,
-      curve: Curves.easeOutCubic,
-    ));
+    ).animate(
+      CurvedAnimation(
+        parent: _contentAnimationController,
+        curve: Curves.easeOutCubic,
+      ),
+    );
 
     // Cargar comentarios y iniciar animaciones
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -115,11 +114,8 @@ ${widget.noticia.descripcion}
 
 📱 Compartido desde la app de noticias
 ''';
-    
-    Share.share(
-      shareText,
-      subject: widget.noticia.titulo,
-    );
+
+    Share.share(shareText, subject: widget.noticia.titulo);
   }
 
   @override
@@ -174,21 +170,23 @@ ${widget.noticia.descripcion}
                         ],
                       ),
                     ),
-                    child: widget.noticia.urlImagen.isNotEmpty
-                        ? Image.network(
-                            widget.noticia.urlImagen,
-                            fit: BoxFit.cover,
-                            width: double.infinity,
-                            errorBuilder: (context, error, stackTrace) =>
-                                _buildImagePlaceholder(),
-                          )
-                        : _buildImagePlaceholder(),
+                    child:
+                        widget.noticia.urlImagen.isNotEmpty
+                            ? Image.network(
+                              widget.noticia.urlImagen,
+                              fit: BoxFit.cover,
+                              width: double.infinity,
+                              errorBuilder:
+                                  (context, error, stackTrace) =>
+                                      _buildImagePlaceholder(),
+                            )
+                            : _buildImagePlaceholder(),
                   ),
                 ),
               ),
             ),
           ),
-          
+
           // Contenido principal
           SliverToBoxAdapter(
             child: AnimatedBuilder(
@@ -206,12 +204,10 @@ ${widget.noticia.descripcion}
           ),
 
           // Sección de comentarios como Sliver
-          SliverToBoxAdapter(
-            child: _buildCommentsSection(),
-          ),
+          SliverToBoxAdapter(child: _buildCommentsSection()),
         ],
       ),
-      
+
       // Botón flotante para comentarios
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
@@ -232,17 +228,10 @@ ${widget.noticia.descripcion}
       height: 300,
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [
-            Colors.blue.shade400,
-            Colors.purple.shade600,
-          ],
+          colors: [Colors.blue.shade400, Colors.purple.shade600],
         ),
       ),
-      child: const Icon(
-        Icons.article,
-        size: 80,
-        color: Colors.white70,
-      ),
+      child: const Icon(Icons.article, size: 80, color: Colors.white70),
     );
   }
 
@@ -267,7 +256,7 @@ ${widget.noticia.descripcion}
               ),
             ),
           ),
-          
+
           // Información de la noticia
           Padding(
             padding: const EdgeInsets.all(20),
@@ -286,18 +275,41 @@ ${widget.noticia.descripcion}
                         color: Theme.of(context).primaryColor.withAlpha(128),
                         borderRadius: BorderRadius.circular(20),
                       ),
-                      child: Text(
-                        widget.noticia.categoriaId ?? 'General',
-                        style: TextStyle(
-                          color: Theme.of(context).primaryColor,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 12,
+                      child: FutureBuilder<String>(
+                        future: CategoryHelper.getCategoryName(
+                          widget.noticia.categoriaId ?? '',
                         ),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return const CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            );
+                          }
+
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
+                            child: Text(
+                              snapshot.data ?? 'Sin categoría',
+                              style: TextStyle(
+                                color: Theme.of(context).primaryColor,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 12,
+                              ),
+                            ),
+                          );
+                        },
                       ),
                     ),
                     const Spacer(),
                     Text(
-                      DateFormat('dd/MM/yyyy').format(widget.noticia.publicadaEl),
+                      DateFormat(
+                        'dd/MM/yyyy',
+                      ).format(widget.noticia.publicadaEl),
                       style: TextStyle(
                         color: Colors.grey.shade600,
                         fontSize: 14,
@@ -305,9 +317,9 @@ ${widget.noticia.descripcion}
                     ),
                   ],
                 ),
-                
+
                 const SizedBox(height: 16),
-                
+
                 // Título
                 Text(
                   widget.noticia.titulo,
@@ -316,9 +328,9 @@ ${widget.noticia.descripcion}
                     height: 1.3,
                   ),
                 ),
-                
+
                 const SizedBox(height: 12),
-                
+
                 // Fuente
                 Container(
                   padding: const EdgeInsets.all(16),
@@ -329,11 +341,7 @@ ${widget.noticia.descripcion}
                   ),
                   child: Row(
                     children: [
-                      Icon(
-                        Icons.source,
-                        size: 16,
-                        color: Colors.grey.shade600,
-                      ),
+                      Icon(Icons.source, size: 16, color: Colors.grey.shade600),
                       const SizedBox(width: 8),
                       Text(
                         'Fuente: ${widget.noticia.fuente}',
@@ -346,9 +354,9 @@ ${widget.noticia.descripcion}
                     ],
                   ),
                 ),
-                
+
                 const SizedBox(height: 20),
-                
+
                 // Contenido completo (usando descripción)
                 Text(
                   widget.noticia.descripcion,
@@ -358,9 +366,9 @@ ${widget.noticia.descripcion}
                     color: Colors.black87,
                   ),
                 ),
-                
+
                 const SizedBox(height: 20),
-                
+
                 // Información adicional
                 Row(
                   children: [
@@ -426,9 +434,9 @@ ${widget.noticia.descripcion}
                       ),
                   ],
                 ),
-                
+
                 const SizedBox(height: 30),
-                
+
                 // Divider con estilo
                 Container(
                   height: 1,
@@ -442,7 +450,7 @@ ${widget.noticia.descripcion}
                     ),
                   ),
                 ),
-                
+
                 const SizedBox(height: 20),
               ],
             ),
@@ -467,9 +475,9 @@ ${widget.noticia.descripcion}
               const SizedBox(width: 8),
               Text(
                 'Comentarios',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
               ),
               const Spacer(),
               // Botón de ordenar
@@ -480,7 +488,9 @@ ${widget.noticia.descripcion}
                 ),
                 child: IconButton(
                   icon: Icon(
-                    _ordenAscendente ? Icons.arrow_upward : Icons.arrow_downward,
+                    _ordenAscendente
+                        ? Icons.arrow_upward
+                        : Icons.arrow_downward,
                     size: 18,
                   ),
                   onPressed: () {
@@ -489,40 +499,44 @@ ${widget.noticia.descripcion}
                       OrdenarComentarios(ascendente: _ordenAscendente),
                     );
                   },
-                  tooltip: _ordenAscendente ? 'Más antiguos primero' : 'Más recientes primero',
+                  tooltip:
+                      _ordenAscendente
+                          ? 'Más antiguos primero'
+                          : 'Más recientes primero',
                 ),
               ),
             ],
           ),
-          
+
           const SizedBox(height: 16),
-          
+
           // Barra de búsqueda
           CommentSearchBar(
             busquedaController: _busquedaController,
             onSearch: _handleSearch,
             noticiaId: widget.noticia.id ?? '',
           ),
-          
+
           const SizedBox(height: 16),
-          
+
           // Input de comentario (condicional)
           AnimatedContainer(
             duration: const Duration(milliseconds: 300),
             height: _showCommentInput ? null : 0,
-            child: _showCommentInput
-                ? CommentInputForm(
-                    noticiaId: widget.noticia.id ?? '',
-                    comentarioController: _comentarioController,
-                    respondingToId: _respondingToId,
-                    respondingToAutor: _respondingToAutor,
-                    onCancelarRespuesta: _cancelarRespuesta,
-                  )
-                : const SizedBox.shrink(),
+            child:
+                _showCommentInput
+                    ? CommentInputForm(
+                      noticiaId: widget.noticia.id ?? '',
+                      comentarioController: _comentarioController,
+                      respondingToId: _respondingToId,
+                      respondingToAutor: _respondingToAutor,
+                      onCancelarRespuesta: _cancelarRespuesta,
+                    )
+                    : const SizedBox.shrink(),
           ),
-          
+
           if (_showCommentInput) const SizedBox(height: 16),
-          
+
           // Lista de comentarios - ✅ SECCIÓN CORREGIDA
           BlocBuilder<ComentarioBloc, ComentarioState>(
             builder: (context, state) {
@@ -534,7 +548,7 @@ ${widget.noticia.descripcion}
                   ),
                 );
               }
-              
+
               if (state is ComentarioError) {
                 return Center(
                   child: Padding(
@@ -559,7 +573,9 @@ ${widget.noticia.descripcion}
                         ElevatedButton(
                           onPressed: () {
                             context.read<ComentarioBloc>().add(
-                              LoadComentarios(noticiaId: widget.noticia.id ?? ''),
+                              LoadComentarios(
+                                noticiaId: widget.noticia.id ?? '',
+                              ),
                             );
                           },
                           child: const Text('Reintentar'),
@@ -569,7 +585,7 @@ ${widget.noticia.descripcion}
                   ),
                 );
               }
-              
+
               if (state is ComentarioLoaded) {
                 if (state.comentariosList.isEmpty) {
                   return Center(
@@ -597,7 +613,7 @@ ${widget.noticia.descripcion}
                     ),
                   );
                 }
-                
+
                 // ✅ SOLUCIÓN: Envolver CommentList en un Container con shrinkWrap
                 return Container(
                   // No definir altura para que tome el espacio necesario
@@ -613,11 +629,11 @@ ${widget.noticia.descripcion}
                   ),
                 );
               }
-              
+
               return const SizedBox.shrink();
             },
           ),
-          
+
           // Espaciado final
           const SizedBox(height: 100),
         ],
