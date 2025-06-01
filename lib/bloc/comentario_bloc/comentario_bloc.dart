@@ -336,98 +336,154 @@ class ComentarioBloc extends Bloc<ComentarioEvent, ComentarioState> {
   }
   // Agregar este handler al constructor del ComentarioBloc
 
+  // Solo mostraré los métodos refactorizados y los nuevos métodos auxiliares
+
   Future<void> _onAddReaccionSubcomentario(
     AddReaccionSubcomentario event,
     Emitter<ComentarioState> emit,
   ) async {
     try {
-      // Guardamos el estado actual
       final currentState = state;
 
-      // Emitimos un estado de carga optimista mostrando la reacción
+      // Actualización optimista del estado
       if (currentState is ComentarioLoaded) {
-        final comentarios = List<Comentario>.from(currentState.comentariosList);
-        bool comentarioActualizado = false;
+        final comentariosActualizados = _actualizarSubcomentarioOptimista(
+          currentState.comentariosList,
+          event.subcomentarioId,
+          event.tipoReaccion,
+        );
 
-        // Buscamos el comentario que contiene el subcomentario
-        for (int i = 0; i < comentarios.length && !comentarioActualizado; i++) {
-          final comentario = comentarios[i];
-          if (comentario.subcomentarios?.isNotEmpty == true) {
-            final subcomentarios = List<Comentario>.from(
-              comentario.subcomentarios!,
-            );
-
-            // Buscamos el subcomentario específico
-            for (int j = 0; j < subcomentarios.length; j++) {
-              if (subcomentarios[j].id == event.subcomentarioId) {
-                final subcomentario = subcomentarios[j];
-
-                // Actualizamos el subcomentario optimistamente
-                final subcomentarioActualizado = Comentario(
-                  id: subcomentario.id,
-                  noticiaId: subcomentario.noticiaId,
-                  texto: subcomentario.texto,
-                  autor: subcomentario.autor,
-                  fecha: subcomentario.fecha,
-                  likes:
-                      event.tipoReaccion == 'like'
-                          ? subcomentario.likes + 1
-                          : subcomentario.likes,
-                  dislikes:
-                      event.tipoReaccion == 'dislike'
-                          ? subcomentario.dislikes + 1
-                          : subcomentario.dislikes,
-                  subcomentarios: subcomentario.subcomentarios,
-                  isSubComentario: subcomentario.isSubComentario,
-                  idSubComentario: subcomentario.idSubComentario,
-                );
-
-                // Reemplazamos el subcomentario en la lista
-                subcomentarios[j] = subcomentarioActualizado;
-
-                // Actualizamos el comentario principal con los subcomentarios modificados
-                comentarios[i] = comentario.copyWith(
-                  subcomentarios: subcomentarios,
-                );
-                comentarioActualizado = true;
-                break;
-              }
-            }
-          }
-        }
-
-        if (comentarioActualizado) {
-          emit(ComentarioLoaded(comentariosList: comentarios));
+        if (comentariosActualizados != null) {
+          emit(ComentarioLoaded(comentariosList: comentariosActualizados));
         }
       }
 
-      // Llamamos al servicio de cache para persistir el cambio usando el método específico para subcomentarios
+      // Persistir cambio en el cache
       await _cacheService.reaccionarSubcomentario(
         noticiaId: event.noticiaId,
         subcomentarioId: event.subcomentarioId,
         tipoReaccion: event.tipoReaccion,
       );
 
-      // Recargamos los comentarios para asegurar los datos más recientes
-      final comentariosActualizados = await _cacheService
-          .getComentariosPorNoticia(event.noticiaId);
-      emit(ComentarioLoaded(comentariosList: comentariosActualizados));
+      // Recargar comentarios actualizados
+      await _recargarComentarios(event.noticiaId, emit);
     } catch (e) {
-      // Si ocurre un error, intentamos recargar los comentarios para restaurar el estado
-      try {
-        final comentarios = await _cacheService.getComentariosPorNoticia(
-          event.noticiaId,
+      await _manejarErrorReaccionSubcomentario(event.noticiaId, emit, e);
+    }
+  }
+
+  /// Actualiza optimistamente el subcomentario en la lista de comentarios
+  List<Comentario>? _actualizarSubcomentarioOptimista(
+    List<Comentario> comentarios,
+    String subcomentarioId,
+    String tipoReaccion,
+  ) {
+    final comentariosCopia = List<Comentario>.from(comentarios);
+
+    for (int i = 0; i < comentariosCopia.length; i++) {
+      final comentario = comentariosCopia[i];
+
+      if (_tieneSubcomentarios(comentario)) {
+        final subcomentarioActualizado = _buscarYActualizarSubcomentario(
+          comentario.subcomentarios!,
+          subcomentarioId,
+          tipoReaccion,
         );
-        emit(ComentarioLoaded(comentariosList: comentarios));
-      } catch (_) {
-        // Si incluso la recarga falla, mostramos el error
-        emit(
-          ComentarioError(
-            errorMessage:
-                'Error al agregar reacción al subcomentario. Intenta de nuevo: ${e.toString()}',
-          ),
-        );
+
+        if (subcomentarioActualizado != null) {
+          comentariosCopia[i] = comentario.copyWith(
+            subcomentarios: subcomentarioActualizado,
+          );
+          return comentariosCopia;
+        }
       }
+    }
+
+    return null; // No se encontró el subcomentario
+  }
+
+  /// Verifica si el comentario tiene subcomentarios
+  bool _tieneSubcomentarios(Comentario comentario) {
+    return comentario.subcomentarios?.isNotEmpty == true;
+  }
+
+  /// Busca y actualiza un subcomentario específico en la lista
+  List<Comentario>? _buscarYActualizarSubcomentario(
+    List<Comentario> subcomentarios,
+    String subcomentarioId,
+    String tipoReaccion,
+  ) {
+    final subcomentariosCopia = List<Comentario>.from(subcomentarios);
+
+    for (int j = 0; j < subcomentariosCopia.length; j++) {
+      if (subcomentariosCopia[j].id == subcomentarioId) {
+        subcomentariosCopia[j] = _crearSubcomentarioConReaccion(
+          subcomentariosCopia[j],
+          tipoReaccion,
+        );
+        return subcomentariosCopia;
+      }
+    }
+
+    return null; // No se encontró el subcomentario
+  }
+
+  /// Crea una nueva instancia del subcomentario con la reacción actualizada
+  Comentario _crearSubcomentarioConReaccion(
+    Comentario subcomentario,
+    String tipoReaccion,
+  ) {
+    return Comentario(
+      id: subcomentario.id,
+      noticiaId: subcomentario.noticiaId,
+      texto: subcomentario.texto,
+      autor: subcomentario.autor,
+      fecha: subcomentario.fecha,
+      likes: _calcularNuevosLikes(subcomentario.likes, tipoReaccion),
+      dislikes: _calcularNuevosDislikes(subcomentario.dislikes, tipoReaccion),
+      subcomentarios: subcomentario.subcomentarios,
+      isSubComentario: subcomentario.isSubComentario,
+      idSubComentario: subcomentario.idSubComentario,
+    );
+  }
+
+  /// Calcula el nuevo número de likes basado en el tipo de reacción
+  int _calcularNuevosLikes(int likesActuales, String tipoReaccion) {
+    return tipoReaccion == 'like' ? likesActuales + 1 : likesActuales;
+  }
+
+  /// Calcula el nuevo número de dislikes basado en el tipo de reacción
+  int _calcularNuevosDislikes(int dislikesActuales, String tipoReaccion) {
+    return tipoReaccion == 'dislike' ? dislikesActuales + 1 : dislikesActuales;
+  }
+
+  /// Recarga los comentarios desde el cache y emite el nuevo estado
+  Future<void> _recargarComentarios(
+    String noticiaId,
+    Emitter<ComentarioState> emit,
+  ) async {
+    final comentariosActualizados = await _cacheService
+        .getComentariosPorNoticia(noticiaId);
+    emit(ComentarioLoaded(comentariosList: comentariosActualizados));
+  }
+
+  /// Maneja los errores que ocurren al agregar reacción a subcomentario
+  Future<void> _manejarErrorReaccionSubcomentario(
+    String noticiaId,
+    Emitter<ComentarioState> emit,
+    Object error,
+  ) async {
+    try {
+      // Intentar recargar comentarios para restaurar el estado
+      await _recargarComentarios(noticiaId, emit);
+    } catch (_) {
+      // Si incluso la recarga falla, mostrar el error
+      emit(
+        ComentarioError(
+          errorMessage:
+              'Error al agregar reacción al subcomentario. Intenta de nuevo: ${error.toString()}',
+        ),
+      );
     }
   }
 }

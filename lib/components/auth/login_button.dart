@@ -36,6 +36,7 @@ class LoginButton extends StatelessWidget {
               ),
             )
           : ElevatedButton(
+              key: const ValueKey('login_button'),
               style: NoticiaEstilos.estiloBotonInicioSesion(context).copyWith(
                 elevation: WidgetStateProperty.all(4),
                 shadowColor: WidgetStateProperty.all(

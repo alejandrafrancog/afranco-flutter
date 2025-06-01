@@ -25,7 +25,7 @@ class CategoriaService extends BaseService {
         return lista;
       } else {
         throw ApiException(
-          message: "Error: formato de respuesta inválido",
+          message: "Error ${NoticiaConstants.errorFormatoInvalido}",
           statusCode: 500,
         );
       }
@@ -59,7 +59,7 @@ class CategoriaService extends BaseService {
     try {
       // Validar que el ID no sea nulo o vacío
       if (id.isEmpty) {
-        throw ApiException(message: 'ID de categoría inválido', statusCode: 400);
+        throw ApiException(message: AppConstantes.idCategoriaInvalido, statusCode: 400);
       }
       
       final url = '$_baseUrl/$id';
@@ -83,7 +83,7 @@ class CategoriaService extends BaseService {
     try {
       // Validar que el ID no sea nulo o vacío
       if (id.isEmpty) {
-        throw ApiException(message: 'ID de categoría inválido', statusCode: 400);
+        throw ApiException(message: AppConstantes.idCategoriaInvalido, statusCode: 400);
       }
       
       final url = '$_baseUrl/$id';

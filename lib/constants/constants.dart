@@ -12,8 +12,10 @@ class AppConstants {
 
 class AppConstantes {
   static const int timeoutSeconds = 60;
-  static const String formatoFecha = 'dd/MM/yyyy HH:mm';
+  static const String errorCargarTareas = 'Error al cargar las tareas';
+  static const String errorCargarCategorias = 'Error al cargar las categorías';
   static const int pageSize = 10;
+  static const String idCategoriaInvalido = 'ID de categoría inválido';
   static const double espaciadoAlto = 10;
   static const String errorTimeOut = 'Tiempo de espera agotado';
   static const String usuarioDefault = 'Usuario anonimo';
@@ -21,6 +23,7 @@ class AppConstantes {
   static const String errorUnauthorized = 'Se requiere autenticación'; //
   static const String errorNoInternet = 'Sin conexión a Internet'; //
   static const String errorInvalidData = 'Datos inválidos'; //
+  static const String errorGenerico = 'Error al procesar la solicitud'; //
   static const String tokenNoEncontrado =
       'No se encontró el token de autenticación';
   static const String errorDeleteDefault = 'Error al eliminar el recurso';
@@ -71,9 +74,6 @@ class ValidacionConstantes {
   // Mensajes genéricos
   static const String campoVacio = ' no puede estar vacío';
   static const String noFuturo = ' no puede estar en el futuro.';
-  // static const String campoInvalido = 'no es válido';
-  // static const String campoMuyCorto = 'es demasiado corto';
-  // static const String campoMuyLargo = 'es demasiado largo';
 
   // Campos comunes
   static const String imagenUrl = 'URL de la imagen';
@@ -122,7 +122,6 @@ class QuoteConstants {
   static const String emptyList = 'No hay cotizaciones disponibles';
   static const String errorMessage = 'Error al cargar cotizaciones';
   static const int pageSize = 10; // Tamaño de página para paginación
-  static const String dateFormat = 'dd/MM/yyyy HH:mm';
 }
 
 class SuccessMessages {
@@ -251,7 +250,6 @@ class NoticiaConstants {
   static const String emptyList = 'No hay noticias disponibles';
   static const String errorMessage = 'Error al cargar noticias';
   static const String noMoreNews = 'No hay más noticias disponibles';
-  static const String formatoFecha = 'dd/MM/yyyy HH:mm';
   static const double spacingHeight = 10;
   static const String successCreated = 'Noticia creada exitosamente';
   static const String successDeleted = 'Noticia eliminada exitosamente';
@@ -278,6 +276,7 @@ class NoticiaConstants {
   static const String errorFilter = "Error al filtrar noticias";
   static const String etiquetaUltimaActualizacion = 'Última actualización';
   static const String tooltipOrden = 'Cambiar orden';
+  static const String idNoticia = 'ID de la noticia';
 }
 
 class AppStyles {

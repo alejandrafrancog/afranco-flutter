@@ -23,9 +23,9 @@ class TaskDetailScreen extends StatelessWidget {
   void _navigateToAdjacentTask(BuildContext context, int offset) {
     final tareasBloc = context.read<TareasBloc>();
     final currentState = tareasBloc.state;
-    
+
     if (currentState.status != TareasStatus.loaded) return;
-    
+
     final tasks = currentState.tareas;
     final newIndex = indice + offset;
 
@@ -35,21 +35,21 @@ class TaskDetailScreen extends StatelessWidget {
       Navigator.pushReplacement(
         context,
         PageRouteBuilder(
-          pageBuilder: (_, __, ___) => TaskDetailScreen(
-            task: tasks[newIndex],
-            indice: newIndex,
-            onTaskUpdated: onTaskUpdated,
-          ),
+          pageBuilder:
+              (_, __, ___) => TaskDetailScreen(
+                task: tasks[newIndex],
+                indice: newIndex,
+                onTaskUpdated: onTaskUpdated,
+              ),
           transitionsBuilder: (context, animation, _, child) {
             final slideOffset = Offset(offset.sign.toDouble(), 0);
             return SlideTransition(
               position: Tween<Offset>(
                 begin: slideOffset,
                 end: Offset.zero,
-              ).animate(CurvedAnimation(
-                parent: animation,
-                curve: Curves.easeInOut,
-              )),
+              ).animate(
+                CurvedAnimation(parent: animation, curve: Curves.easeInOut),
+              ),
               child: child,
             );
           },
@@ -61,7 +61,7 @@ class TaskDetailScreen extends StatelessWidget {
 
   void _handleSwipe(BuildContext context, DragEndDetails details) {
     const double sensitivity = 300.0;
-    
+
     if (details.primaryVelocity! > sensitivity) {
       // Deslizamiento hacia la derecha (tarea anterior)
       _navigateToAdjacentTask(context, -1);
@@ -92,28 +92,29 @@ class TaskDetailScreen extends StatelessWidget {
                   break;
               }
             },
-            itemBuilder: (context) => [
-              const PopupMenuItem(
-                value: 'share',
-                child: Row(
-                  children: [
-                    Icon(Icons.share),
-                    SizedBox(width: 8),
-                    Text('Compartir'),
-                  ],
-                ),
-              ),
-              const PopupMenuItem(
-                value: 'duplicate',
-                child: Row(
-                  children: [
-                    Icon(Icons.copy),
-                    SizedBox(width: 8),
-                    Text('Duplicar'),
-                  ],
-                ),
-              ),
-            ],
+            itemBuilder:
+                (context) => [
+                  const PopupMenuItem(
+                    value: 'share',
+                    child: Row(
+                      children: [
+                        Icon(Icons.share),
+                        SizedBox(width: 8),
+                        Text('Compartir'),
+                      ],
+                    ),
+                  ),
+                  const PopupMenuItem(
+                    value: 'duplicate',
+                    child: Row(
+                      children: [
+                        Icon(Icons.copy),
+                        SizedBox(width: 8),
+                        Text('Duplicar'),
+                      ],
+                    ),
+                  ),
+                ],
           ),
         ],
       ),
@@ -130,7 +131,7 @@ class TaskDetailScreen extends StatelessWidget {
                   children: [
                     // Imagen de la tarea
                     TaskImage(randomIndex: indice, height: 250),
-                    
+
                     Padding(
                       padding: const EdgeInsets.all(16),
                       child: Column(
@@ -140,7 +141,9 @@ class TaskDetailScreen extends StatelessWidget {
                           Row(
                             children: [
                               Expanded(
-                                child: CommonWidgetsHelper.buildBoldTitle(task.titulo),
+                                child: CommonWidgetsHelper.buildBoldTitle(
+                                  task.titulo,
+                                ),
                               ),
                               _buildTaskTypeTag(),
                             ],
@@ -148,7 +151,8 @@ class TaskDetailScreen extends StatelessWidget {
                           CommonWidgetsHelper.buildSpacing(),
 
                           // Descripción
-                          if (task.descripcion != null && task.descripcion!.isNotEmpty) ...[
+                          if (task.descripcion != null &&
+                              task.descripcion!.isNotEmpty) ...[
                             _buildSectionTitle('Descripción'),
                             const SizedBox(height: 8),
                             Text(
@@ -184,7 +188,7 @@ class TaskDetailScreen extends StatelessWidget {
   Widget _buildTaskTypeTag() {
     Color backgroundColor;
     IconData icon;
-    
+
     switch (task.tipo) {
       case 'urgente':
         backgroundColor = Colors.redAccent;
@@ -275,26 +279,18 @@ class TaskDetailScreen extends StatelessWidget {
       children: [
         Icon(icon, color: color, size: 20),
         const SizedBox(width: 8),
-        Text(
-          '$label: ',
-          style: const TextStyle(fontWeight: FontWeight.w500),
-        ),
-        Expanded(
-          child: Text(
-            date,
-            style: TextStyle(color: color),
-          ),
-        ),
+        Text('$label: ', style: const TextStyle(fontWeight: FontWeight.w500)),
+        Expanded(child: Text(date, style: TextStyle(color: color))),
       ],
     );
   }
 
   Color _getDateLimitColor() {
     if (task.fechaLimite == null) return Colors.grey;
-    
+
     final now = DateTime.now();
     final daysUntilLimit = task.fechaLimite!.difference(now).inDays;
-    
+
     if (daysUntilLimit < 0) return Colors.red; // Vencida
     if (daysUntilLimit <= 1) return Colors.orange; // Próxima a vencer
     return Colors.green; // A tiempo
@@ -313,7 +309,10 @@ class TaskDetailScreen extends StatelessWidget {
               backgroundColor: Colors.blue,
               child: Text(
                 task.usuario.isNotEmpty ? task.usuario[0].toUpperCase() : 'U',
-                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
             title: Text(task.usuario),
@@ -333,23 +332,18 @@ class TaskDetailScreen extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
         ElevatedButton.icon(
-          onPressed: canGoPrevious 
-              ? () => _navigateToAdjacentTask(context, -1)
-              : null,
+          onPressed:
+              canGoPrevious ? () => _navigateToAdjacentTask(context, -1) : null,
           icon: const Icon(Icons.arrow_back),
           label: const Text('Anterior'),
         ),
         Text(
           '${indice + 1} de ${tasks.length}',
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 16,
-          ),
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
         ),
         ElevatedButton.icon(
-          onPressed: canGoNext 
-              ? () => _navigateToAdjacentTask(context, 1)
-              : null,
+          onPressed:
+              canGoNext ? () => _navigateToAdjacentTask(context, 1) : null,
           icon: const Icon(Icons.arrow_forward),
           label: const Text('Siguiente'),
         ),
@@ -364,34 +358,34 @@ class TaskDetailScreen extends StatelessWidget {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (context) => Padding(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom,
-          left: 16,
-          right: 16,
-          top: 16,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text(
-              'Editar Tarea',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+      builder:
+          (context) => Padding(
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(context).viewInsets.bottom,
+              left: 16,
+              right: 16,
+              top: 16,
             ),
-            const SizedBox(height: 16),
-            TaskForm(
-              task: task,
-              onSave: (updatedTask) {
-                if (onTaskUpdated != null) {
-                  onTaskUpdated!(updatedTask);
-                }
-                Navigator.of(context).pop();
-                Navigator.of(context).pop(); // Volver a la lista
-              },
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'Editar Tarea',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 16),
+                TaskForm(
+                  task: task,
+                  onSave: (updatedTask) {
+                    // Usar null-aware invocation en lugar de verificación explícita
+                    onTaskUpdated?.call(updatedTask);
+                    Navigator.of(context).pop();
+                    Navigator.of(context).pop(); // Volver a la lista
+                  },
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
+          ),
     );
   }
 
@@ -406,28 +400,27 @@ Usuario: ${task.usuario}
 
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Compartir Tarea'),
-        content: SingleChildScrollView(
-          child: Text(taskInfo),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cerrar'),
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Compartir Tarea'),
+            content: SingleChildScrollView(child: Text(taskInfo)),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cerrar'),
+              ),
+              TextButton(
+                onPressed: () {
+                  // Aquí podrías integrar con Share package o copiar al clipboard
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Información copiada')),
+                  );
+                },
+                child: const Text('Copiar'),
+              ),
+            ],
           ),
-          TextButton(
-            onPressed: () {
-              // Aquí podrías integrar con Share package o copiar al clipboard
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Información copiada')),
-              );
-            },
-            child: const Text('Copiar'),
-          ),
-        ],
-      ),
     );
   }
 
@@ -444,7 +437,7 @@ Usuario: ${task.usuario}
     if (onTaskUpdated != null) {
       onTaskUpdated!(duplicatedTask);
     }
-    
+
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Tarea duplicada exitosamente')),
     );
