@@ -27,6 +27,7 @@ class _NoticiaCreationModalState extends State<NoticiaCreationModal> {
   final _descripcionController = TextEditingController();
   final _fuenteController = TextEditingController();
   final _imagenController = TextEditingController();
+  final double? sizedBoxHeight = 20.5;
   //final _urlController = TextEditingController();
   bool _isSubmitting = false;
   final CategoriaRepository _categoriaRepo = di<CategoriaRepository>();
@@ -86,12 +87,11 @@ class _NoticiaCreationModalState extends State<NoticiaCreationModal> {
         Navigator.pop(context);
       }
     } catch (e) {
-      if(mounted){
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error al crear: ${e.toString()}')),
-      );
+          SnackBar(content: Text('Error al crear: ${e.toString()}')),
+        );
       }
-      
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
     }
@@ -112,16 +112,20 @@ class _NoticiaCreationModalState extends State<NoticiaCreationModal> {
                 decoration: const InputDecoration(labelText: 'Título'),
                 validator: (value) => value!.isEmpty ? 'Requerido' : null,
               ),
+              SizedBox(height: sizedBoxHeight),
               TextFormField(
                 controller: _descripcionController,
                 decoration: const InputDecoration(labelText: 'Descripción'),
                 validator: (value) => value!.isEmpty ? 'Requerido' : null,
               ),
+              SizedBox(height: sizedBoxHeight),
               TextFormField(
                 controller: _fuenteController,
                 decoration: const InputDecoration(labelText: 'Fuente'),
                 validator: (value) => value!.isEmpty ? 'Requerido' : null,
               ),
+              SizedBox(height: sizedBoxHeight),
+
               TextFormField(
                 controller: _imagenController,
                 decoration: const InputDecoration(
@@ -145,6 +149,8 @@ class _NoticiaCreationModalState extends State<NoticiaCreationModal> {
                   return null;
                 },
               ),
+              SizedBox(height: sizedBoxHeight),
+
               DropdownButtonFormField<Categoria>(
                 value: _categoriaSeleccionada,
                 decoration: const InputDecoration(labelText: 'Categoría'),

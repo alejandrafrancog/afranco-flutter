@@ -11,7 +11,6 @@ class NoticiaEditModal extends StatefulWidget {
   final Noticia noticia;
   final String id;
   final Function()? onNoticiaUpdated;
-
   final service = di<NoticiaRepository>();
 
   NoticiaEditModal({
@@ -32,6 +31,8 @@ class _NoticiaEditModalState extends State<NoticiaEditModal> {
   late TextEditingController _fuenteController;
   late TextEditingController _imagenController;
   final CategoriaRepository _categoriaRepo = CategoriaRepository();
+  final double? sizedBoxHeight = 20.5;
+
 
   late String _selectedCategoryId;
   List<Categoria> _categorias = [];
@@ -130,16 +131,19 @@ class _NoticiaEditModalState extends State<NoticiaEditModal> {
                 decoration: const InputDecoration(labelText: 'Título'),
                 validator: (value) => value!.isEmpty ? 'Requerido' : null,
               ),
+              SizedBox(height:sizedBoxHeight),
               TextFormField(
                 controller: _descripcionController,
                 decoration: const InputDecoration(labelText: 'Descripción'),
                 validator: (value) => value!.isEmpty ? 'Requerido' : null,
               ),
+              SizedBox(height: sizedBoxHeight),
               TextFormField(
                 controller: _fuenteController,
                 decoration: const InputDecoration(labelText: 'Fuente'),
                 validator: (value) => value!.isEmpty ? 'Requerido' : null,
               ),
+              SizedBox(height: sizedBoxHeight),
               TextFormField(
                 controller: _imagenController,
                 decoration: const InputDecoration(
@@ -148,6 +152,8 @@ class _NoticiaEditModalState extends State<NoticiaEditModal> {
                 ),
                 keyboardType: TextInputType.url,
               ),
+              SizedBox(height: sizedBoxHeight),
+
               /*TextFormField(
                 controller: _urlController,
                 decoration: const InputDecoration(labelText: 'URL Noticia'),
@@ -156,6 +162,7 @@ class _NoticiaEditModalState extends State<NoticiaEditModal> {
 
               // Dropdown para seleccionar categoría (sin validación)
               DropdownButtonFormField<String>(
+                isExpanded: true,
                 decoration: const InputDecoration(
                   labelText: 'Categoría',
                   hintText: 'Seleccionar categoría (opcional)',
@@ -188,7 +195,7 @@ class _NoticiaEditModalState extends State<NoticiaEditModal> {
                 // Sin validador para que no sea obligatorio
               ),
 
-              const SizedBox(height: 16),
+              const SizedBox(height: 6),
             ],
           ),
         ),
