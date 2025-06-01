@@ -20,9 +20,7 @@ class PreferenciasScreen extends StatelessWidget {
         BlocProvider(
           create: (context) => PreferenciaBloc()..add(const CargarPreferencias()),
         ),
-        BlocProvider(
-          create: (context) => CategoriaBloc()..add(CategoriaInitEvent()),
-        ),
+
       ],
       child: Scaffold(
         appBar: _buildAppBar(context),

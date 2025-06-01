@@ -7,7 +7,7 @@ import 'package:watch_it/watch_it.dart';
 
 class CategoriaBloc extends Bloc<CategoriaEvent, CategoriaState> {
   final CategoriaRepository categoriaRepository = di<CategoriaRepository>();
-  final CategoryCacheService _cacheService = CategoryCacheService();
+  final CategoryCacheService _cacheService = di<CategoryCacheService>();
 
   CategoriaBloc() : super(CategoriaInitial()) {
     on<CategoriaInitEvent>(_onInit);
