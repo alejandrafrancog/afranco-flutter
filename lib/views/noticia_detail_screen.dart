@@ -133,7 +133,7 @@ ${widget.noticia.descripcion}
             leading: Container(
               margin: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.3),
+                color: Colors.black.withAlpha(77),
                 borderRadius: BorderRadius.circular(20),
               ),
               child: IconButton(
@@ -145,7 +145,7 @@ ${widget.noticia.descripcion}
               Container(
                 margin: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.3),
+                  color: Colors.black.withAlpha(77),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: IconButton(
@@ -592,7 +592,7 @@ ${widget.noticia.descripcion}
                     child: Padding(
                       padding: const EdgeInsets.all(40),
                       child: Column(
-                        mainAxisSize: MainAxisSize.min, // ✅ Importante
+                        mainAxisSize: MainAxisSize.min,
                         children: [
                           Icon(
                             Icons.chat_bubble_outline,
@@ -614,7 +614,6 @@ ${widget.noticia.descripcion}
                   );
                 }
 
-                // ✅ SOLUCIÓN: Envolver CommentList en un Container con shrinkWrap
                 return Container(
                   // No definir altura para que tome el espacio necesario
                   child: CommentList(
