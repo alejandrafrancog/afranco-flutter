@@ -25,7 +25,7 @@ Future<void> showEditCategoryDialog({
 
   bool updated = false;
   Categoria? nuevaCategoria;
-
+  final double sizedBoxHeight = 20.5;
   await showDialog(
     context: context,
     builder: (BuildContext dialogContext) {
@@ -50,7 +50,7 @@ Future<void> showEditCategoryDialog({
                                 ? 'Ingrese un nombre'
                                 : null,
                   ),
-                  const SizedBox(height: 10),
+                  SizedBox(height: sizedBoxHeight),
                   TextFormField(
                     controller: descriptionController,
                     decoration: const InputDecoration(labelText: 'Descripción'),
@@ -60,7 +60,7 @@ Future<void> showEditCategoryDialog({
                                 ? 'Ingrese una descripción'
                                 : null,
                   ),
-                  const SizedBox(height: 10),
+                  SizedBox(height: sizedBoxHeight),
                   TextFormField(
                     controller: imagenUrlController,
                     decoration: const InputDecoration(

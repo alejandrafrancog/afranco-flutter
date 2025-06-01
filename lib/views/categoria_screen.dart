@@ -1,6 +1,7 @@
 import 'package:afranco/components/categoria/agregar_categoria_modal.dart';
 import 'package:afranco/components/connectivity/connectivity_wrapper.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:afranco/bloc/categoria_bloc/categoria_bloc.dart';
 import 'package:afranco/bloc/categoria_bloc/categoria_event.dart';
@@ -16,13 +17,42 @@ class CategoriaScreen extends StatefulWidget {
 }
 
 class CategoriaScreenState extends State<CategoriaScreen> {
+  late ScrollController _scrollController;
+  bool _isScrollingDown = false;
+
   @override
   void initState() {
     super.initState();
+    _scrollController = ScrollController();
+    _scrollController.addListener(_scrollListener);
+    
     // Usar addPostFrameCallback para asegurar que el contexto está disponible
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<CategoriaBloc>().add(CategoriaInitEvent());
     });
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_scrollListener);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _scrollListener() {
+    if (_scrollController.position.userScrollDirection == ScrollDirection.reverse) {
+      if (!_isScrollingDown) {
+        setState(() {
+          _isScrollingDown = true;
+        });
+      }
+    } else if (_scrollController.position.userScrollDirection == ScrollDirection.forward) {
+      if (_isScrollingDown) {
+        setState(() {
+          _isScrollingDown = false;
+        });
+      }
+    }
   }
 
   String generarImagenUrl() {
@@ -113,6 +143,7 @@ class CategoriaScreenState extends State<CategoriaScreen> {
                     ),
                   )
                   : ListView.builder(
+                    controller: _scrollController,
                     itemCount: state.categorias.length,
                     itemBuilder: (context, index) {
                       final categoria = state.categorias[index];
@@ -129,10 +160,18 @@ class CategoriaScreenState extends State<CategoriaScreen> {
             return const Center(child: CircularProgressIndicator());
           },
         ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: _agregarCategoria,
-          tooltip: 'Agregar Categoría',
-          child: const Icon(Icons.add),
+        floatingActionButton: AnimatedSlide(
+          duration: const Duration(milliseconds: 300),
+          offset: _isScrollingDown ? const Offset(0, 2) : const Offset(0, 0),
+          child: AnimatedOpacity(
+            duration: const Duration(milliseconds: 300),
+            opacity: _isScrollingDown ? 0.0 : 1.0,
+            child: FloatingActionButton(
+              onPressed: _agregarCategoria,
+              tooltip: 'Agregar Categoría',
+              child: const Icon(Icons.add),
+            ),
+          ),
         ),
       ),
     );
