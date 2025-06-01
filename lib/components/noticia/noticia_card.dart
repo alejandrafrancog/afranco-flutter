@@ -1,7 +1,7 @@
 import 'package:afranco/bloc/reporte_bloc/reporte_bloc.dart';
 import 'package:afranco/bloc/reporte_bloc/reporte_event.dart';
 import 'package:afranco/components/reporte/reporte_modal.dart';
-import 'package:afranco/components/noticia/delete_noticia_modal.dart';
+import 'package:afranco/components/noticia/modales/delete_noticia_modal.dart';
 import 'package:afranco/core/comentario_cache_service.dart';
 import 'package:afranco/core/reporte_cache_service.dart';
 import 'package:afranco/data/reporte_repository.dart';
