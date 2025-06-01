@@ -1,3 +1,4 @@
+import 'package:afranco/constants/constants.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:afranco/bloc/tarea_bloc/tareas_event.dart';
 import 'package:afranco/bloc/tarea_bloc/tareas_state.dart';
@@ -48,9 +49,9 @@ class TareasBloc extends Bloc<TareasEvent, TareasState> {
         ),
       );
     } catch (e) {
-      String mensaje = 'Error al cargar las tareas';
+      String mensaje = AppConstantes.errorCargarTareas;
       if (e is ApiException) {
-        mensaje = e.message ?? 'Error al cargar las tareas';
+        mensaje = e.message ?? AppConstantes.errorCargarTareas;
       }
       emit(state.copyWith(status: TareasStatus.error, errorMessage: mensaje));
     }
@@ -127,7 +128,7 @@ class TareasBloc extends Bloc<TareasEvent, TareasState> {
     } catch (e) {
       String mensaje = 'Error al actualizar la tarea';
       if (e is ApiException) {
-        mensaje = e.message ?? 'Error genérico';
+        mensaje = e.message ?? AppConstantes.errorGenerico;
       }
       emit(state.copyWith(status: TareasStatus.error, errorMessage: mensaje));
     }
@@ -172,7 +173,7 @@ class TareasBloc extends Bloc<TareasEvent, TareasState> {
     } catch (e) {
       String mensaje = 'Error al eliminar la tarea';
       if (e is ApiException) {
-        mensaje = e.message ?? 'Error genérico';
+        mensaje = e.message ?? AppConstantes.errorGenerico;
       }
       emit(state.copyWith(status: TareasStatus.error, errorMessage: mensaje));
     }
@@ -238,7 +239,7 @@ class TareasBloc extends Bloc<TareasEvent, TareasState> {
       String mensaje =
           'Error al ${event.completada ? 'completar' : 'descompletar'} la tarea';
       if (e is ApiException) {
-        mensaje = e.message ?? 'Error genérico';
+        mensaje = e.message ?? AppConstantes.errorGenerico;
       }
       emit(state.copyWith(status: TareasStatus.error, errorMessage: mensaje));
     }

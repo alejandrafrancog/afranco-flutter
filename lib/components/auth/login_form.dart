@@ -16,14 +16,13 @@ class LoginForm extends StatelessWidget {
     return Card(
       elevation: 8,
       shadowColor: Colors.black.withAlpha(25),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       child: Padding(
         padding: const EdgeInsets.all(24.0),
         child: Column(
           children: [
             AuthTextField(
+              key: const ValueKey('username_field'),
               controller: usernameController,
               labelText: 'Usuario',
               prefixIcon: Icons.person_outline,
@@ -34,10 +33,11 @@ class LoginForm extends StatelessWidget {
                 return null;
               },
             ),
-            
+
             const SizedBox(height: 20),
 
             AuthTextField(
+              key: const ValueKey('password_field'),
               controller: passwordController,
               labelText: 'Contraseña',
               prefixIcon: Icons.lock_outline,

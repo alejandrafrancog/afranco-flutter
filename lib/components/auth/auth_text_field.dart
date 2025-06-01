@@ -31,20 +31,7 @@ class _AuthTextFieldState extends State<AuthTextField> {
       decoration: InputDecoration(
         labelText: widget.labelText,
         prefixIcon: Icon(widget.prefixIcon),
-        suffixIcon: widget.isPassword
-            ? IconButton(
-                icon: Icon(
-                  _isPasswordVisible
-                      ? Icons.visibility_off_outlined
-                      : Icons.visibility_outlined,
-                ),
-                onPressed: () {
-                  setState(() {
-                    _isPasswordVisible = !_isPasswordVisible;
-                  });
-                },
-              )
-            : null,
+        suffixIcon: _buildSuffixIcon(),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
           borderSide: BorderSide(color: Colors.grey[300]!),
@@ -78,5 +65,30 @@ class _AuthTextFieldState extends State<AuthTextField> {
       validator: widget.validator,
     );
   }
-}
 
+  /// Construye el ícono del sufijo para campos de contraseña
+  Widget? _buildSuffixIcon() {
+    if (!widget.isPassword) {
+      return null;
+    }
+
+    return IconButton(
+      icon: Icon(_getVisibilityIcon()),
+      onPressed: _togglePasswordVisibility,
+    );
+  }
+
+  /// Retorna el ícono apropiado basado en la visibilidad de la contraseña
+  IconData _getVisibilityIcon() {
+    return _isPasswordVisible
+        ? Icons.visibility_off_outlined
+        : Icons.visibility_outlined;
+  }
+
+  /// Cambia la visibilidad de la contraseña
+  void _togglePasswordVisibility() {
+    setState(() {
+      _isPasswordVisible = !_isPasswordVisible;
+    });
+  }
+}

@@ -291,7 +291,7 @@ class NoticiaBloc extends Bloc<NoticiaEvent, NoticiaState> {
       emit(
         NoticiaErrorState(
           error: e,
-          noticias: [],
+          noticias: const [],
           tieneMas: false,
           ultimaActualizacion: DateTime.now(),
         ),
