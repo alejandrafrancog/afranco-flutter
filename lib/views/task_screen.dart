@@ -100,7 +100,7 @@ class TasksScreenState extends State<TasksScreen> {
         title: BlocBuilder<TareasBloc, TareasState>(
           builder: (context, state) {
             return Text(
-              '${AppConstants.titleAppBar} - Total: ${state.tareas.length}',
+              '${AppConstantes.titleAppBar} - Total: ${state.tareas.length}',
             );
           },
         ),
@@ -197,7 +197,7 @@ class TasksScreenState extends State<TasksScreen> {
                         Icon(Icons.task_alt, size: 64, color: Colors.grey),
                         SizedBox(height: 16),
                         Text(
-                          AppConstants.emptyList,
+                          AppConstantes.emptyList,
                           style: TextStyle(fontSize: 18, color: Colors.grey),
                         ),
                         SizedBox(height: 16),

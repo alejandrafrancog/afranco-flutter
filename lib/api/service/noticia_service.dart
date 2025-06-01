@@ -1,106 +1,17 @@
 import 'dart:async';
-import 'dart:math';
 import 'package:afranco/constants/constants.dart';
 import 'package:afranco/domain/noticia.dart';
-import 'package:afranco/exceptions/api_exception.dart';
 import 'package:afranco/api/service/base_service.dart';
 import 'package:afranco/api/service/comentario_service.dart'; // Agregar esta importación
 import 'package:flutter/foundation.dart';
 import 'package:watch_it/watch_it.dart';
 
 class NoticiaService extends BaseService {
-  static final Random _random = Random();
   final String _baseUrl = ApiConstants.urlNoticias;
   final ComentarioService _comentarioService =
       di<ComentarioService>(); // Instancia del servicio de comentarios
-
-  final _titulosPosibles = [
-    "Se reeligió al presidente en una ajustada votación",
-    "Nueva ley de educación entra en vigor",
-  ];
-
   NoticiaService() : super();
 
-  /// Obtiene noticias paginadas (generadas localmente)
-  Future<List<Noticia>> getNoticiasPaginadas(int pagina) async {
-    try {
-      await Future.delayed(const Duration(seconds: 2));
-
-      if (pagina <= 0) {
-        throw ApiException(
-          message: NoticiaConstants.errorPaginaInvalida,
-          statusCode: 400,
-        );
-      }
-
-      return List.generate(
-        NoticiaConstants.pageSize,
-        (index) => _generarNoticia(pagina, index),
-      );
-    } on ApiException {
-      rethrow;
-    } catch (e) {
-      throw ApiException(
-        message: NoticiaConstants.errorGenerico,
-        statusCode: 520,
-      );
-    }
-  }
-
-  Noticia _generarNoticia(int pagina, int index) {
-    final id = '${pagina}_$index';
-    final fuente =
-        NoticiaConstants.fuentes[_random.nextInt(
-          NoticiaConstants.fuentes.length,
-        )];
-    final diasAleatorios = _random.nextInt(365);
-    final titulo = _titulosPosibles[_random.nextInt(_titulosPosibles.length)];
-
-    return Noticia(
-      id: id,
-      titulo: titulo,
-      fuente: fuente,
-      urlImagen: '',
-      publicadaEl: DateTime.now().subtract(Duration(days: diasAleatorios)),
-      descripcion: _generarContenidoAleatorio(),
-    );
-  }
-
-  String _generarContenidoAleatorio() {
-    const palabras = ['Lorem', 'ipsum', 'dolor', 'sit', 'amet', 'consectetur'];
-
-    return List.generate(
-      50,
-      (_) => palabras[_random.nextInt(palabras.length)],
-    ).join(' ');
-  }
-
-  /// Obtiene noticias de tecnología con paginación
-  Future<List<Noticia>> getTechnologyNews({required int page}) async {
-    final queryParams = {
-      'q': NoticiaConstants.category,
-      'language': NoticiaConstants.language,
-      'pageSize': NoticiaConstants.pageSize,
-      'page': page,
-      'sortBy': 'publishedAt',
-    };
-
-    final data = await get<Map<String, dynamic>>(
-      _baseUrl,
-      queryParameters: queryParams,
-      errorMessage: NoticiaConstants.errorObtenerNoticias,
-    );
-
-    if (data['status'] == 'ok' && data['articles'] != null) {
-      return (data['articles'] as List)
-          .map((json) => NoticiaMapper.fromMap(json))
-          .toList();
-    }
-    throw ApiException(
-      message: NoticiaConstants.errorFormatoInvalido,
-      statusCode: 500,
-    );
-  }
 
   /// Crea una nueva noticia
   Future<void> createNoticia(Noticia noticia) async {
@@ -166,7 +77,10 @@ class NoticiaService extends BaseService {
   }
 
   /// Obtiene todas las noticias tecnológicas
-  Future<List<Noticia>> getTechNews({required int page,List<String> categoriasSeleccionadas = const[]}) async {
+  Future<List<Noticia>> getTechNews({
+    required int page,
+    List<String> categoriasSeleccionadas = const [],
+  }) async {
     debugPrint('📋 Obteniendo noticias de tecnología');
 
     final data = await get<List<dynamic>>(
@@ -176,7 +90,6 @@ class NoticiaService extends BaseService {
 
     return data.map((json) => NoticiaMapper.fromMap(json)).toList();
   }
-  
 
   /// Elimina una noticia por su ID y todos sus comentarios asociados
   Future<void> eliminarNoticia(String id) async {
@@ -201,8 +114,7 @@ class NoticiaService extends BaseService {
       rethrow;
     }
   }
- 
-     
+
   /// Actualiza una noticia y retorna el objeto actualizado
   Future<Noticia> actualizarNoticia(Noticia noticia) async {
     debugPrint('🔄 Actualizando noticia completa con ID: ${noticia.id}');

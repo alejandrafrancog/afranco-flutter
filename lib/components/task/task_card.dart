@@ -21,7 +21,7 @@ class TaskCard extends StatelessWidget {
           color: task.tipo == 'urgente' ? Colors.red : Colors.blue,
         ),
         title: Text(task.titulo),
-        subtitle: Text('${AppConstants.taskTypeLabel}: ${task.tipo}'),
+        subtitle: Text('${AppConstantes.taskTypeLabel}: ${task.tipo}'),
       ),
     );
   }

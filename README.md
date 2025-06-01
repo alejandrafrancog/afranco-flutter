@@ -11,6 +11,7 @@ Proyecto desarrollado en Flutter. Esta aplicación requiere un archivo `.env` pa
 ## 📝 Formato del .env
 
 BEECEPTOR_BASE_URL=https://<yourApiKey>.proxy.beeceptor.com/api
+
 BEECEPTOR_API_KEY=your_api_key_here
 
 
