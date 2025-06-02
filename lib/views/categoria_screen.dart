@@ -25,7 +25,7 @@ class CategoriaScreenState extends State<CategoriaScreen> {
     super.initState();
     _scrollController = ScrollController();
     _scrollController.addListener(_scrollListener);
-    
+
     // Usar addPostFrameCallback para asegurar que el contexto está disponible
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<CategoriaBloc>().add(CategoriaInitEvent());
@@ -40,13 +40,15 @@ class CategoriaScreenState extends State<CategoriaScreen> {
   }
 
   void _scrollListener() {
-    if (_scrollController.position.userScrollDirection == ScrollDirection.reverse) {
+    if (_scrollController.position.userScrollDirection ==
+        ScrollDirection.reverse) {
       if (!_isScrollingDown) {
         setState(() {
           _isScrollingDown = true;
         });
       }
-    } else if (_scrollController.position.userScrollDirection == ScrollDirection.forward) {
+    } else if (_scrollController.position.userScrollDirection ==
+        ScrollDirection.forward) {
       if (_isScrollingDown) {
         setState(() {
           _isScrollingDown = false;
@@ -147,13 +149,7 @@ class CategoriaScreenState extends State<CategoriaScreen> {
                     itemCount: state.categorias.length,
                     itemBuilder: (context, index) {
                       final categoria = state.categorias[index];
-                      return CategoryCard(
-                        category: categoria,
-                        onCategoriaEliminada:
-                            () => context.read<CategoriaBloc>().add(
-                              CategoriaInitEvent(),
-                            ),
-                      );
+                      return CategoryCard(category: categoria);
                     },
                   );
             }

@@ -1,17 +1,16 @@
 import 'package:afranco/domain/categoria.dart';
-import 'package:afranco/data/categoria_repository.dart';
+import 'package:afranco/bloc/categoria_bloc/categoria_bloc.dart';
+import 'package:afranco/bloc/categoria_bloc/categoria_event.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:afranco/components/categoria/edit_category_modal.dart';
-import 'package:watch_it/watch_it.dart';
 
 class CategoryCard extends StatelessWidget {
   final Categoria category;
-  final VoidCallback onCategoriaEliminada;
-  final CategoriaRepository repository = di<CategoriaRepository>();
-  CategoryCard({
+
+  const CategoryCard({
     super.key,
     required this.category,
-    required this.onCategoriaEliminada,
   });
 
   @override
@@ -29,9 +28,8 @@ class CategoryCard extends StatelessWidget {
             width: 60,
             height: 60,
             fit: BoxFit.cover,
-            errorBuilder:
-                (context, error, stackTrace) =>
-                    const Icon(Icons.broken_image, size: 60),
+            errorBuilder: (context, error, stackTrace) =>
+                const Icon(Icons.broken_image, size: 60),
           ),
         ),
         title: Text(
@@ -44,15 +42,20 @@ class CategoryCard extends StatelessWidget {
           children: [
             IconButton(
               icon: const Icon(Icons.edit),
-              onPressed: () {
-                showEditCategoryDialog(
+              onPressed: () async {
+                final categoriaEditada = await showEditCategoryDialog(
                   context: context,
                   categoria: category,
-                  onCategoriaActualizada: onCategoriaEliminada,
                 );
+                
+                // Si se editó la categoría, disparar el evento de actualización
+                if (categoriaEditada != null && context.mounted) {
+                  context.read<CategoriaBloc>().add(
+                    UpdateCategoriaEvent(categoriaEditada),
+                  );
+                }
               },
             ),
-            
           ],
         ),
       ),

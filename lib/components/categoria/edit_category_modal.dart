@@ -5,10 +5,10 @@ import 'package:afranco/domain/categoria.dart';
 import 'package:afranco/data/categoria_repository.dart';
 import 'package:afranco/noticias_estilos.dart';
 
-Future<void> showEditCategoryDialog({
+// CAMBIO PRINCIPAL: Retorna Categoria? en lugar de usar callback
+Future<Categoria?> showEditCategoryDialog({
   required BuildContext context,
   required Categoria categoria,
-  required VoidCallback onCategoriaActualizada,
 }) async {
   final controllers = _createControllers(categoria);
   final formKey = GlobalKey<FormState>();
@@ -17,17 +17,22 @@ Future<void> showEditCategoryDialog({
   final result = await _showEditDialog(context, controllers, formKey);
   
   if (result != null) {
-    if(!context.mounted) return; // Check if context is still mounted
-    await _handleCategoryUpdate(
+    if(!context.mounted) return null;
+    
+    // Actualizar en la API y retornar la categoría editada
+    final categoriaEditada = await _handleCategoryUpdate(
       context,
       categoriaService,
       categoria.id!,
       result,
-      onCategoriaActualizada,
     );
+    
+    _disposeControllers(controllers);
+    return categoriaEditada; // Retornar la categoría editada
   }
 
   _disposeControllers(controllers);
+  return null; // No se editó nada
 }
 
 Map<String, TextEditingController> _createControllers(Categoria categoria) {
@@ -144,12 +149,12 @@ Categoria _createCategoriaFromControllers(
   );
 }
 
-Future<void> _handleCategoryUpdate(
+// CAMBIO: Esta función ahora retorna la categoría editada
+Future<Categoria?> _handleCategoryUpdate(
   BuildContext context,
   CategoriaRepository categoriaService,
   String categoriaId,
   Categoria nuevaCategoria,
-  VoidCallback onCategoriaActualizada,
 ) async {
   try {
     final categoriaConId = Categoria(
@@ -160,11 +165,12 @@ Future<void> _handleCategoryUpdate(
     );
     
     await categoriaService.editarCategoria(categoriaId, categoriaConId);
-    onCategoriaActualizada();
     
     if (context.mounted) {
       SnackBarHelper.showSuccess(context, CategoriaConstants.successUpdated);
     }
+    
+    return categoriaConId; // Retornar la categoría editada
   } catch (e) {
     if (context.mounted) {
       SnackBarHelper.showClientError(
@@ -172,5 +178,6 @@ Future<void> _handleCategoryUpdate(
         CategoriaConstants.errorUpdated,
       );
     }
+    return null; // Error al actualizar
   }
 }
