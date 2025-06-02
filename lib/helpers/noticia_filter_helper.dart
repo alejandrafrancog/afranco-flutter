@@ -1,4 +1,5 @@
 import 'package:afranco/bloc/noticia_bloc/noticia_event.dart';
+import 'package:afranco/bloc/preferencia_bloc/preferencia_event.dart';
 import 'package:afranco/views/preferencia_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -14,10 +15,16 @@ class NoticiaFilterHelper {
            noticiaBloc.tienesFiltrosActivos;
   }
 
+  // ✅ SOLUCIÓN: Sincronizar ambos BLoCs al limpiar filtros
   static void limpiarFiltros(BuildContext context) {
+    // 1. Limpiar el estado de preferencias (esto actualiza los checkboxes)
+    context.read<PreferenciaBloc>().add(const ReiniciarFiltros());
+    
+    // 2. Limpiar los filtros en el NoticiaBloc
     context.read<NoticiaBloc>().add(
       FilterNoticiasByPreferencias([]),
     );
+    
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('Filtros limpiados - Mostrando todas las noticias'),
@@ -35,6 +42,12 @@ class NoticiaFilterHelper {
     ).then((categoriasSeleccionadas) {
       if (categoriasSeleccionadas != null) {
         if(!(context.mounted)) return;
+        
+        // ✅ MEJORA: Actualizar también el PreferenciaBloc para mantener sincronización
+        context.read<PreferenciaBloc>().add(
+          SavePreferencias(categoriasSeleccionadas: categoriasSeleccionadas),
+        );
+        
         context.read<NoticiaBloc>().add(
           FilterNoticiasByPreferencias(categoriasSeleccionadas),
         );
@@ -46,5 +59,18 @@ class NoticiaFilterHelper {
     return tienesFiltros
         ? 'Filtros aplicados: $cantidadNoticias noticias'
         : 'Cargadas $cantidadNoticias noticias';
+  }
+
+  // ✅ NUEVO: Método auxiliar para sincronizar estados
+  static void sincronizarFiltros(BuildContext context, List<String> categorias) {
+    // Actualizar PreferenciaBloc
+    context.read<PreferenciaBloc>().add(
+      SavePreferencias(categoriasSeleccionadas: categorias),
+    );
+    
+    // Actualizar NoticiaBloc
+    context.read<NoticiaBloc>().add(
+      FilterNoticiasByPreferencias(categorias),
+    );
   }
 }

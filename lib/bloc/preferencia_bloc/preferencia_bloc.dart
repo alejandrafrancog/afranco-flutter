@@ -16,8 +16,6 @@ class PreferenciaBloc extends Bloc<PreferenciaEvent, PreferenciaState> {
     on<CambiarMostrarFavoritos>(_onCambiarMostrarFavoritos);
     on<SavePreferencias>(_onSavePreferencias);
     on<BuscarPorPalabraClave>(_onBuscarPorPalabraClave);
-    on<FiltrarPorFecha>(_onFiltrarPorFecha);
-    on<CambiarOrdenamiento>(_onCambiarOrdenamiento);
     on<ReiniciarFiltros>(_onReiniciarFiltros);
   }
 
@@ -110,32 +108,6 @@ class PreferenciaBloc extends Bloc<PreferenciaEvent, PreferenciaState> {
     // Como el repositorio original no maneja esta preferencia,
     // solo actualizamos el estado en memoria
     final nuevoEstado = state.copyWith(palabraClave: event.palabraClave);
-    emit(nuevoEstado);
-  }
-
-  void _onFiltrarPorFecha(
-    FiltrarPorFecha event,
-    Emitter<PreferenciaState> emit,
-  ) {
-    // Como el repositorio original no maneja esta preferencia,
-    // solo actualizamos el estado en memoria
-    final nuevoEstado = state.copyWith(
-      fechaDesde: event.fechaDesde,
-      fechaHasta: event.fechaHasta,
-    );
-    emit(nuevoEstado);
-  }
-
-  void _onCambiarOrdenamiento(
-    CambiarOrdenamiento event,
-    Emitter<PreferenciaState> emit,
-  ) {
-    // Como el repositorio original no maneja esta preferencia,
-    // solo actualizamos el estado en memoria
-    final nuevoEstado = state.copyWith(
-      ordenarPor: event.ordenarPor,
-      ascendente: event.ascendente,
-    );
     emit(nuevoEstado);
   }
 

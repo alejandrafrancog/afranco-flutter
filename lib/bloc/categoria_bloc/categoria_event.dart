@@ -20,9 +20,3 @@ class UpdateCategoriaEvent extends CategoriaEvent {
   UpdateCategoriaEvent(this.categoria);
   @override List<Object?> get props => [categoria];
 }
-
-class DeleteCategoriaEvent extends CategoriaEvent {
-  final String categoriaId;
-  DeleteCategoriaEvent(this.categoriaId);
-  @override List<Object?> get props => [categoriaId];
-}

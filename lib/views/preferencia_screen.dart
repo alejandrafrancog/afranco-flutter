@@ -29,10 +29,15 @@ class PreferenciasScreen extends StatelessWidget {
         appBar: AppBar(
           title: const Text('Preferencias'),
           backgroundColor: Theme.of(context).colorScheme.primary,
-          foregroundColor: Theme.of(context).colorScheme.secondary,
+          foregroundColor: Colors.white,
           actions: [
             IconButton(
               icon: const Icon(Icons.refresh),
+              style: ButtonStyle(
+              foregroundColor: WidgetStateProperty.all<Color>(
+                Colors.white,
+              ),
+          ),
               onPressed:
                   () => context.read<PreferenciaBloc>().add(
                     const ReiniciarFiltros(),
@@ -222,7 +227,7 @@ class PreferenciasScreen extends StatelessWidget {
             onPressed: onRetry,
             icon: const Icon(Icons.refresh),
             label: const Text('Reintentar'),
-          ),
+            )
         ],
       ),
     );

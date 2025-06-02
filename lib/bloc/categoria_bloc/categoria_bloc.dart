@@ -13,7 +13,6 @@ class CategoriaBloc extends Bloc<CategoriaEvent, CategoriaState> {
     on<CategoriaInitEvent>(_onInit);
     on<CreateCategoriaEvent>(_onCreateCategoria);
     on<UpdateCategoriaEvent>(_onUpdateCategoria);
-    on<DeleteCategoriaEvent>(_onDeleteCategoria);
   }
 
   Future<void> _onInit(CategoriaInitEvent event, Emitter<CategoriaState> emit) async {
@@ -79,28 +78,5 @@ class CategoriaBloc extends Bloc<CategoriaEvent, CategoriaState> {
     }
   }
 
-  Future<void> _onDeleteCategoria(
-    DeleteCategoriaEvent event,
-    Emitter<CategoriaState> emit,
-  ) async {
-    try {
-      emit(CategoriaLoading());
-      
-      // Eliminar la categoría
-      await categoriaRepository.eliminarCategoria(event.categoriaId);
-      
-      // Invalidar cache para forzar actualización
-      _cacheService.invalidateCache();
-      
-      // Obtener categorías actualizadas
-      final categoriasActualizadas = await categoriaRepository.getCategorias();
-      
-      // Actualizar cache con los nuevos datos
-      _cacheService.updateCache(categoriasActualizadas);
-      
-      emit(CategoriaLoaded(categoriasActualizadas, DateTime.now()));
-    } catch (e) {
-      emit(CategoriaError('Error al eliminar: ${e.toString()}'));
-    }
-  }
+
 }
