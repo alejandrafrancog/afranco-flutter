@@ -1,31 +1,43 @@
 import 'dart:async';
-import 'package:afranco/constants/constants.dart';
-import 'package:afranco/core/api_config.dart';
 import 'package:afranco/domain/login_request.dart';
 import 'package:afranco/domain/login_response.dart';
 import 'package:afranco/api/service/base_service.dart';
-import 'package:flutter/material.dart';
+import 'package:afranco/exceptions/api_exception.dart';
 
 class AuthService extends BaseService {
   AuthService() : super();
 
   Future<LoginResponse> login(LoginRequest request) async {
     try {
-      debugPrint('🔐 Intentando login con usuario: ${request.username}');
-      debugPrint(
-        '🌐 URL: ${ApiConfig.beeceptorBaseUrl}${ApiConstantes.loginEndpoint}',
-      );
+      dynamic data;
+      final List<LoginRequest> usuariosTest = [
+        const LoginRequest(username: 'profeltes', password: 'sodep'),
+        const LoginRequest(username: 'Moni', password: 'sodep'),
+        const LoginRequest(username: 'sodep', password: 'sodep'),
+        const LoginRequest(username: 'visitante', password: 'sodep'),
+      ];
 
-      final data = await post(
-        ApiConstantes.loginEndpoint,
-        data: request.toJson(),
+      // Verificar si las credenciales coinciden con algún usuario de prueba
+      bool credencialesValidas = usuariosTest.any(
+        (usuario) =>
+            usuario.username == request.username &&
+            usuario.password == request.password,
       );
+       if (credencialesValidas) {
+        data = await postUnauthorized('/login', data: request.toJson());
+      }
 
-      debugPrint('✅ Login exitoso');
-      return LoginResponseMapper.fromMap(data);
+      if (data != null) {
+        return LoginResponseMapper.fromMap(data);
+      } else {
+        throw ApiException(message:'Error de autenticación: respuesta vacía',statusCode: null);
+      }
     } catch (e) {
-      debugPrint('❌ Error en login: $e');
-      rethrow;
+      if (e is ApiException) {
+        rethrow;
+      } else {
+        throw ApiException(message:'Error en login',statusCode: null);
+      }
     }
   }
 }
