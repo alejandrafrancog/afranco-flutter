@@ -26,6 +26,9 @@ class NoticiaCard extends StatelessWidget {
   final VoidCallback onDelete;
   final reporteRepository = di<ReporteRepository>();
 
+  // ✅ NUEVA CONSTANTE - Límite máximo de reportes por noticia
+  static const int MAX_REPORTES_POR_NOTICIA = 3;
+
   NoticiaCard({
     super.key,
     required this.noticia,
@@ -41,6 +44,39 @@ class NoticiaCard extends StatelessWidget {
       MaterialPageRoute(
         builder: (context) => NoticiaDetailScreen(noticia: noticia),
       ),
+    );
+  }
+
+  // ✅ NUEVA FUNCIÓN - Verificar si se puede reportar
+  bool _puedeReportar(int cantidadReportes) {
+    return cantidadReportes < MAX_REPORTES_POR_NOTICIA;
+  }
+
+  // ✅ NUEVA FUNCIÓN - Mostrar diálogo de límite alcanzado
+  void _mostrarDialogoLimiteAlcanzado(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Row(
+            children: [
+              Icon(Icons.info, color: Colors.orange),
+              SizedBox(width: 8),
+              Text('Límite alcanzado'),
+            ],
+          ),
+          content: const Text(
+            'Esta noticia ya ha alcanzado el límite máximo de $MAX_REPORTES_POR_NOTICIA reportes.',
+            style: TextStyle(fontSize: 16),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Entendido'),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -254,50 +290,75 @@ class NoticiaCard extends StatelessWidget {
                           ),
                         ),
 
-                        // CONTADOR DE REPORTES CON STREAM BUILDER
+                        // ✅ MODIFICACIÓN - CONTADOR DE REPORTES CON LÍMITE Y STREAM BUILDER
                         GestureDetector(
                           onTap: () {}, // Evita propagación
-                          child: IconButton(
-                            icon: Row(
-                              children: [
-                                StreamBuilder<int>(
-                                  stream: di<ReporteCacheService>()
-                                      .getReportesCountStream(noticia.id ?? ''),
-                                  initialData: 0,
-                                  builder: (context, snapshot) {
-                                    final count = snapshot.data ?? 0;
-                                    return Text(
+                          child: StreamBuilder<int>(
+                            stream: di<ReporteCacheService>()
+                                .getReportesCountStream(noticia.id ?? ''),
+                            initialData: 0,
+                            builder: (context, snapshot) {
+                              final count = snapshot.data ?? 0;
+                              final puedeReportar = _puedeReportar(count);
+                              
+                              return IconButton(
+                                icon: Row(
+                                  children: [
+                                    Text(
                                       '$count',
-                                      style: NoticiaEstilos.fuenteNoticia,
-                                    );
-                                  },
+                                      style: NoticiaEstilos.fuenteNoticia.copyWith(
+                                        // ✅ Cambiar color si ha alcanzado el límite
+                                        color: !puedeReportar ? Colors.red : Colors.grey,
+                                        fontWeight: !puedeReportar ? FontWeight.bold : null,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 4),
+                                    if (puedeReportar)
+                                      const Icon(
+                                      Icons.warning_amber,
+                                      size: 24,
+                                      color:  Colors.red,
+                                    ),
+                                    
+                                    // ✅ Mostrar indicador de límite alcanzado
+                                    if (!puedeReportar)
+                                      const Icon(
+                                        Icons.warning_amber,
+                                        size: 24,
+                                        color: Colors.grey,
+                                      ),
+                                  ],
                                 ),
-                                const SizedBox(width: 4),
-                                const Icon(
-                                  Icons.warning_amber,
-                                  size: 24,
-                                  color: Colors.red,
-                                ),
-                              ],
-                            ),
-                            tooltip: 'Reportes de esta noticia',
-                            onPressed: () => showDialog(
-                              context: context,
-                              builder: (context) => ReporteModal(
-                                noticiaId: noticia.id ?? '',
-                                onSubmit: (motivo) {
-                                  final bloc = context.read<ReporteBloc>();
-                                  bloc.add(
-                                    ReporteCreateEvent(
+                                tooltip: puedeReportar 
+                                    ? 'Reportar esta noticia'
+                                    : 'Límite de reportes alcanzado ($MAX_REPORTES_POR_NOTICIA/$MAX_REPORTES_POR_NOTICIA)',
+                                onPressed: () {
+                                  // ✅ Verificar límite antes de mostrar modal
+                                  if (!puedeReportar) {
+                                    _mostrarDialogoLimiteAlcanzado(context);
+                                    return;
+                                  }
+                                  
+                                  showDialog(
+                                    context: context,
+                                    builder: (context) => ReporteModal(
                                       noticiaId: noticia.id ?? '',
-                                      motivo: motivo,
+                                      onSubmit: (motivo) {
+                                        final bloc = context.read<ReporteBloc>();
+                                        bloc.add(
+                                          ReporteCreateEvent(
+                                            noticiaId: noticia.id ?? '',
+                                            motivo: motivo,
+                                          ),
+                                        );
+                                        // Ya no necesitamos el refresh manual
+                                        // El stream se actualizará automáticamente
+                                      },
                                     ),
                                   );
-                                  // Ya no necesitamos el refresh manual
-                                  // El stream se actualizará automáticamente
                                 },
-                              ),
-                            ),
+                              );
+                            },
                           ),
                         ),
 
