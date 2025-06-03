@@ -12,9 +12,9 @@ class AuthService extends BaseService {
       dynamic data;
       final List<LoginRequest> usuariosTest = [
         const LoginRequest(username: 'profeltes', password: 'sodep'),
-        const LoginRequest(username: 'Moni', password: 'sodep'),
+        const LoginRequest(username: 'monimoney', password: 'sodep'),
         const LoginRequest(username: 'sodep', password: 'sodep'),
-        const LoginRequest(username: 'visitante', password: 'sodep'),
+        const LoginRequest(username: 'gricequeen', password: 'sodep'),
       ];
 
       // Verificar si las credenciales coinciden con algún usuario de prueba
