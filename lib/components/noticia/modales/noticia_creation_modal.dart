@@ -137,7 +137,7 @@ class _NoticiaCreationModalState extends State<NoticiaCreationModal> {
                   if (value == null || value.isEmpty) {
                     return null; // Permitir vacío
                   }
-                  final urlPattern = r'^(https?:\/\/)[^\s$.?#].[^\s]*$';
+                  const urlPattern = r'^(https?:\/\/)[^\s$.?#].[^\s]*$';
                   final result = RegExp(
                     urlPattern,
                     caseSensitive: false,
@@ -166,12 +166,6 @@ class _NoticiaCreationModalState extends State<NoticiaCreationModal> {
                 },
                 validator: (_) => null,
               ),
-
-              /*TextFormField(
-                controller: _urlController,
-                decoration: const InputDecoration(labelText: 'URL Noticia'),
-                keyboardType: TextInputType.url,
-              ),*/
             ],
           ),
         ),

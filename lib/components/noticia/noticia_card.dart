@@ -26,8 +26,7 @@ class NoticiaCard extends StatelessWidget {
   final VoidCallback onDelete;
   final reporteRepository = di<ReporteRepository>();
 
-  // ✅ NUEVA CONSTANTE - Límite máximo de reportes por noticia
-  static const int MAX_REPORTES_POR_NOTICIA = 3;
+  static const int maxReportesPorNoticia = 3;
 
   NoticiaCard({
     super.key,
@@ -37,7 +36,6 @@ class NoticiaCard extends StatelessWidget {
     required this.onDelete,
   });
 
-  // ✅ NUEVA FUNCIÓN - Navegar a la pantalla de detalle
   void _navigateToDetail(BuildContext context) {
     Navigator.push(
       context,
@@ -47,12 +45,10 @@ class NoticiaCard extends StatelessWidget {
     );
   }
 
-  // ✅ NUEVA FUNCIÓN - Verificar si se puede reportar
   bool _puedeReportar(int cantidadReportes) {
-    return cantidadReportes < MAX_REPORTES_POR_NOTICIA;
+    return cantidadReportes < maxReportesPorNoticia;
   }
 
-  // ✅ NUEVA FUNCIÓN - Mostrar diálogo de límite alcanzado
   void _mostrarDialogoLimiteAlcanzado(BuildContext context) {
     showDialog(
       context: context,
@@ -66,7 +62,7 @@ class NoticiaCard extends StatelessWidget {
             ],
           ),
           content: const Text(
-            'Esta noticia ya ha alcanzado el límite máximo de $MAX_REPORTES_POR_NOTICIA reportes.',
+            'Esta noticia ya ha alcanzado el límite máximo de $maxReportesPorNoticia reportes.',
             style: TextStyle(fontSize: 16),
           ),
           actions: [
@@ -95,7 +91,7 @@ class NoticiaCard extends StatelessWidget {
           ),
         ],
       ),
-      // ✅ MODIFICACIÓN - Envolver en GestureDetector para navegación
+
       child: GestureDetector(
         onTap: () => _navigateToDetail(context),
         child: ClipRRect(
@@ -123,7 +119,10 @@ class NoticiaCard extends StatelessWidget {
                 child: Container(
                   decoration: BoxDecoration(
                     color: const Color(0xFFEDF6F9),
-                    border: Border.all(color: const Color(0xFFEDF6F9), width: 2),
+                    border: Border.all(
+                      color: const Color(0xFFEDF6F9),
+                      width: 2,
+                    ),
                     borderRadius: BorderRadius.circular(82),
                   ),
                   child: FutureBuilder<String>(
@@ -163,7 +162,10 @@ class NoticiaCard extends StatelessWidget {
 
               // Contenido: Imagen + Descripción
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 12,
+                ),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -247,7 +249,6 @@ class NoticiaCard extends StatelessWidget {
                       ),
                     ),
 
-                    // Iconos - ✅ MODIFICACIÓN: Evitar propagación del tap
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -259,7 +260,9 @@ class NoticiaCard extends StatelessWidget {
                               children: [
                                 StreamBuilder<int>(
                                   stream: di<ComentarioCacheService>()
-                                      .getNumeroComentariosStream(noticia.id ?? ''),
+                                      .getNumeroComentariosStream(
+                                        noticia.id ?? '',
+                                      ),
                                   initialData: 0,
                                   builder: (context, snapshot) {
                                     final count = snapshot.data ?? 0;
@@ -281,16 +284,16 @@ class NoticiaCard extends StatelessWidget {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => ComentarioScreen(
-                                    noticiaId: noticia.id ?? '',
-                                  ),
+                                  builder:
+                                      (context) => ComentarioScreen(
+                                        noticiaId: noticia.id ?? '',
+                                      ),
                                 ),
                               );
                             },
                           ),
                         ),
 
-                        // ✅ MODIFICACIÓN - CONTADOR DE REPORTES CON LÍMITE Y STREAM BUILDER
                         GestureDetector(
                           onTap: () {}, // Evita propagación
                           child: StreamBuilder<int>(
@@ -300,27 +303,32 @@ class NoticiaCard extends StatelessWidget {
                             builder: (context, snapshot) {
                               final count = snapshot.data ?? 0;
                               final puedeReportar = _puedeReportar(count);
-                              
+
                               return IconButton(
                                 icon: Row(
                                   children: [
                                     Text(
                                       '$count',
-                                      style: NoticiaEstilos.fuenteNoticia.copyWith(
-                                        // ✅ Cambiar color si ha alcanzado el límite
-                                        color: !puedeReportar ? Colors.red : Colors.grey,
-                                        fontWeight: !puedeReportar ? FontWeight.bold : null,
-                                      ),
+                                      style: NoticiaEstilos.fuenteNoticia
+                                          .copyWith(
+                                            color:
+                                                !puedeReportar
+                                                    ? Colors.red
+                                                    : Colors.grey,
+                                            fontWeight:
+                                                !puedeReportar
+                                                    ? FontWeight.bold
+                                                    : null,
+                                          ),
                                     ),
                                     const SizedBox(width: 4),
                                     if (puedeReportar)
                                       const Icon(
-                                      Icons.warning_amber,
-                                      size: 24,
-                                      color:  Colors.red,
-                                    ),
-                                    
-                                    // ✅ Mostrar indicador de límite alcanzado
+                                        Icons.warning_amber,
+                                        size: 24,
+                                        color: Colors.red,
+                                      ),
+
                                     if (!puedeReportar)
                                       const Icon(
                                         Icons.warning_amber,
@@ -329,32 +337,34 @@ class NoticiaCard extends StatelessWidget {
                                       ),
                                   ],
                                 ),
-                                tooltip: puedeReportar 
-                                    ? 'Reportar esta noticia'
-                                    : 'Límite de reportes alcanzado ($MAX_REPORTES_POR_NOTICIA/$MAX_REPORTES_POR_NOTICIA)',
+                                tooltip:
+                                    puedeReportar
+                                        ? 'Reportar esta noticia'
+                                        : 'Límite de reportes alcanzado ($maxReportesPorNoticia/$maxReportesPorNoticia)',
                                 onPressed: () {
-                                  // ✅ Verificar límite antes de mostrar modal
                                   if (!puedeReportar) {
                                     _mostrarDialogoLimiteAlcanzado(context);
                                     return;
                                   }
-                                  
+
                                   showDialog(
                                     context: context,
-                                    builder: (context) => ReporteModal(
-                                      noticiaId: noticia.id ?? '',
-                                      onSubmit: (motivo) {
-                                        final bloc = context.read<ReporteBloc>();
-                                        bloc.add(
-                                          ReporteCreateEvent(
-                                            noticiaId: noticia.id ?? '',
-                                            motivo: motivo,
-                                          ),
-                                        );
-                                        // Ya no necesitamos el refresh manual
-                                        // El stream se actualizará automáticamente
-                                      },
-                                    ),
+                                    builder:
+                                        (context) => ReporteModal(
+                                          noticiaId: noticia.id ?? '',
+                                          onSubmit: (motivo) {
+                                            final bloc =
+                                                context.read<ReporteBloc>();
+                                            bloc.add(
+                                              ReporteCreateEvent(
+                                                noticiaId: noticia.id ?? '',
+                                                motivo: motivo,
+                                              ),
+                                            );
+                                            // Ya no necesitamos el refresh manual
+                                            // El stream se actualizará automáticamente
+                                          },
+                                        ),
                                   );
                                 },
                               );
@@ -373,10 +383,11 @@ class NoticiaCard extends StatelessWidget {
                                 case 'delete':
                                   showDialog(
                                     context: context,
-                                    builder: (c) => NoticiaDeleteModal(
-                                      noticia: noticia,
-                                      id: noticia.id ?? '',
-                                    ),
+                                    builder:
+                                        (c) => NoticiaDeleteModal(
+                                          noticia: noticia,
+                                          id: noticia.id ?? '',
+                                        ),
                                   ).then((resultado) {
                                     if (resultado == true) {
                                       onDelete();
@@ -388,38 +399,39 @@ class NoticiaCard extends StatelessWidget {
                                   break;
                               }
                             },
-                            itemBuilder: (BuildContext context) => [
-                              const PopupMenuItem<String>(
-                                value: 'view_detail',
-                                child: Row(
-                                  children: [
-                                    Icon(Icons.article, size: 15),
-                                    SizedBox(width: 8),
-                                    Text('Ver detalle'),
-                                  ],
-                                ),
-                              ),
-                              const PopupMenuItem<String>(
-                                value: 'edit',
-                                child: Row(
-                                  children: [
-                                    Icon(Icons.edit, size: 15),
-                                    SizedBox(width: 8),
-                                    Text('Editar'),
-                                  ],
-                                ),
-                              ),
-                              const PopupMenuItem<String>(
-                                value: 'delete',
-                                child: Row(
-                                  children: [
-                                    Icon(Icons.delete, size: 15),
-                                    SizedBox(width: 8),
-                                    Text('Eliminar'),
-                                  ],
-                                ),
-                              ),
-                            ],
+                            itemBuilder:
+                                (BuildContext context) => [
+                                  const PopupMenuItem<String>(
+                                    value: 'view_detail',
+                                    child: Row(
+                                      children: [
+                                        Icon(Icons.article, size: 15),
+                                        SizedBox(width: 8),
+                                        Text('Ver detalle'),
+                                      ],
+                                    ),
+                                  ),
+                                  const PopupMenuItem<String>(
+                                    value: 'edit',
+                                    child: Row(
+                                      children: [
+                                        Icon(Icons.edit, size: 15),
+                                        SizedBox(width: 8),
+                                        Text('Editar'),
+                                      ],
+                                    ),
+                                  ),
+                                  const PopupMenuItem<String>(
+                                    value: 'delete',
+                                    child: Row(
+                                      children: [
+                                        Icon(Icons.delete, size: 15),
+                                        SizedBox(width: 8),
+                                        Text('Eliminar'),
+                                      ],
+                                    ),
+                                  ),
+                                ],
                             icon: const Icon(Icons.more_vert),
                             tooltip: 'Más acciones',
                           ),
@@ -436,26 +448,27 @@ class NoticiaCard extends StatelessWidget {
     );
   }
 
-  // ✅ NUEVA FUNCIÓN - Widget Hero para la imagen
   Widget _buildHeroImage() {
     return Hero(
       tag: 'noticia-image-${noticia.id}',
       child: SizedBox(
         height: 0, // Altura 0 para que no ocupe espacio visual
         width: double.infinity,
-        child: imageUrl.isNotEmpty
-            ? Image.network(
-                imageUrl,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) => Container(
+        child:
+            imageUrl.isNotEmpty
+                ? Image.network(
+                  imageUrl,
+                  fit: BoxFit.cover,
+                  errorBuilder:
+                      (context, error, stackTrace) => Container(
+                        color: Colors.grey.shade200,
+                        child: const Icon(Icons.image_not_supported),
+                      ),
+                )
+                : Container(
                   color: Colors.grey.shade200,
-                  child: const Icon(Icons.image_not_supported),
+                  child: const Icon(Icons.image),
                 ),
-              )
-            : Container(
-                color: Colors.grey.shade200,
-                child: const Icon(Icons.image),
-              ),
       ),
     );
   }

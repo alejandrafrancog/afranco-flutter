@@ -33,7 +33,6 @@ class _NoticiaEditModalState extends State<NoticiaEditModal> {
   final CategoriaRepository _categoriaRepo = CategoriaRepository();
   final double? sizedBoxHeight = 20.5;
 
-
   late String _selectedCategoryId;
   List<Categoria> _categorias = [];
   bool _isLoading = true;
@@ -105,7 +104,9 @@ class _NoticiaEditModalState extends State<NoticiaEditModal> {
       if (widget.onNoticiaUpdated != null) {
         widget.onNoticiaUpdated!();
       }
-      if(!mounted){return;}
+      if (!mounted) {
+        return;
+      }
       Navigator.pop(context);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -131,7 +132,7 @@ class _NoticiaEditModalState extends State<NoticiaEditModal> {
                 decoration: const InputDecoration(labelText: 'Título'),
                 validator: (value) => value!.isEmpty ? 'Requerido' : null,
               ),
-              SizedBox(height:sizedBoxHeight),
+              SizedBox(height: sizedBoxHeight),
               TextFormField(
                 controller: _descripcionController,
                 decoration: const InputDecoration(labelText: 'Descripción'),
