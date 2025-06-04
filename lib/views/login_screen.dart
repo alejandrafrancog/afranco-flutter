@@ -21,11 +21,13 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _passwordController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
+  late final username;
+
   void _handleLogin() {
     if (_formKey.currentState?.validate() ?? false) {
       SnackBarHelper.showLoginProgress(context);
       
-      final username = _usernameController.text.trim();
+      username = _usernameController.text.trim();
       final password = _passwordController.text.trim();
 
       context.read<AuthBloc>().add(
@@ -41,7 +43,7 @@ class _LoginScreenState extends State<LoginScreen> {
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
-        builder: (context) => const WelcomeScreen(),
+        builder: (context) => WelcomeScreen(username: username),
       ),
     );
   }
