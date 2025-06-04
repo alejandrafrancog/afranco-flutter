@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import 'package:afranco/theme/colors.dart';
 class NoticiaEstilos {
   static const TextStyle tituloAppBar = TextStyle(
     fontSize: 20,
@@ -12,7 +12,7 @@ class NoticiaEstilos {
     fontSize: 22,
     fontWeight: FontWeight.w900,
     overflow: TextOverflow.ellipsis,
-    color: Color.fromARGB(255, 1, 63, 57),
+    color: AppColors.textPrimary,
   );
 
   static const TextStyle descripcionNoticia = TextStyle(
