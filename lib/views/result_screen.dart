@@ -78,12 +78,12 @@ class ResultScreen extends StatelessWidget {
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                onPressed: () => Navigator.pushAndRemoveUntil(
+                onPressed: () => Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
                     builder: (context) => const StartScreen(),
                   ),
-                  (Route<dynamic> route) => false,
+                  //(Route<dynamic> route) => false,
                 ),
               ),
             ],

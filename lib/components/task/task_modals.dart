@@ -104,3 +104,40 @@ void showAddTaskModal(BuildContext context) {
         ),
   );
 }
+
+  Future<bool?> showDeleteConfirmation(BuildContext context,Task task) {
+    return showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Confirmar eliminación'),
+          content: Text(
+            '¿Estás seguro de que quieres eliminar "${task.titulo}"?',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Cancelar'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).primaryColor,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Text(
+                  'Eliminar',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
