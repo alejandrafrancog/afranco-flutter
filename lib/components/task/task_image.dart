@@ -13,7 +13,7 @@ class TaskImage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
-      borderRadius: BorderRadius.circular(12.0),
+      borderRadius: BorderRadius.circular(10.0),
       child: Image.network(
         'https://picsum.photos/200/300?random=$randomIndex',
         fit: BoxFit.cover,

@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -11,42 +10,46 @@ class CounterBloc extends Bloc<CounterEvent, CounterState> {
     on<DecrementCounter>(_onDecrement);
     on<ResetCounter>(_onReset);
   }
-void _onIncrement(IncrementCounter event, Emitter<CounterState> emit) {
-  final newCount = state.count + 1;
-  emit(CounterState(
-    count: newCount,
-    message: newCount > 0 
-      ? 'Contador en positivo' 
-      : newCount < 0 
-        ? 'Contador en negativo' 
-        : 'Contador en cero',
-    color: newCount > 0 
-      ? Colors.green 
-      : newCount < 0 
-        ? Colors.red 
-        : Colors.black,
-  ));
-}
 
-void _onDecrement(DecrementCounter event, Emitter<CounterState> emit) {
-  final newCount = state.count - 1;
-  emit(CounterState(
-    count: newCount,
-    message: newCount > 0 
-      ? 'Contador en positivo' 
-      : newCount < 0 
-        ? 'Contador en negativo' 
-        : 'Contador en cero',
-    color: newCount > 0 
-      ? Colors.green 
-      : newCount < 0 
-        ? Colors.red 
-        : Colors.black,
-  ));
-}
-    void _onReset(ResetCounter event, Emitter<CounterState> emit) {
+  void _onIncrement(IncrementCounter event, Emitter<CounterState> emit) {
+    final newCount = state.count + 1;
+    emit(_createCounterState(newCount));
+  }
+
+  void _onDecrement(DecrementCounter event, Emitter<CounterState> emit) {
+    final newCount = state.count - 1;
+    emit(_createCounterState(newCount));
+  }
+
+  void _onReset(ResetCounter event, Emitter<CounterState> emit) {
     emit(CounterState.initial());
   }
 
+  CounterState _createCounterState(int count) {
+    return CounterState(
+      count: count,
+      message: _getMessageForCount(count),
+      color: _getColorForCount(count),
+    );
+  }
 
+  String _getMessageForCount(int count) {
+    if (count > 0) {
+      return 'Contador en positivo';
+    } else if (count < 0) {
+      return 'Contador en negativo';
+    } else {
+      return 'Contador en cero';
+    }
+  }
+
+  Color _getColorForCount(int count) {
+    if (count > 0) {
+      return Colors.green;
+    } else if (count < 0) {
+      return Colors.red;
+    } else {
+      return Colors.black;
+    }
+  }
 }

@@ -71,7 +71,7 @@ class NoticiaAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   Widget _buildClearFiltersButton(BuildContext context) {
     return IconButton(
-      icon: const Icon(Icons.clear),
+      icon: const Icon(Icons.filter_alt_off),
       tooltip: 'Limpiar filtros',
       color: Colors.white,
       onPressed: () => NoticiaFilterHelper.limpiarFiltros(context),

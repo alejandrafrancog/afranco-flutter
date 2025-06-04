@@ -4,21 +4,13 @@ class AppConstantes {
   static const String titleAppBarT = 'Lista de Tareas';
   static const String emptyList = 'No hay tareas';
   static const String taskTypeLabel = 'Tipo';
-  static const String pasosTitulo = 'Pasos para completar';
-  static const String fechaLimite = 'Fecha Límite';
   static const String titleAppBar = "Mis Tareas"; // Texto base
   static const int timeoutSeconds = 60;
   static const String errorCargarTareas = 'Error al cargar las tareas';
-  static const String errorCargarCategorias = 'Error al cargar las categorías';
-  static const int pageSize = 10;
   static const String idCategoriaInvalido = 'ID de categoría inválido';
   static const double espaciadoAlto = 10;
   static const String errorTimeOut = 'Tiempo de espera agotado';
-  static const String usuarioDefault = 'Usuario anonimo';
-  static const String errorServer = 'Error del servidor'; //
   static const String errorUnauthorized = 'Se requiere autenticación'; //
-  static const String errorNoInternet = 'Sin conexión a Internet'; //
-  static const String errorInvalidData = 'Datos inválidos'; //
   static const String errorGenerico = 'Error al procesar la solicitud'; //
   static const String tokenNoEncontrado =
       'No se encontró el token de autenticación';
@@ -44,21 +36,8 @@ class AppConstantes {
 
 class TareasConstantes {
   static const String tituloAppBar = 'Mis Tareas';
-  static const String listaVacia = 'No hay tareas';
-  static const String tipoTarea = 'Tipo: ';
-  static const String taskTypeNormal = 'normal';
-  static const String taskTypeUrgent = 'urgente';
-  static const String taskDescription = 'Descripción: ';
-  static const String pasosTitulo = 'Pasos para completar: ';
-  static const String fechaLimite = 'Fecha límite: ';
-  static const String tareaEliminada = 'Tarea eliminada';
-  static const int limitePasos = 2;
-  static const int limiteTareas = 10;
-  // Constantes para cache y persistencia
   static const String cacheTareasKey = 'tarea_cache_prefs';
-  // Mensajes de error
-  static const String errorObtenerTareasPorUsuario =
-      'Error al obtener tareas del usuario';
+  static const String errorObtenerTareasPorUsuario ='Error al obtener tareas del usuario';
   static const String errorObtenerTareas = 'Error al obtener tareas';
   static const String errorAgregarTarea = 'Error al agregar tarea';
   static const String errorEliminarTarea = 'Error al eliminar tarea';
@@ -69,18 +48,7 @@ class TareasConstantes {
 
 class ValidacionConstantes {
   // Mensajes genéricos
-  static const String campoVacio = ' no puede estar vacío';
-  static const String noFuturo = ' no puede estar en el futuro.';
-
-  // Campos comunes
-  static const String imagenUrl = 'URL de la imagen';
-
-  static const String nombreCategoria = 'El nombre de la categoría';
-  static const String descripcionCategoria = 'La descripción de la categoría';
-  static const String tituloNoticia = 'El título de la noticia';
-  static const String descripcionNoticia = 'La descripción de la noticia';
-  static const String fuenteNoticia = 'La fuente de la noticia';
-  static const String fechaNoticia = 'La fecha de la publicación de la noticia';
+  static const String campoVacio = ' no puede estar vacío';  // Campos comunes
 }
 
 class ApiConstantes {
@@ -94,15 +62,11 @@ class ApiConstantes {
 }
 
 class PreferenciaConstantes {
-  static const String mensajeError = 'Error al obtener categorías';
-  static const String errorUpdated = 'Error al guardar preferencias';
-  static const String errorCreated = 'Error al crear la preferencia';
   static const String errorServer = 'Error del servidor en preferencia';
   static const String errorUnauthorized =
       'No autorizado para acceder a preferencia';
   static const String errorInvalidData = 'Datos inválidos en preferencia';
   static const String errorNotFound = 'Preferencia no encontrada';
-  static const String errorInit = 'Error al inicializar preferencias';
 }
 
 class GameConstants {
@@ -114,30 +78,18 @@ class GameConstants {
 }
 
 class QuoteConstants {
-  static const String titleApp = 'Cotizaciones Financieras';
-  static const String loadingMessage = 'Cargando cotizaciones...';
-  static const String emptyList = 'No hay cotizaciones disponibles';
-  static const String errorMessage = 'Error al cargar cotizaciones';
   static const int pageSize = 10; // Tamaño de página para paginación
 }
 
 class ApiConstants {
   static String get baseUrl => ApiConfig.beeceptorBaseUrl;
-  static String errorNotFound = 'No se encontró el recurso';
   static String noticiasEndpoint = 'noticias';
-  static String tareasEndpoint = 'tareasPreferencias';
   static String preferenciasEndpoint = 'preferenciasEmail';
   static String categoryEndpoint = 'categorias';
-  static String comentarioEndpoint = 'comentarios';
   static String urlCategorias = '$baseUrl/$categoryEndpoint';
   static String urlNoticias = '$baseUrl/$noticiasEndpoint';
   static String urlPreferencias = '$baseUrl/$preferenciasEndpoint';
-  static String comentariosUrl = '$baseUrl/$comentarioEndpoint';
-  static String urlTareas = '$baseUrl/$tareasEndpoint';
-  static var serverError = 'Error del servidor!';
-  static int timeoutSeconds = 10;
   static String errorNoInternet = 'No hay conexión a Internet';
-  static var errorUnauthorized = "No autorizado";
 }
 
 class AuthConstants {
@@ -147,13 +99,8 @@ class AuthConstants {
 }
 
 class ReporteConstantes {
-  static const String reporteCreado = 'Reporte enviado con éxito';
-  static const String noticiaNoExiste = 'La noticia reportada no existe';
   static const String errorCrearReporte = 'Error al crear el reporte';
-  static const String errorObtenerReporte = 'Error al obtener el reporte';
   static const String errorObtenerReportes = 'Error al obtener reportes';
-  static const String listaVacia = 'No hay reportes disponibles';
-  static const String mensajeCargando = 'Cargando reportes...';
   static const String errorUnauthorized =
       'No autorizado para acceder a reporte';
   static const errorActualizarReporte = 'Error al actualizar el reporte';
@@ -169,11 +116,7 @@ class ReporteConstantes {
 }
 
 class ComentarioConstantes {
-  static const String mensajeCargando = 'Cargando comentarios...';
-  static const String listaVacia = 'No hay comentarios disponibles';
   static const String errorNotFound = 'Comentario no encontrado';
-  static const String successCreated = 'Comentario agregado exitosamente';
-  static const String successReaction = 'Reacción registrada exitosamente';
   static const String successSubcomentario =
       'Subcomentario agregado exitosamente';
   static const String errorServer = 'Error del servidor en comentario';
@@ -184,19 +127,11 @@ class ComentarioConstantes {
 }
 
 class CategoriaConstants {
-  static String errorNoCategory = 'Categoría no encontrada';
-  static String defaultCategoryId = 'sin_categoria';
   static String sinCategoria = 'Sin categoría';
   static const int timeOutSeconds = 10;
   static String errorNoCategoria = 'Categoría no encontrada';
-  static const String defaultcategoriaId = 'Sin Categoria';
   static const String successUpdated = 'Categoria actualizada exitosamente';
   static const String errorUpdated = 'Error al editar la categoría';
-  static const String successDeleted = 'Categoria eliminada exitosamente';
-  static const String errorDelete = 'Error al eliminar la categoría';
-  static const String errorAdd = 'Error al agregar categoría';
-  static const String successCreated = 'Categoria creada exitosamente';
-  static const String errorCreated = 'Error al crear la categoría';
   static const String errorUnauthorized =
       'No autorizado para acceder a categoría';
   static const String errorInvalidData = 'Datos inválidos en categoria';
@@ -206,24 +141,16 @@ class CategoriaConstants {
 class NoticiaConstants {
   static int pageSize = 10;
   static int timeOutSeconds = 10;
-  static String sinCategoria = "Sin categoría";
   static const String errorObtenerNoticia = 'Error al obtener la noticia';
 
   static const String appTitle = 'Noticias Técnicas';
-  static const String loadingMessage = 'Cargando noticias...';
-  static const String emptyList = 'No hay noticias disponibles';
-  static const String errorMessage = 'Error al cargar noticias';
-  static const String noMoreNews = 'No hay más noticias disponibles';
-  static const double spacingHeight = 10;
   static const String successCreated = 'Noticia creada exitosamente';
   static const String successDeleted = 'Noticia eliminada exitosamente';
   static const String errorUnauthorized =
       'No autorizado para acceder a noticia';
   static const String errorNotFound = 'Noticia no encontrada';
   // Mensajes de error específicos de operaciones
-  static const errorPaginaInvalida = 'Número de página inválido';
   static const errorGenerico = 'Error al procesar las noticias';
-  static const errorObtenerNoticias = 'Error al obtener las noticias';
   static const errorFormatoInvalido = 'Formato de respuesta inválido';
   static const errorCrearNoticia = 'Error al crear la noticia';
   static const errorActualizarNoticia = 'Error al actualizar la noticia';
@@ -234,12 +161,6 @@ class NoticiaConstants {
       'Error al actualizar la noticia completa';
   static const String errorInvalidData = 'Datos inválidos en noticia';
   static const String errorServer = 'Error del servidor en noticia';
-  static const String errorCreated = 'Error al crear la noticia';
-  static const String errorUpdated = 'Error al editar la noticia';
-  static const String errorDelete = 'Error al eliminar la noticia';
-  static const String errorFilter = "Error al filtrar noticias";
-  static const String etiquetaUltimaActualizacion = 'Última actualización';
-  static const String tooltipOrden = 'Cambiar orden';
   static const String idNoticia = 'ID de la noticia';
 }
 
