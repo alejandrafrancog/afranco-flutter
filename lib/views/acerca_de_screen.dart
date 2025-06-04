@@ -56,7 +56,6 @@ class AcercaDeScreen extends StatelessWidget {
       ),
       child: Column(
         children: [
-          // Aquí iría el logo real - por ahora usamos un placeholder
           Container(
             width: 120,
             height: 120,
@@ -270,7 +269,7 @@ class AcercaDeScreen extends StatelessWidget {
               'Bélgica 839 c/ Eusebio Lillo\nAsunción, Paraguay',
             ),
             const SizedBox(height: 12),
-            _buildContactItem(Icons.phone, 'Teléfono', ':(+595) 981-131-694'),
+            _buildContactItem(Icons.phone, 'Teléfono', '(+595) 981-131-694'),
             const SizedBox(height: 12),
             _buildContactItem(Icons.email, 'Email', 'info@sodep.com.py'),
             const SizedBox(height: 12),
