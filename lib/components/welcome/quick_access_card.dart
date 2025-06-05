@@ -29,13 +29,13 @@ class QuickAccessCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: Colors.grey.withOpacity(0.1),
+                color: Colors.grey.withAlpha(25),
                 blurRadius: 10,
                 offset: const Offset(0, 4),
               ),
             ],
             border: Border.all(
-              color: Colors.grey.withOpacity(0.1),
+              color: Colors.grey.withAlpha(25),
               width: 1,
             ),
           ),
@@ -48,7 +48,7 @@ class QuickAccessCard extends StatelessWidget {
                   width: 48,
                   height: 48,
                   decoration: BoxDecoration(
-                    color: color.withOpacity(0.1),
+                    color: color.withAlpha(25),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Icon(

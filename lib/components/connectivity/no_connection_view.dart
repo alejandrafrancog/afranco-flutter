@@ -22,10 +22,9 @@ class NoConnectionView extends StatelessWidget {
           padding: const EdgeInsets.all(24.0),
           child: Column(
             children: [
-              // Spacer para centrar el contenido
+              
               const Spacer(flex: 2),
               
-              // Contenedor principal con sombra y bordes redondeados
               Container(
                 padding: const EdgeInsets.all(32.0),
                 decoration: BoxDecoration(
@@ -33,7 +32,7 @@ class NoConnectionView extends StatelessWidget {
                   borderRadius: BorderRadius.circular(24),
                   boxShadow: [
                     BoxShadow(
-                      color: colorScheme.shadow.withOpacity(0.1),
+                      color: colorScheme.shadow.withAlpha(25),
                       blurRadius: 20,
                       offset: const Offset(0, 4),
                     ),
@@ -48,8 +47,8 @@ class NoConnectionView extends StatelessWidget {
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           colors: [
-                            colorScheme.error.withOpacity(0.1),
-                            colorScheme.error.withOpacity(0.05),
+                            colorScheme.error.withAlpha(25),
+                            colorScheme.error.withAlpha(13),
                           ],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
@@ -88,7 +87,6 @@ class NoConnectionView extends StatelessWidget {
                     
                     const SizedBox(height: 32),
                     
-                    // Botón de reintentar principal
                     SizedBox(
                       width: double.infinity,
                       child: FilledButton.icon(
@@ -105,22 +103,7 @@ class NoConnectionView extends StatelessWidget {
                     ),
                     
                     const SizedBox(height: 12),
-                    
-                    // Botón secundario para volver
-                    /*SizedBox(
-                      width: double.infinity,
-                      child: OutlinedButton.icon(
-                        onPressed: () => Navigator.of(context).pop(),
-                        icon: const Icon(Icons.arrow_back_rounded),
-                        label: const Text('Volver atrás'),
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                      ),
-                    ),*/
+
                   ],
                 ),
               ),

@@ -45,14 +45,14 @@ class WelcomeActions extends StatelessWidget {
       height: 56,
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [color, color.withOpacity(0.8)],
+          colors: [color, color.withAlpha(204)],
           begin: Alignment.centerLeft,
           end: Alignment.centerRight,
         ),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: color.withOpacity(0.3),
+            color: color.withAlpha(50),
             blurRadius: 8,
             offset: const Offset(0, 4),
           ),

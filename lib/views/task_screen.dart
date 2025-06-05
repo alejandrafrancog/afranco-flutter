@@ -123,7 +123,7 @@ class TasksScreenState extends State<TasksScreen>
             child: Text(
               isAtLimit 
                 ? '⚠️ Límite alcanzado ($maxTasksAllowed/$maxTasksAllowed tareas)'
-                : 'Puedes agregar $remaining tarea${remaining != 1 ? 's' : ''} más',
+                : 'Puedes agregar $remaining ${plural(remaining)} más',
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
@@ -157,6 +157,9 @@ class TasksScreenState extends State<TasksScreen>
     if (canAddTask(context, currentTaskCount)) {
       TaskModalHelper.showAddTaskModal(context);
     }
+  }
+  String plural(int remaining) {
+    return remaining == 1 ? 'tarea' : 'tareas';
   }
 
   void _handleStateMessages(BuildContext context, TareasState state) {
