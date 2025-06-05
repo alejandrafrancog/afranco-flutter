@@ -21,7 +21,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _passwordController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  late final username;
+  String username = '';
 
   void _handleLogin() {
     if (_formKey.currentState?.validate() ?? false) {

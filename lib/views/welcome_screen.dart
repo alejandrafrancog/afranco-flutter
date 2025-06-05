@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class WelcomeScreen extends StatelessWidget {
-  final username;
+  final String username;
   const WelcomeScreen({super.key, required this.username});
   
   @override

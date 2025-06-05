@@ -434,9 +434,8 @@ Usuario: ${task.usuario}
       fecha: DateTime.now(),
     );
 
-    if (onTaskUpdated != null) {
-      onTaskUpdated!(duplicatedTask);
-    }
+    onTaskUpdated!(duplicatedTask);
+    
 
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Tarea duplicada exitosamente')),

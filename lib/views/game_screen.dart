@@ -103,12 +103,10 @@ class GameScreenState extends State<GameScreen> {
   void _handleAnswer(int selectedIndex) {
   final currentQuestion = questionsList[currentQuestionIndex];
   
-  // Determinar el mensaje del SnackBar
   final bool isCorrect = selectedIndex == currentQuestion.correctAnswerIndex;
   final String snackBarMessage = isCorrect ? '¡Correcto!' : '¡Incorrecto!';
   final Color snackBarColor = isCorrect ? Colors.green : Colors.red;
 
-  // Mostrar SnackBar
   ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(
       content: Text(snackBarMessage),
