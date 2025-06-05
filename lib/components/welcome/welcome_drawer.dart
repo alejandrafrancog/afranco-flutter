@@ -87,7 +87,7 @@ class WelcomeDrawer extends StatelessWidget {
                 DrawerMenuItem(
                   icon: Icons.exit_to_app,
                   title: 'Salir',
-                  textColor: Colors.red,
+                  textColor: Theme.of(context).primaryColor,
                   onTap: () => _logout(context),
                 ),
               ],

@@ -8,7 +8,7 @@ class CategoryHelper {
     try {
       return await _cacheService.getCategoryName(categoryId);
     } catch (e) {
-      // En caso de error, retornar un valor por defecto
+      
       return 'Sin categoría';
     }
   }

@@ -1,28 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-
-// Imports de BLoCs
 import 'package:afranco/bloc/reporte_bloc/reporte_bloc.dart';
 import 'package:afranco/bloc/reporte_bloc/reporte_state.dart';
 import 'package:afranco/bloc/noticia_bloc/noticia_bloc.dart';
 import 'package:afranco/bloc/noticia_bloc/noticia_event.dart';
 import 'package:afranco/bloc/noticia_bloc/noticia_state.dart';
-
-// Imports de componentes modularizados
 import 'package:afranco/components/mixins/scroll_fab_mixin.dart';
 import 'package:afranco/components/noticia/noticia_app_bar.dart';
 import 'package:afranco/components/noticia/noticia_filter_indicator.dart';
 import 'package:afranco/components/noticia/noticia_list_body.dart';
 import 'package:afranco/components/noticia/modales/noticia_creation_modal.dart';
 import 'package:afranco/components/noticia/modales/noticia_edit_modal.dart';
-
-// Imports de helpers
 import 'package:afranco/helpers/noticia_filter_helper.dart';
 import 'package:afranco/helpers/snackbar_helper.dart';
 import 'package:afranco/helpers/error_helper.dart';
-
-// Otros imports
 import 'package:afranco/data/noticia_repository.dart';
 import 'package:afranco/domain/noticia.dart';
 import 'package:afranco/exceptions/api_exception.dart';
