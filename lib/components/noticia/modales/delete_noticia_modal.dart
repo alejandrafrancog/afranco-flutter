@@ -37,7 +37,7 @@ class _NoticiaDeleteModalState extends State<NoticiaDeleteModal> {
             backgroundColor: Colors.red,
           ),
         );
-        Navigator.pop(context); // Cierra el modal en caso de error
+        Navigator.pop(context); 
       }
     } finally {
       if (mounted) {

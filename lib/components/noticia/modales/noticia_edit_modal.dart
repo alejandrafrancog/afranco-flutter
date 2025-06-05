@@ -1,4 +1,3 @@
-// components/noticia_edit_modal.dart
 import 'package:flutter/material.dart';
 import 'package:afranco/domain/noticia.dart';
 import 'package:afranco/data/noticia_repository.dart';
@@ -101,9 +100,8 @@ class _NoticiaEditModalState extends State<NoticiaEditModal> {
 
       await widget.service.actualizarNoticia(noticiaActualizada);
 
-      if (widget.onNoticiaUpdated != null) {
-        widget.onNoticiaUpdated!();
-      }
+      widget.onNoticiaUpdated!();
+      
       if (!mounted) {
         return;
       }
@@ -155,13 +153,6 @@ class _NoticiaEditModalState extends State<NoticiaEditModal> {
               ),
               SizedBox(height: sizedBoxHeight),
 
-              /*TextFormField(
-                controller: _urlController,
-                decoration: const InputDecoration(labelText: 'URL Noticia'),
-                keyboardType: TextInputType.url,
-              ),*/
-
-              // Dropdown para seleccionar categoría (sin validación)
               DropdownButtonFormField<String>(
                 isExpanded: true,
                 decoration: const InputDecoration(
@@ -193,7 +184,6 @@ class _NoticiaEditModalState extends State<NoticiaEditModal> {
                   });
                 },
 
-                // Sin validador para que no sea obligatorio
               ),
 
               const SizedBox(height: 6),
