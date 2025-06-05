@@ -13,8 +13,18 @@ class TaskAppBar extends StatelessWidget implements PreferredSizeWidget {
     return AppBar(
       title: BlocBuilder<TareasBloc, TareasState>(
         builder: (context, state) {
-          return Text(
-            '${AppConstantes.titleAppBar} - Total: ${state.tareas.length}',
+          return const Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                AppConstantes.titleAppBar,
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+             
+            ],
           );
         },
       ),
@@ -42,7 +52,7 @@ class TaskAppBar extends StatelessWidget implements PreferredSizeWidget {
     );
   }
 
+
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 }
-

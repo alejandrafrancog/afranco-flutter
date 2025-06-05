@@ -17,7 +17,7 @@ class ProgresoWidget extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
+     decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [Colors.blue.shade50, Colors.blue.shade100],
           begin: Alignment.topLeft,

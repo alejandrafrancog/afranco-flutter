@@ -13,6 +13,7 @@ import 'package:afranco/components/task/task_fab.dart';
 import 'package:afranco/helpers/task_modal_helper.dart';
 import 'package:afranco/helpers/task_scroll_helper.dart';
 import 'package:afranco/helpers/task_counter_helper.dart';
+import 'package:afranco/helpers/task_limit_helper.dart'; // Nuevo helper
 
 class TasksScreen extends StatefulWidget {
   const TasksScreen({super.key});
@@ -21,7 +22,9 @@ class TasksScreen extends StatefulWidget {
   TasksScreenState createState() => TasksScreenState();
 }
 
-class TasksScreenState extends State<TasksScreen> with TaskScrollHelper, TaskCounterHelper {
+class TasksScreenState extends State<TasksScreen> 
+    with TaskScrollHelper, TaskCounterHelper, TaskLimitHelper {
+  
   @override
   void initState() {
     super.initState();
@@ -55,6 +58,12 @@ class TasksScreenState extends State<TasksScreen> with TaskScrollHelper, TaskCou
             },
           ),
 
+          BlocBuilder<TareasBloc, TareasState>(
+            builder: (context, state) {
+              return _buildTaskLimitIndicator(state.tareas.length);
+            },
+          ),
+
           // LISTA DE TAREAS
           Expanded(
             child: BlocConsumer<TareasBloc, TareasState>(
@@ -78,11 +87,76 @@ class TasksScreenState extends State<TasksScreen> with TaskScrollHelper, TaskCou
           ),
         ],
       ),
-      floatingActionButton: TaskFAB(
-        showFab: showFab,
-        onPressed: () => TaskModalHelper.showAddTaskModal(context),
+      floatingActionButton: BlocBuilder<TareasBloc, TareasState>(
+        builder: (context, state) {
+          return TaskFAB(
+            showFab: showFab,
+            onPressed: () => _handleAddTask(context, state.tareas.length), // Validamos límite
+          );
+        },
       ),
     );
+  }
+
+  Widget _buildTaskLimitIndicator(int currentTaskCount) {
+    if (currentTaskCount == 0) return const SizedBox.shrink();
+    
+    bool isAtLimit = hasReachedTaskLimit(currentTaskCount);
+    int remaining = getRemainingTasks(currentTaskCount);
+    
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: isAtLimit ? Colors.red.shade50 : Colors.blue.shade50,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: isAtLimit ? Colors.red.shade200 : Colors.blue.shade200,
+          width: 1,
+        ),
+      ),
+      child: Row(
+        children: [
+
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              isAtLimit 
+                ? '⚠️ Límite alcanzado ($maxTasksAllowed/$maxTasksAllowed tareas)'
+                : 'Puedes agregar $remaining tarea${remaining != 1 ? 's' : ''} más',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: isAtLimit ? Colors.red.shade700 : Colors.blue.shade700,
+              ),
+            ),
+          ),
+          if (isAtLimit)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: Colors.red.shade100,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(
+                'MÁXIMO',
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.red.shade700,
+                  letterSpacing: 0.5,
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  void _handleAddTask(BuildContext context, int currentTaskCount) {
+    if (canAddTask(context, currentTaskCount)) {
+      TaskModalHelper.showAddTaskModal(context);
+    }
   }
 
   void _handleStateMessages(BuildContext context, TareasState state) {
@@ -141,4 +215,3 @@ class TasksScreenState extends State<TasksScreen> with TaskScrollHelper, TaskCou
     );
   }
 }
-

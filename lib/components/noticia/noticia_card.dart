@@ -9,11 +9,8 @@ import 'package:afranco/helpers/category_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:afranco/domain/noticia.dart';
 import 'package:afranco/noticias_estilos.dart';
-// Importamos el archivo de la pantalla de comentarios
 import 'package:afranco/views/comentario_screen.dart';
-// ✅ NUEVA IMPORTACIÓN - Pantalla de detalle de noticia
 import 'package:afranco/views/noticia_detail_screen.dart';
-// Importamos el bloc de comentarios
 import 'package:afranco/bloc/comentario_bloc/comentario_bloc.dart';
 import 'package:afranco/bloc/comentario_bloc/comentario_event.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -311,10 +308,7 @@ class NoticiaCard extends StatelessWidget {
                                       '$count',
                                       style: NoticiaEstilos.fuenteNoticia
                                           .copyWith(
-                                            color:
-                                                !puedeReportar
-                                                    ? Colors.red
-                                                    : Colors.grey,
+                                            color:Colors.grey,
                                             fontWeight:
                                                 !puedeReportar
                                                     ? FontWeight.bold

@@ -59,7 +59,6 @@ class PreferenciasScreen extends StatelessWidget {
             } else if (categoriaState is CategoriaLoaded) {
               return BlocBuilder<PreferenciaBloc, PreferenciaState>(
                 builder: (context, preferenciasState) {
-                  // ✅ Mostrar loading mientras cargan las preferencias
                   if (preferenciasState is PreferenciaLoading) {
                     return const Center(
                       child: Column(
@@ -158,7 +157,6 @@ class PreferenciasScreen extends StatelessWidget {
             style: Theme.of(context).textTheme.bodySmall,
           ),
           value: isSelected,
-          // ✅ Deshabilitar si está cargando
           onChanged:
               state is PreferenciaLoading
                   ? null
