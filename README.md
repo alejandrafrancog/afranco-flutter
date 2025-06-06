@@ -48,6 +48,10 @@ sudo apt install libsecret-1-dev
 - Asegúrate de tener la versión correcta de Flutter instalada
 
 - Ejecuta flutter doctor para verificar que tu entorno esté configurado correctamente
+
+- En caso de usar un dispositivo físico (Android), asegúrate de tener activados
+el modo desarrollador y la depuración por USB
+
 - Asegúrate de entrar con uno de los usuarios definidos a continuación
 
 ### 👥 Usuarios de prueba disponibles
