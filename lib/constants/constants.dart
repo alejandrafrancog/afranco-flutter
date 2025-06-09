@@ -143,7 +143,7 @@ class NoticiaConstants {
   static int timeOutSeconds = 10;
   static const String errorObtenerNoticia = 'Error al obtener la noticia';
 
-  static const String appTitle = 'Noticias Técnicas';
+  static const String appTitle = 'Noticias';
   static const String successCreated = 'Noticia creada exitosamente';
   static const String successDeleted = 'Noticia eliminada exitosamente';
   static const String errorUnauthorized =
