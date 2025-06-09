@@ -76,8 +76,8 @@ class _NoticiaCreationModalState extends State<NoticiaCreationModal> {
         urlImagen: imagenUrl,
         publicadaEl: DateTime.now(),
         descripcion: _descripcionController.text,
-        contadorReportes: null,
-        contadorComentarios: null,
+        contadorReportes: 0,
+        contadorComentarios: 0,
       );
 
       await widget.service.crearNoticia(nuevaNoticia);
